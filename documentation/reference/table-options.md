@@ -1,6 +1,6 @@
 # Table options
 
-What a host chooses when it creates a table with [`newTable(options)`](../../src/table/newTable.ts).
+What a host chooses when it creates a table with [`newTable(options)`](../../src/table/newTable.ts). An option left out, or given as `undefined`, has its default.
 
 ```ts
 interface TableOptions {
@@ -10,17 +10,21 @@ interface TableOptions {
   newPlayers?: "nextHand" | "waitForBigBlind" | "postBigBlind"; // default "nextHand"
   nextHandDelay?: number | null; // milliseconds, default 5000
   turnTimeout?: number | null; // milliseconds, default 30000
+  runoutDelay?: number | null; // milliseconds, default 2000
+  spectatorsSeeHoleCards?: boolean; // default false
 }
 ```
 
-| Option          | Meaning                                                                                                                                                                                                          | Must be                                                                  |
-| --------------- | ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- | ------------------------------------------------------------------------ |
-| `blinds`        | The small and big blind. The big blind is also the smallest bet                                                                                                                                                  | Positive whole chips; `small` no bigger than `big`                       |
-| `buyIn`         | The chips a player may sit down with, `min` and `max` included                                                                                                                                                   | Positive whole chips; `min` at least the big blind, `max` at least `min` |
-| `seats`         | The number of seats                                                                                                                                                                                              | A whole number from 2 to 10                                              |
-| `newPlayers`    | How a player who sits down while a game is running is dealt in ([0006](../explanation/decisions/0006-new-players-by-table-option.md))                                                                            | One of the three below                                                   |
-| `nextHandDelay` | Milliseconds from the moment a hand can start until it does, by the `nextHand` [timer](timers.md); `null` leaves starting hands to the host ([0013](../explanation/decisions/0013-hands-start-by-themselves.md)) | `null`, or whole milliseconds from 0 to 2,147,483,647                    |
-| `turnTimeout`   | Milliseconds a player has to act before they fold, by the `turn` [timer](timers.md); `null` for no limit ([0014](../explanation/decisions/0014-a-turn-that-runs-out-folds.md))                                   | `null`, or whole milliseconds from 1 to 2,147,483,647                    |
+| Option                   | Meaning                                                                                                                                                                                                                                                                                          | Must be                                                                  |
+| ------------------------ | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------ | ------------------------------------------------------------------------ |
+| `blinds`                 | The small and big blind. The big blind is also the smallest bet                                                                                                                                                                                                                                  | Positive whole chips; `small` no bigger than `big`                       |
+| `buyIn`                  | The chips a player may sit down with, `min` and `max` included                                                                                                                                                                                                                                   | Positive whole chips; `min` at least the big blind, `max` at least `min` |
+| `seats`                  | The number of seats                                                                                                                                                                                                                                                                              | A whole number from 2 to 10                                              |
+| `newPlayers`             | How a player who sits down while a game is running is dealt in ([0006](../explanation/decisions/0006-new-players-by-table-option.md))                                                                                                                                                            | One of the three below                                                   |
+| `nextHandDelay`          | Milliseconds from the moment a hand can start until it does, by the `nextHand` [timer](timers.md); `null` leaves starting hands to the host ([0013](../explanation/decisions/0013-hands-start-by-themselves.md))                                                                                 | `null`, or whole milliseconds from 0 to 2,147,483,647                    |
+| `turnTimeout`            | Milliseconds a player has to act before they fold, by the `turn` [timer](timers.md); `null` for no limit ([0014](../explanation/decisions/0014-a-turn-that-runs-out-folds.md))                                                                                                                   | `null`, or whole milliseconds from 1 to 2,147,483,647                    |
+| `runoutDelay`            | Milliseconds between the betting rounds' cards of an all-in runout, by the `runout` [timer](timers.md); `null` deals the rest of the board at once ([0015](../explanation/decisions/0015-all-in-hands-are-tabled.md))                                                                            | `null`, or whole milliseconds from 0 to 2,147,483,647                    |
+| `spectatorsSeeHoleCards` | Spectators see every hole card during the hand. Players never see others' before they're tabled or shown. Anyone in the spectators' audience could pass them on to a player, so turn it on only where that's acceptable ([0016](../explanation/decisions/0016-spectators-may-see-hole-cards.md)) | `true` or `false`                                                        |
 
 ## `newPlayers`
 

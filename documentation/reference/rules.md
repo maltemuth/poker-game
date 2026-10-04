@@ -40,7 +40,7 @@ Cards are strings, a value (`2`–`9`, `T`, `J`, `Q`, `K`, `A`) and a suit (`h`,
 | River         | One board card                                                                         |
 
 - **The next cards are dealt as soon as a betting round is over,** by the action that ends it.
-- **A betting round in which no one can act is passed straight through:** when everyone left is all-in, the rest of the board is dealt at once.
+- **Once no more betting is possible,** with at most one player still able to bet and board cards to come, the hands still in are tabled: everyone sees them ([0015](../explanation/decisions/0015-all-in-hands-are-tabled.md)). The rest of the board is dealt one betting round's cards at a time, every `runoutDelay` milliseconds, or at once if the table's `runoutDelay` is `null` ([Timers](timers.md#the-runout-timer)).
 - **The hand ends early** when only one player is left in it; no more cards are dealt.
 - **A fold out of turn,** when a player takes a break or leaves, leaves the player to act as they were, unless no one is left to bet against. The folded player's chips are dead money: none of them come back as an uncalled bet.
 

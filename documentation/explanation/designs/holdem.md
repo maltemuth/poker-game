@@ -122,7 +122,7 @@ Two named timers:
   - The state keeps the turn's deadline, so clients can show a countdown. Remote State's [how-to](../../../../remote-state/docs/how-to/schedule-actions.md) keeps only the limit in the state, and its timers run on the server only. But `executeAction` may read the clock: its result is stored, and the filter just passes the deadline on.
 - **`nextHand`,** a few seconds after a hand is settled, so everyone can see the result. Its action starts the next hand if at least two seated players are in, and otherwise leaves the table waiting. When the second player sits down, `sitDown` starts a hand at once, or schedules `nextHand`.
 
-Dealing the flop, turn and river needs no timer: the action that closes a betting round deals the next cards. When everyone left is all-in, the remaining cards can either be dealt at once (**A**) or with a `runout` timer, one betting round's cards every second or two (**B**). B is better to watch, but adds a third timer. Recommended: A first.
+Dealing the flop, turn and river needs no timer: the action that closes a betting round deals the next cards. When everyone left is all-in, the remaining cards could be dealt at once or with a `runout` timer, one betting round's cards every second or two; decided in [0015](../decisions/0015-all-in-hands-are-tabled.md): the timer, with the hands tabled.
 
 Restarts drop timers ([0042](../../../../remote-state/docs/explanation/decisions/0042-timer-restarts-open.md)). Remote State's answer, that a game waits until a player acts, doesn't help a poker table:
 

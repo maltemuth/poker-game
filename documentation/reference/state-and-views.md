@@ -18,7 +18,7 @@ A [`Table`](../../src/table/Table.ts) is plain JSON. It holds everything, includ
 
 A seated player has `playerId`, `name`, `stack`, `sittingOut` (on a break), `newPlayer` (waiting to be dealt in by the table's rule) and `leaving` (leaves when the hand is over). During a hand, a dealt-in player's `stack` is what they started the hand with; their chips are in the hand's betting until it's settled.
 
-A hand has the betting ([`BettingRound`](../../src/betting/BettingRound.ts)), every dealt-in seat's `holeCards`, the `board`, the `bettingRound` (`preFlop`, `flop`, `turn` or `river`), the `turn` counter (0 for the first player to act, one more with every action in turn), and `result` once it's over. No deck is stored: cards are drawn when they're dealt ([0004](../explanation/decisions/0004-cards-as-strings-drawn-when-dealt.md)).
+A hand has the betting ([`BettingRound`](../../src/betting/BettingRound.ts)), every dealt-in seat's `holeCards`, the `board`, the `bettingRound` (`preFlop`, `flop`, `turn` or `river`), the `turn` counter (0 for the first player to act, one more with every action in turn), `tabled` (the hands still in are face up, [0015](../explanation/decisions/0015-all-in-hands-are-tabled.md)), `pacedRunout` (an all-in runout is dealt step by step), and `result` once it's over. No deck is stored: cards are drawn when they're dealt ([0004](../explanation/decisions/0004-cards-as-strings-drawn-when-dealt.md)).
 
 ## Audiences
 
@@ -57,6 +57,7 @@ A seat's `stack` is what the player has outside the middle: during a hand, what 
 | `toAct`        | The seat number of the player to act, or `null`                                                         |
 | `currentBet`   | The bet to match in this betting round                                                                  |
 | `turn`         | Changes with every new turn, so a client can restart its countdown ([Timers](timers.md#the-turn-timer)) |
+| `tabled`       | No more betting is possible, and the hands still in are face up                                         |
 | `result`       | `null` while the hand is played; then the hands shown and who won what, per pot                         |
 
 ### Hole cards
@@ -64,9 +65,11 @@ A seat's `stack` is what the player has outside the middle: during a hand, what 
 A player's `cards` are shown to:
 
 - **the player themselves,** from the deal to the end of the hand, also after folding;
-- **everyone,** once they're shown at showdown ([0005](../explanation/decisions/0005-every-hand-at-showdown-is-shown.md)).
+- **everyone,** once the hands still in are tabled, because no more betting is possible ([0015](../explanation/decisions/0015-all-in-hands-are-tabled.md));
+- **everyone,** once they're shown at showdown ([0005](../explanation/decisions/0005-every-hand-at-showdown-is-shown.md));
+- **spectators,** all along, at a table whose `spectatorsSeeHoleCards` is on, folded hands too ([0016](../explanation/decisions/0016-spectators-may-see-hole-cards.md)).
 
-Otherwise they're `null`. A hand won because everyone else folded shows no cards.
+Otherwise they're `null`. A hand won because everyone else folded shows no cards. [Odds](odds.md) computes each hand's chances from a view that knows every hand still in.
 
 ### Buttons
 
