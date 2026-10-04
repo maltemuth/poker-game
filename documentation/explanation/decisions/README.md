@@ -12,6 +12,7 @@ Records aren't edited after the fact, except to update their status. A decision 
 | [0004](0004-cards-as-strings-drawn-when-dealt.md) | Cards are strings, drawn when they're dealt                                       | Accepted |
 | [0005](0005-every-hand-at-showdown-is-shown.md)   | Every hand that reaches showdown is shown                                         | Accepted |
 | [0006](0006-new-players-by-table-option.md)       | How new players join a running game is a table option                             | Accepted |
+| [0007](0007-moving-button.md)                     | The button moves to the next player dealt in                                      | Accepted |
 
 ## Writing a record
 
