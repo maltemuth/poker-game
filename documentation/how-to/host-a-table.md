@@ -1,6 +1,6 @@
 # Host a table
 
-Run Hold'em tables in a [Remote State](../../../remote-state/docs/README.md) server: create a table, admit people, and start the hands.
+Run Hold'em tables in a [Remote State](../../../remote-state/docs/README.md) server: create a table and admit people; the hands start by themselves.
 
 ## Create the server with the plugin
 
@@ -45,16 +45,24 @@ const code = await server.admit({
 
 The client redeems it at `POST /api/tokens` for a token. Everyone joins as a spectator, with the `name` you passed; without one, they're called "Player". From there, they sit down themselves, with `{ type: "sitDown", seat, buyIn }` ([Actions](../reference/actions.md)).
 
-## Start each hand
+## Let hands start by themselves
 
-Hands don't start by themselves yet. Start one when at least two players are seated, and after each hand is over:
+Hands start by themselves, by the `nextHand` timer: 5 seconds after a hand can start, by default, so players can see who won the last one ([Timers](../reference/timers.md)). Set the delay with the table option `nextHandDelay`, in milliseconds.
+
+To start hands yourself instead, create the table with `nextHandDelay: null`, and start each one:
 
 ```ts
 const result = await server.act(gameId, { type: "startHand" });
 if ("rejected" in result) console.log(result.rejected); // e.g. "Waiting for players"
 ```
 
-A hand is over when its view's `hand.result` isn't `null`. Leave a few seconds before starting the next one, so the players can see who won.
+## After a restart
+
+Timers are lost when the server restarts. A table whose next hand was waiting doesn't start it until an action makes a hand startable again. For every open table, start it yourself:
+
+```ts
+await server.act(gameId, { type: "startHand" }); // rejected, harmlessly, where a hand is running
+```
 
 ## Pause and resume
 
