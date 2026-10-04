@@ -27,7 +27,7 @@ Most pages don't exist yet. Pages marked _(planned)_ are written in the same cha
 ## Explanation: understand the design
 
 - [Designs](explanation/designs/README.md): proposals, starting with [Texas Hold'em](explanation/designs/holdem.md)
-- _(planned)_ Decisions: what was decided, and why
+- [Decisions](explanation/decisions/README.md): what was decided, and why
 - _(planned)_ Architecture: rules as pure functions, the plugin around them, and what Remote State does
 
 ## Writing documentation
