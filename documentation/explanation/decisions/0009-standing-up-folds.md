@@ -1,6 +1,6 @@
 # 0009. Standing up folds
 
-Status: Accepted
+Status: Accepted; the action that becomes a spectator is `leave` since [0010](0010-standing-up-is-a-break.md)
 Date: 2026-10-04
 
 ## Context
