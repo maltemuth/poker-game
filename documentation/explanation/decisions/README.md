@@ -19,6 +19,7 @@ Records aren't edited after the fact, except to update their status. A decision 
 | [0011](0011-tests-load-esm-natively.md)           | Tests load ES modules natively                                                    | Accepted                                      |
 | [0012](0012-host-controls-the-table.md)           | The host controls the table                                                       | Accepted                                      |
 | [0013](0013-hands-start-by-themselves.md)         | Hands start by themselves, after a delay                                          | Accepted                                      |
+| [0014](0014-a-turn-that-runs-out-folds.md)        | A turn that runs out folds; its length is a table option                          | Accepted                                      |
 
 ## Writing a record
 
