@@ -5,5 +5,5 @@
     "rootDir": ".",
     "types": ["jest", "node"]
   },
-  "include": ["src/**/*", "__tests__/**/*", "*.config.ts"]
+  "include": ["src/**/*", "__tests__/**/*", "verify/**/*", "*.config.ts"]
 }

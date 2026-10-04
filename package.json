@@ -25,7 +25,8 @@
     "test": "npm run typecheck && jest",
     "lint": "eslint . && prettier --check .",
     "format": "prettier --write .",
-    "download:hands": "scripts/download-hand-histories.sh"
+    "download:hands": "scripts/download-hand-histories.sh",
+    "verify:hands": "jest --testMatch '<rootDir>/verify/**/*.test.ts'"
   },
   "devDependencies": {
     "@eslint/js": "^10.0.1",
@@ -38,6 +39,7 @@
     "jest": "^30.5.2",
     "jiti": "^2.7.0",
     "prettier": "^3.9.9",
+    "smol-toml": "^1.9.0",
     "typescript": "^6.0.3",
     "typescript-eslint": "^8.71.0"
   }

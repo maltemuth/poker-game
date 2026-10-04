@@ -15,6 +15,7 @@ npm run lint    # ESLint, then Prettier's check
 npm run format  # Prettier, applied
 npm run build   # TypeScript → dist/
 npm run download:hands  # real hand histories → hand-histories/ (git-ignored)
+npm run verify:hands    # replays their betting through the rules
 ```
 
 ## Documentation

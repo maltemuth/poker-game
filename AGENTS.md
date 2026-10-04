@@ -29,6 +29,7 @@ npm run format  # Prettier, applied
 - Tests live in `__tests__/`, mirroring `src/`, as `<name>.test.ts`. Each test file also starts with a comment saying what it covers.
 - Test every rule on its own, with plain objects built in the test.
 - Wherever chips move, check that they're conserved: stacks plus everything in pots add up to the same total before and after.
+- `verify/` checks the rules against real hand histories (`npm run download:hands`, then `npm run verify:hands`). It's not part of `npm test`; run it after changing the betting rules.
 
 ## Documentation
 
