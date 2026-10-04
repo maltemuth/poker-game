@@ -9,6 +9,8 @@
  * - Each audience's view is `viewTable` (decision 0005 for shown hands).
  * - Hands start by themselves, by the `nextHand` timer (decision 0013), and
  *   a turn that runs out folds, by the `turn` timer (decision 0014).
+ * - An all-in runout is dealt one betting round at a time, by the `runout`
+ *   timer (decision 0015).
  *
  * Cards are drawn with `draw`, at random by default; tests pass a fixed deck.
  */
@@ -25,6 +27,7 @@ import type { TableView } from "../views/TableView.js";
 import { viewTable } from "../views/viewTable.js";
 import { audienceChanges } from "./audienceChanges.js";
 import { nextHandTimer } from "./nextHandTimer.js";
+import { runoutTimer } from "./runoutTimer.js";
 import { turnTimer } from "./turnTimer.js";
 import { type HoldemAction, isSystemAction } from "./HoldemAction.js";
 import { applySystemAction, checkSystemAction } from "./systemActions.js";
@@ -69,6 +72,7 @@ export const createHoldemPlugin = ({
     const timers = [
       nextHandTimer(table, after, dealt),
       turnTimer(table, after),
+      runoutTimer(table, after),
     ];
     const schedule = timers.flatMap((timer) => timer.schedule ?? []);
     const cancel = timers.flatMap((timer) => timer.cancel ?? []);

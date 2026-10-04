@@ -1,10 +1,11 @@
 /**
  * Every action the Hold'em game takes in Remote State: what players send at
  * the table, and what only the system sends, through the host's `act` or
- * the timers (decisions 0012, 0013, 0014).
+ * the timers (decisions 0012 to 0015).
  */
 
 import type { TableAction } from "../table/TableAction.js";
+import type { RunoutStep } from "../table/runout.js";
 import type { Turn } from "../table/timeOut.js";
 
 export type SystemAction =
@@ -12,11 +13,13 @@ export type SystemAction =
   | { type: "pause" }
   | { type: "resume" }
   /** A turn ran out (decision 0014): sent by the `turn` timer */
-  | ({ type: "timeout" } & Turn);
+  | ({ type: "timeout" } & Turn)
+  /** The next cards of an all-in runout (decision 0015): sent by the `runout` timer */
+  | ({ type: "runout" } & RunoutStep);
 
 export type HoldemAction = TableAction | SystemAction;
 
-const systemActionTypes = ["startHand", "pause", "resume", "timeout"];
+const systemActionTypes = ["startHand", "pause", "resume", "timeout", "runout"];
 
 /** Whether the action is one only the system may send */
 export const isSystemAction = (action: unknown): action is SystemAction =>
