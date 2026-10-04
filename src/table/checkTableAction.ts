@@ -1,0 +1,38 @@
+/**
+ * Accepts a player's action at the table, or says why not, by the rule for
+ * its type. Actions come from clients, so an unknown or missing type is
+ * rejected rather than trusted.
+ */
+
+import { checkBet } from "./bet.js";
+import { checkSitDown } from "./sitDown.js";
+import { checkSitIn } from "./sitIn.js";
+import { checkSitOut } from "./sitOut.js";
+import { checkStandUp } from "./standUp.js";
+import type { Table } from "./Table.js";
+import type { TableAction } from "./TableAction.js";
+
+export const checkTableAction = (
+  table: Table,
+  playerId: string,
+  action: TableAction
+): true | string => {
+  switch (action?.type) {
+    case "sitDown":
+      return checkSitDown(table, playerId, action);
+    case "standUp":
+      return checkStandUp(table, playerId);
+    case "sitOut":
+      return checkSitOut(table, playerId);
+    case "sitIn":
+      return checkSitIn(table, playerId);
+    case "fold":
+    case "check":
+    case "call":
+    case "raise":
+    case "allIn":
+      return checkBet(table, playerId, action);
+    default:
+      return "Unknown action";
+  }
+};
