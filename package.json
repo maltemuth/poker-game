@@ -24,7 +24,8 @@
     "typecheck": "tsc -p tsconfig.test.json",
     "test": "npm run typecheck && jest",
     "lint": "eslint . && prettier --check .",
-    "format": "prettier --write ."
+    "format": "prettier --write .",
+    "download:hands": "scripts/download-hand-histories.sh"
   },
   "devDependencies": {
     "@eslint/js": "^10.0.1",

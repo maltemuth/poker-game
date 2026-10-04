@@ -14,6 +14,7 @@ npm test        # type-checks the sources and tests, then runs Jest
 npm run lint    # ESLint, then Prettier's check
 npm run format  # Prettier, applied
 npm run build   # TypeScript → dist/
+npm run download:hands  # real hand histories → hand-histories/ (git-ignored)
 ```
 
 ## Documentation
