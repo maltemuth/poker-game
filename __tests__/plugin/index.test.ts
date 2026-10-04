@@ -1,6 +1,7 @@
 /**
- * Checks the plugin's entry point, and that nothing the rules' entry point
- * imports, directly or through other files, imports Remote State.
+ * Checks the plugin's entry point, and which packages each entry point
+ * loads, following the imports through every file: Remote State only for
+ * the plugin, the WebAssembly package only for the odds.
  */
 
 import { readFileSync } from "node:fs";
@@ -34,12 +35,15 @@ const packagesImported = (entry: string): Set<string> => {
   return packages;
 };
 
-it("keeps Remote State out of the rules' entry point", () => {
+it("loads Remote State only for the plugin, and the WebAssembly package only for the odds", () => {
   const src = join(process.cwd(), "src");
-  expect(packagesImported(join(src, "index.ts"))).not.toContain(
-    "@malte.muth/remote-state"
-  );
-  expect(packagesImported(join(src, "plugin/index.ts"))).toContain(
-    "@malte.muth/remote-state"
-  );
+  const rules = packagesImported(join(src, "index.ts"));
+  const pluginEntry = packagesImported(join(src, "plugin/index.ts"));
+  const odds = packagesImported(join(src, "odds/index.ts"));
+  expect(rules).not.toContain("@malte.muth/remote-state");
+  expect(rules).not.toContain("@malte.muth/poker-hands-wasm");
+  expect(pluginEntry).toContain("@malte.muth/remote-state");
+  expect(pluginEntry).not.toContain("@malte.muth/poker-hands-wasm");
+  expect(odds).toContain("@malte.muth/poker-hands-wasm");
+  expect(odds).not.toContain("@malte.muth/remote-state");
 });

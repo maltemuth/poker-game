@@ -16,6 +16,10 @@
     "./plugin": {
       "types": "./dist/plugin/index.d.ts",
       "default": "./dist/plugin/index.js"
+    },
+    "./odds": {
+      "types": "./dist/odds/index.d.ts",
+      "default": "./dist/odds/index.js"
     }
   },
   "engines": {
@@ -51,6 +55,7 @@
   },
   "dependencies": {
     "@malte.muth/poker-hands": "file:../poker-hands/packages/library",
+    "@malte.muth/poker-hands-wasm": "file:../poker-hands/packages/wasm",
     "@malte.muth/remote-state": "file:../remote-state/packages/remote-state"
   }
 }
