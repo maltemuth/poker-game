@@ -4,5 +4,27 @@
   "private": true,
   "description": "Texas Hold'em rules, to be played through Remote State",
   "author": "Malte Muth",
-  "license": "ISC"
+  "license": "ISC",
+  "type": "module",
+  "main": "dist/index.js",
+  "types": "dist/index.d.ts",
+  "exports": {
+    ".": {
+      "types": "./dist/index.d.ts",
+      "default": "./dist/index.js"
+    }
+  },
+  "engines": {
+    "node": ">=24",
+    "npm": ">=10.8.2"
+  },
+  "scripts": {
+    "build": "npm run clean && tsc",
+    "clean": "rm -rf dist",
+    "typecheck": "tsc --noEmit"
+  },
+  "devDependencies": {
+    "@types/node": "^24.19.1",
+    "typescript": "^6.0.3"
+  }
 }
