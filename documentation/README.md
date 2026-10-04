@@ -18,11 +18,12 @@ Most pages don't exist yet. Pages marked _(planned)_ are written in the same cha
 
 ## Reference: look up exact behavior
 
-- [Table options](reference/table-options.md): blinds, buy-ins, seats, how new players join, the delay before each hand, and the time for a turn
+- [Table options](reference/table-options.md): blinds, buy-ins, seats, how new players join, the delay before each hand, the time for a turn, all-in runouts, and the spectators' hole cards
 - [Actions](reference/actions.md): seating and betting at the table, the system's actions, the rules' actions the buttons become, and the buttons to show
 - [State and views](reference/state-and-views.md): the stored table state, the audiences, and what each sees
 - [Rules as implemented](reference/rules.md): blinds, betting, dealing, the uncalled bet, side pots, awarding the pots, showdown, and the table between hands
-- [Timers](reference/timers.md): the `nextHand` and `turn` timers
+- [Timers](reference/timers.md): the `nextHand`, `turn` and `runout` timers
+- [Odds](reference/odds.md): each hand's chances during an all-in runout, and for spectators who see the hole cards
 
 ## Explanation: understand the design
 
