@@ -5,7 +5,7 @@
  * hand.
  */
 
-import { removeFromSeat } from "./standUp.js";
+import { removeFromSeat } from "./removeFromSeat.js";
 import type { Table } from "./Table.js";
 
 /**

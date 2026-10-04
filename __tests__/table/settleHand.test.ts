@@ -60,10 +60,12 @@ it("lets a player who stood up during the hand leave with their chips", () => {
     tableWith([seated("a"), seated("b"), seated("c")]),
     draw
   );
-  table = standUp(table, "a");
+  // a, the button and first to act, stands up, which folds
+  table = standUp(table, "a", draw);
   expect(table.seats[0]?.leaving).toBe(true);
-  // a (button) folds, b (small blind) folds: c wins the blinds
-  table = settleHand(play(table, draw, -1, -1));
+  expect(table.hand?.betting.seats[0].folded).toBe(true);
+  // b (small blind) folds: c wins the blinds, and a leaves
+  table = settleHand(play(table, draw, -1));
   expect(table.seats[0]).toBeNull();
   expect(table.spectators).toEqual([{ playerId: "a", name: "a" }]);
   expect(table.seats[2]?.stack).toBe(1050);

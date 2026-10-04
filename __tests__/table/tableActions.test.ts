@@ -33,8 +33,10 @@ it("plays seating and betting actions", () => {
   table = applyTableAction(table, "b", { type: "sitOut" }, draw);
   expect(table.seats[1]?.sittingOut).toBe(true);
   table = applyTableAction(table, "b", { type: "sitIn" }, draw);
+  // standing up folds b's hand, which ends it: a wins, b leaves with 1,900
   table = applyTableAction(table, "b", { type: "standUp" }, draw);
-  expect(table.seats[1]?.leaving).toBe(true);
+  expect(table.seats[1]).toBeNull();
+  expect(table.seats[0]?.stack).toBe(1100);
 });
 
 it("refuses unknown actions", () => {

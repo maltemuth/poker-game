@@ -1,6 +1,6 @@
 /**
  * The table after a player's action, by the rule for its type. `draw` deals
- * the cards that betting actions may bring: the next board cards.
+ * the board cards that betting, or standing up, which folds, may bring.
  */
 
 import type { Draw } from "../hand/Draw.js";
@@ -28,7 +28,7 @@ export const applyTableAction = (
     case "sitDown":
       return sitDown(table, playerId, action);
     case "standUp":
-      return standUp(table, playerId);
+      return standUp(table, playerId, draw);
     case "sitOut":
       return sitOut(table, playerId);
     case "sitIn":

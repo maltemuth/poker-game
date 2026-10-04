@@ -8,7 +8,9 @@ import { checkSitDown, sitDown } from "../../src/table/sitDown.js";
 import { checkSitIn, sitIn } from "../../src/table/sitIn.js";
 import { checkSitOut, sitOut } from "../../src/table/sitOut.js";
 import { checkStandUp, standUp } from "../../src/table/standUp.js";
+import { startNextHand } from "../../src/table/startNextHand.js";
 import type { Table } from "../../src/table/Table.js";
+import { deck } from "../helpers/hand.js";
 import { emptyTable, seated, tableWith } from "../helpers/table.js";
 
 const watching = (table: Table, playerId: string) =>
@@ -92,7 +94,11 @@ describe("sitting down", () => {
 
 describe("standing up", () => {
   it("makes a player a spectator between hands", () => {
-    const after = standUp(tableWith([seated("ann"), seated("bob")]), "ann");
+    const after = standUp(
+      tableWith([seated("ann"), seated("bob")]),
+      "ann",
+      deck([], 0)
+    );
     expect(after.seats[0]).toBeNull();
     expect(after.spectators).toEqual([{ playerId: "ann", name: "ann" }]);
   });
@@ -116,5 +122,32 @@ describe("sitting out and in", () => {
   it("refuses someone without a seat", () => {
     expect(checkSitOut(table, "eve")).toBe("You don't have a seat");
     expect(checkSitIn(table, "eve")).toBe("You don't have a seat");
+  });
+});
+
+describe("standing up during a hand", () => {
+  it("folds at once, out of turn, and leaves when the hand is over", () => {
+    const draw = deck(["AhAs", "KdKc", "QhQs"], 0);
+    // a (button) is to act; c, the big blind, stands up
+    let table = startNextHand(
+      tableWith([seated("a"), seated("b"), seated("c")]),
+      draw
+    );
+    table = standUp(table, "c", draw);
+    expect(table.hand?.betting.seats[2].folded).toBe(true);
+    expect(table.hand?.betting.toAct).toBe(0);
+    expect(table.seats[2]).toMatchObject({ leaving: true, stack: 1000 });
+  });
+
+  it("settles the hand at once when the fold leaves one player", () => {
+    const draw = deck(["AhAs", "KdKc"], 0);
+    let table = startNextHand(tableWith([seated("a"), seated("b")]), draw);
+    // heads-up: b, the big blind, stands up before a acts
+    table = standUp(table, "b", draw);
+    expect(table.hand?.result).not.toBeNull();
+    expect(table.seats[1]).toBeNull();
+    expect(table.spectators).toEqual([{ playerId: "b", name: "b" }]);
+    // a wins both blinds; b's big blind is dead money
+    expect(table.seats[0]?.stack).toBe(1100);
   });
 });
