@@ -1,7 +1,7 @@
 /**
  * The package's entry point: everything a host or a client imports from
  * poker-game. Rules are exported here as they're added: so far the betting,
- * the pots, the hand, the table, and the buttons players click.
+ * the pots, the hand, the table, the buttons players click, and the views.
  */
 
 export type { BettingAction } from "./betting/BettingAction.js";
@@ -72,3 +72,14 @@ export type { UiAction } from "./ui/UiAction.js";
 export type { UiOption } from "./ui/availableUiActions.js";
 export { availableUiActions } from "./ui/availableUiActions.js";
 export { translateUiAction } from "./ui/translateUiAction.js";
+
+export type {
+  HandPlayerView,
+  HandView,
+  SeatView,
+  TableView,
+  ViewerView,
+} from "./views/TableView.js";
+export { audienceOf, SPECTATORS } from "./views/audiences.js";
+export { viewHand } from "./views/viewHand.js";
+export { viewTable } from "./views/viewTable.js";

@@ -5,14 +5,16 @@
 
 import * as pokerGame from "../src/index.js";
 
-it("exports the betting rules, the pots, the hand, the table and the button translation", () => {
+it("exports the rules, the button translation and the views", () => {
   expect(Object.keys(pokerGame).sort()).toEqual([
+    "SPECTATORS",
     "addSpectator",
     "allCards",
     "allowedBets",
     "applyAction",
     "applyHandAction",
     "applyTableAction",
+    "audienceOf",
     "availableUiActions",
     "awardPots",
     "betToMatch",
@@ -53,5 +55,7 @@ it("exports the betting rules, the pots, the hand, the table and the button tran
     "startHand",
     "startNextHand",
     "translateUiAction",
+    "viewHand",
+    "viewTable",
   ]);
 });
