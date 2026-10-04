@@ -1,7 +1,8 @@
 /**
  * A table's settings, chosen by the host when it creates the table: the
  * blinds, the buy-in range, the number of seats, how new players join a
- * running game (decision 0006), and how soon hands start (decision 0013).
+ * running game (decision 0006), how soon hands start (decision 0013), and how
+ * long a turn may take (decision 0014).
  */
 
 import type { Blinds } from "../betting/postBlinds.js";
@@ -21,6 +22,8 @@ export interface TableOptions {
    * 0013); null to leave starting hands to the host
    */
   nextHandDelay: number | null;
+  /** Milliseconds a player has to act before they fold (decision 0014); null for no limit */
+  turnTimeout: number | null;
 }
 
 /** The longest delay Remote State's timers take: about 24.8 days */

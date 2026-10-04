@@ -57,3 +57,13 @@ it("starts hands 5 seconds after they can by default", () => {
     "nextHandDelay must be null or whole milliseconds"
   );
 });
+
+it("gives a player 30 seconds to act by default", () => {
+  expect(newTable(options).options.turnTimeout).toBe(30000);
+  expect(
+    newTable({ ...options, turnTimeout: null }).options.turnTimeout
+  ).toBeNull();
+  expect(() => newTable({ ...options, turnTimeout: 0 })).toThrow(
+    "turnTimeout must be null or whole milliseconds from 1 to 2147483647"
+  );
+});

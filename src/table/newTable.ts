@@ -2,8 +2,8 @@
  * An empty table with the host's options, checked: whole chips, a small blind
  * no bigger than the big blind, a buy-in of at least the big blind, and 2 to
  * 10 seats. Unless the options say otherwise, new players are dealt in from
- * the next hand (decision 0006), and hands start 5 seconds after they can
- * (decision 0013).
+ * the next hand (decision 0006), hands start 5 seconds after they can
+ * (decision 0013), and a player has 30 seconds to act (decision 0014).
  */
 
 import type { Table } from "./Table.js";
@@ -11,12 +11,13 @@ import { maxDelay, newPlayerRules, type TableOptions } from "./TableOptions.js";
 
 export type TableOptionsInput = Omit<
   TableOptions,
-  "newPlayers" | "nextHandDelay"
+  "newPlayers" | "nextHandDelay" | "turnTimeout"
 > &
-  Partial<Pick<TableOptions, "newPlayers" | "nextHandDelay">>;
+  Partial<Pick<TableOptions, "newPlayers" | "nextHandDelay" | "turnTimeout">>;
 
 const problemsWith = (options: TableOptions): string[] => {
-  const { blinds, buyIn, seats, newPlayers, nextHandDelay } = options;
+  const { blinds, buyIn, seats, newPlayers, nextHandDelay, turnTimeout } =
+    options;
   const chips = [blinds.small, blinds.big, buyIn.min, buyIn.max];
   return [
     chips.every((amount) => Number.isInteger(amount) && amount > 0)
@@ -43,6 +44,12 @@ const problemsWith = (options: TableOptions): string[] => {
       nextHandDelay <= maxDelay)
       ? null
       : `nextHandDelay must be null or whole milliseconds from 0 to ${maxDelay}`,
+    turnTimeout === null ||
+    (Number.isInteger(turnTimeout) &&
+      turnTimeout >= 1 &&
+      turnTimeout <= maxDelay)
+      ? null
+      : `turnTimeout must be null or whole milliseconds from 1 to ${maxDelay}`,
   ].filter((problem) => problem !== null);
 };
 
@@ -53,6 +60,7 @@ export const newTable = (input: TableOptionsInput): Table => {
   const options: TableOptions = {
     newPlayers: "nextHand",
     nextHandDelay: 5000,
+    turnTimeout: 30000,
     ...input,
   };
   const problems = problemsWith(options);
