@@ -83,21 +83,9 @@ The code is kept in small files, one rule or query each. Every file starts with 
 
 This is how Remote State's tic-tac-toe example is split. It keeps the betting rules testable with plain objects, and lets Tri-Coin reuse the dealing, seating and showdown parts. Rules written inside the plugin functions would be harder to test and to share with a variant.
 
-### Representing cards
+### Representing cards and the deck
 
-- **A. Strings,** such as `"Ah"`. Readable in the stored history and the views, already JSON, and what the WebAssembly package takes. They're converted to poker-hands `Card` objects only when hands are ranked.
-- **B. poker-hands `Card` objects,** `{ suit, value }`. No conversion, but the stored history is less readable, and the format is tied to the TypeScript library.
-
-Recommended: A.
-
-### The deck
-
-- **A. Shuffle at the start of each hand and store the deck in the state.** Simple, and a hand can be replayed exactly from its first state. But the stored state contains every card still to come: anyone who can read the database knows the river before the flop. The view filter never shows the deck, so players can't see it through the API.
-- **B. Draw each card when it's dealt,** from the cards no one holds and the board doesn't show. Nothing about future cards is stored, and the remaining deck is derived rather than kept up to date. A hand is still reproducible from the history, since every dealt card is recorded in the state that dealt it.
-
-Either way, a random source is passed to the plugin when it's created, `createHoldemPlugin({ random })`. Tests use a fixed deck; production uses `crypto.randomInt`.
-
-Recommended: B. It costs no more than A, and a database file or backup gives nothing away.
+Decided in [0004](../decisions/0004-cards-as-strings-drawn-when-dealt.md): cards are strings such as `"Ah"`, and each card is drawn when it's dealt, from the cards still out, by a function the host passes in. No deck is stored, so stored states hold only cards that were dealt.
 
 ### Pots
 
