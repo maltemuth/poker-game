@@ -8,15 +8,17 @@ interface TableOptions {
   buyIn: { min: number; max: number };
   seats: number;
   newPlayers?: "nextHand" | "waitForBigBlind" | "postBigBlind"; // default "nextHand"
+  nextHandDelay?: number | null; // milliseconds, default 5000
 }
 ```
 
-| Option       | Meaning                                                                                                                               | Must be                                                                  |
-| ------------ | ------------------------------------------------------------------------------------------------------------------------------------- | ------------------------------------------------------------------------ |
-| `blinds`     | The small and big blind. The big blind is also the smallest bet                                                                       | Positive whole chips; `small` no bigger than `big`                       |
-| `buyIn`      | The chips a player may sit down with, `min` and `max` included                                                                        | Positive whole chips; `min` at least the big blind, `max` at least `min` |
-| `seats`      | The number of seats                                                                                                                   | A whole number from 2 to 10                                              |
-| `newPlayers` | How a player who sits down while a game is running is dealt in ([0006](../explanation/decisions/0006-new-players-by-table-option.md)) | One of the three below                                                   |
+| Option          | Meaning                                                                                                                                                                                                          | Must be                                                                  |
+| --------------- | ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- | ------------------------------------------------------------------------ |
+| `blinds`        | The small and big blind. The big blind is also the smallest bet                                                                                                                                                  | Positive whole chips; `small` no bigger than `big`                       |
+| `buyIn`         | The chips a player may sit down with, `min` and `max` included                                                                                                                                                   | Positive whole chips; `min` at least the big blind, `max` at least `min` |
+| `seats`         | The number of seats                                                                                                                                                                                              | A whole number from 2 to 10                                              |
+| `newPlayers`    | How a player who sits down while a game is running is dealt in ([0006](../explanation/decisions/0006-new-players-by-table-option.md))                                                                            | One of the three below                                                   |
+| `nextHandDelay` | Milliseconds from the moment a hand can start until it does, by the `nextHand` [timer](timers.md); `null` leaves starting hands to the host ([0013](../explanation/decisions/0013-hands-start-by-themselves.md)) | `null`, or whole milliseconds from 0 to 2,147,483,647                    |
 
 ## `newPlayers`
 

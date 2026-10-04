@@ -39,7 +39,7 @@ Any other `type` is rejected with `Unknown action`.
 
 ## System actions
 
-In Remote State, the plugin also takes actions only the system may send: the host through `act`, and later the timers ([0012](../explanation/decisions/0012-host-controls-the-table.md)).
+In Remote State, the plugin also takes actions only the system may send: the host through `act`, and the [timers](timers.md) ([0012](../explanation/decisions/0012-host-controls-the-table.md)). The `nextHand` timer sends `startHand` by itself.
 
 ```ts
 type SystemAction =
