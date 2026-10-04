@@ -1,7 +1,7 @@
 /**
- * The nextHand timer in a Remote State server, with real timers and a short
- * delay: hands start by themselves once two players sit down, and again
- * after each hand, with the button moving.
+ * The timers in a Remote State server, with real timers and short delays:
+ * hands start by themselves once two players sit down, and again after each
+ * hand, with the button moving; a turn that runs out folds.
  */
 
 import {
@@ -121,4 +121,26 @@ it("leaves starting hands to the host without a delay", async () => {
   await send(gameId, bob.token, { type: "sitDown", seat: 2, buyIn: 1000 });
   await new Promise((resolve) => setTimeout(resolve, 150));
   expect((await view(gameId, ann.token)).hand).toBeNull();
+});
+
+it("folds a player whose turn runs out, after a player who acted in time", async () => {
+  const gameId = await server.createGame(
+    newTable({ ...options, nextHandDelay: null, turnTimeout: 100 })
+  );
+  const ann = await join(gameId, "Ann");
+  const bob = await join(gameId, "Bob");
+  await send(gameId, ann.token, { type: "sitDown", seat: 1, buyIn: 1000 });
+  await send(gameId, bob.token, { type: "sitDown", seat: 2, buyIn: 1000 });
+  await server.act(gameId, { type: "startHand" });
+
+  // heads-up: Ann, on the button, calls in time; Bob could check, but doesn't act
+  await send(gameId, ann.token, { type: "call" });
+  const over = await eventually(
+    () => view(gameId, ann.token),
+    (v) => v.hand?.result !== null
+  );
+  expect(over.hand?.players[1].folded).toBe(true);
+  expect(over.seats.map((seat) => seat?.stack).slice(0, 2)).toEqual([
+    1100, 900,
+  ]);
 });
