@@ -72,7 +72,7 @@ The rules are plain functions of plain data, and know nothing about Remote State
    - the main pot and side pots;
    - splitting each pot among its winners.
 2. **The hand.** Dealing, the four betting rounds, and showdown, ranked with poker-hands.
-3. **The table.** Seats, buy-ins, the button moving from hand to hand, sitting out.
+3. **The table.** Seats, buy-ins, the button moving from hand to hand, breaks.
 4. **The plugin.** Validation, views, audiences and, last, timers, as a thin layer over the rules.
 
 Betting doesn't know about cards. Splitting a pot takes the players' hand ranks, as numbers, so all-ins and split pots can be tested with ranks made up for the test, such as "seats 1 and 3 tie, seat 2 is worse". The hand layer computes the real ranks with poker-hands.
@@ -106,7 +106,7 @@ The plugin reference's example moves a folded player into `spectators`. That doe
 - **A. Every person keeps their own audience** (the default, their player ID). The filter decides per person what they may see. That's one view per person per transition.
 - **B. Seated players keep their own audience; everyone who isn't seated is in `spectators`.** People move only when they sit down or stand up. Spectators all get one shared view, so a table with many spectators costs one view for all of them.
 
-Recommended: B. `onJoin` puts every new person in `spectators`. `sitDown` moves them to their own audience (`null`), and `standUp` moves them back.
+Recommended: B. `onJoin` puts every new person in `spectators`. `sitDown` moves them to their own audience (`null`), and `leave` moves them back.
 
 ### Showdown
 

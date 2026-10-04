@@ -9,9 +9,9 @@ A player's action at a table is a `TableAction`: a seating action, or a betting 
 ```ts
 type TableAction =
   | { type: "sitDown"; seat: number; buyIn: number } // seat numbers start at 1
-  | { type: "standUp" }
-  | { type: "sitOut" }
+  | { type: "standUp" } // a break
   | { type: "sitIn" }
+  | { type: "leave" }
   | UiAction; // the betting buttons, below
 ```
 
@@ -24,12 +24,12 @@ type TableAction =
 
 ### Seating
 
-| Action    | What it does                                                                                                                                                                                                                                     | Reasons it's rejected                                                                                                                                                            |
-| --------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------ | -------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| `sitDown` | A spectator takes a free seat with a buy-in. If a game is running, they're a new player ([Table options](table-options.md#newplayers))                                                                                                           | `You already have a seat`, `Only people at the table can sit down`, `There's no seat <n>`, `Seat <n> is taken`, `The buy-in must be a whole number of chips from <min> to <max>` |
-| `standUp` | The player becomes a spectator with their chips. During a hand they were dealt into, it folds their hand at once, in turn or not, and they become a spectator when the hand is over ([0009](../explanation/decisions/0009-standing-up-folds.md)) | `You don't have a seat`                                                                                                                                                          |
-| `sitOut`  | The player keeps their seat and chips, but isn't dealt in from the next hand                                                                                                                                                                     | `You don't have a seat`, `You're already sitting out`                                                                                                                            |
-| `sitIn`   | The player is dealt in again from the next hand                                                                                                                                                                                                  | `You don't have a seat`, `You aren't sitting out`                                                                                                                                |
+| Action    | What it does                                                                                                                                                                                                                                   | Reasons it's rejected                                                                                                                                                            |
+| --------- | ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- | -------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `sitDown` | A spectator takes a free seat with a buy-in. If a game is running, they're a new player ([Table options](table-options.md#newplayers))                                                                                                         | `You already have a seat`, `Only people at the table can sit down`, `There's no seat <n>`, `Seat <n> is taken`, `The buy-in must be a whole number of chips from <min> to <max>` |
+| `standUp` | A break: the player keeps their seat and chips, and isn't dealt in until they sit in again. During a hand they can still act in, it folds their hand at once, in turn or not ([0010](../explanation/decisions/0010-standing-up-is-a-break.md)) | `You don't have a seat`, `You're already on a break`                                                                                                                             |
+| `sitIn`   | Back from a break: the player is dealt in again from the next hand                                                                                                                                                                             | `You don't have a seat`, `You aren't on a break`                                                                                                                                 |
+| `leave`   | The player leaves with their chips and becomes a spectator. During a hand they can still act in, it folds their hand at once; they become a spectator when the hand is over, since their seat is part of it until then                         | `You don't have a seat`                                                                                                                                                          |
 
 ### Betting at the table
 

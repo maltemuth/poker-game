@@ -20,7 +20,7 @@ interface TableOptions {
 
 ## `newPlayers`
 
-A game is running when at least two seated players, not sitting out, are in it. At a table that's starting, everyone who sits down is dealt in from the next hand, whatever the option.
+A game is running when at least two seated players, not on a break, are in it. At a table that's starting, everyone who sits down is dealt in from the next hand, whatever the option.
 
 | Value               | A new player…                                                                                                                                                               |
 | ------------------- | --------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |

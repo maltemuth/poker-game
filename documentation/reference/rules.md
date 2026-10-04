@@ -41,7 +41,7 @@ Cards are strings, a value (`2`–`9`, `T`, `J`, `Q`, `K`, `A`) and a suit (`h`,
 - **The next cards are dealt as soon as a betting round is over,** by the action that ends it.
 - **A betting round in which no one can act is passed straight through:** when everyone left is all-in, the rest of the board is dealt at once.
 - **The hand ends early** when only one player is left in it; no more cards are dealt.
-- **A fold out of turn,** when a player stands up, leaves the player to act as they were, unless no one is left to bet against. The folded player's chips are dead money: none of them come back as an uncalled bet.
+- **A fold out of turn,** when a player takes a break or leaves, leaves the player to act as they were, unless no one is left to bet against. The folded player's chips are dead money: none of them come back as an uncalled bet.
 
 ## What a player may do
 
@@ -133,17 +133,18 @@ The hand goes to showdown when the betting on the river is over with at least tw
 When a hand is over, every player dealt in gets their stack from it, winnings included. Then:
 
 - **Players without chips become spectators** ([0008](../explanation/decisions/0008-busted-players-become-spectators.md)). To play again, they sit down with a new buy-in.
-- **Players who stood up during the hand become spectators,** with the chips they didn't bet. Standing up folded their hand at once, in turn or not ([0009](../explanation/decisions/0009-standing-up-folds.md)); their seat stays part of the hand until it's over.
+- **Players who left during the hand become spectators,** with the chips they didn't bet ([0010](../explanation/decisions/0010-standing-up-is-a-break.md)).
+- **Taking a break or leaving folds a hand at once,** in turn or not, unless the player is all-in: they can't act, so they hold up no one, and they stay in to win or lose.
 
 ### Who is dealt in
 
-The next hand is dealt to the players in the game: seated, not sitting out, and not new players still waiting. With fewer than two of them, the table is starting, and everyone seated and not sitting out is dealt in.
+The next hand is dealt to the players in the game: seated, not on a break, and not new players still waiting. With fewer than two of them, the table is starting, and everyone seated and not on a break is dealt in.
 
 New players join by the table's `newPlayers` option ([Table options](table-options.md#newplayers)).
 
 ### The button
 
-The button moves to the next seat clockwise whose player is in the game, skipping empty seats, players sitting out and new players still waiting ([0007](../explanation/decisions/0007-moving-button.md)). For the first hand, it's the first such seat in seat order. The blinds follow from the button, so when players leave, someone may pay the big blind twice in a row, or skip a blind.
+The button moves to the next seat clockwise whose player is in the game, skipping empty seats, players on a break and new players still waiting ([0007](../explanation/decisions/0007-moving-button.md)). For the first hand, it's the first such seat in seat order. The blinds follow from the button, so when players leave, someone may pay the big blind twice in a row, or skip a blind.
 
 ## Rejections
 
