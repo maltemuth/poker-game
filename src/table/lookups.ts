@@ -1,7 +1,7 @@
 /**
- * Questions about who is where at a table: a player's seat, whether a hand
- * is being played, and whether a player is in it. The rules for seating and
- * betting ask these.
+ * Questions about who is where at a table: a player's seat, who plays, whether
+ * a hand is being played, and whether a player is in it. The rules for
+ * seating, dealing and betting ask these.
  */
 
 import type { Table } from "./Table.js";
@@ -11,6 +11,15 @@ export const seatOf = (table: Table, playerId: string): number | null => {
   const index = table.seats.findIndex((seat) => seat?.playerId === playerId);
   return index === -1 ? null : index;
 };
+
+/**
+ * Indices of the seats whose players are in the game: seated, not sitting
+ * out, and not new players still waiting to be dealt in (decision 0006)
+ */
+export const playingSeats = (table: Table): number[] =>
+  table.seats.flatMap((seat, index) =>
+    seat && !seat.sittingOut && !seat.newPlayer ? [index] : []
+  );
 
 export const isSpectator = (table: Table, playerId: string): boolean =>
   table.spectators.some((person) => person.playerId === playerId);
