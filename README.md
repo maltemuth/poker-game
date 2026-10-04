@@ -2,7 +2,7 @@
 
 No-limit Texas Hold'em rules, written as plain functions, to be played in the browser through [Remote State](../remote-state).
 
-It's at the start: the setup is in place, and the betting rules come next. [BACKLOG.md](BACKLOG.md) lists the milestones, and the [Texas Hold'em design](documentation/explanation/designs/holdem.md) explains the choices behind them.
+So far, it has the betting: blinds, the allowed bets and raises, short all-ins, and the buttons players click ([Rules as implemented](documentation/reference/rules.md), [Actions](documentation/reference/actions.md)). Side pots, the hand and the table come next. [BACKLOG.md](BACKLOG.md) lists the milestones, and the [Texas Hold'em design](documentation/explanation/designs/holdem.md) explains the choices behind them.
 
 ## Development
 
