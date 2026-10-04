@@ -1,6 +1,6 @@
 # Rules as implemented
 
-The no-limit Texas Hold'em rules poker-game applies, as built so far: the blinds and the betting. The code is in [`src/betting/`](../../src/betting/). All-ins across pots, split pots and showdown follow with their milestones ([BACKLOG.md](../../BACKLOG.md)).
+The no-limit Texas Hold'em rules poker-game applies, as built so far: the blinds, the betting, and the pots. The code is in [`src/betting/`](../../src/betting/) and [`src/pots/`](../../src/pots/). Ranking hands at showdown follows with the hand ([BACKLOG.md](../../BACKLOG.md)); until then, the pots are split by ranks passed in as numbers.
 
 Amounts are whole chips. "Bet" below means a player's chips put in on the current street, and "the bet to match" is the highest bet on the street.
 
@@ -60,6 +60,45 @@ Example, blinds 50/100, minimum raise 100: A bets 100. B is all-in for 150 total
 ### Matching all-in players
 
 When no one else in the hand can act, the last player only has to match what the others actually bet. If a short big blind is all-in for less than the small blind has in, the small blind has nothing to call.
+
+## Pots
+
+Pots are collected when a betting round is over, before the next street and at the end of the hand ([0003](../explanation/decisions/0003-pots-stored-at-round-end.md)). During a round, the stored pots show what was collected before it, and each player's bet on the street is in front of them.
+
+### The uncalled bet
+
+When the bets are collected, the player who put the most into the hand gets back what they put in above the next highest total, folded players included. That's the part of a bet no one called:
+
+- **Everyone folds to a bet:** blinds 50/100, a raise to 300, both blinds fold. 200 goes back; the raiser wins the pot of 250.
+- **A call all-in for less:** a bet of 800, called all-in for 350. 450 goes back.
+
+### Main pot and side pots
+
+The pots are computed from every player's total for the hand, the main pot first:
+
+1. Each different total among the players still in the hand is a level, lowest first.
+2. A pot holds what every player put in between the level below and its level. The last pot also holds whatever a folded player put in above the highest level.
+3. A pot can be won by the players still in the hand who put in at least its level.
+
+Folded players' chips stay in the pots, but they can't win them.
+
+Example: A is all-in for 200 in total, B for 500, C and D put in 800 each, and E folded after putting in 100.
+
+| Pot        | Amount              | Can be won by |
+| ---------- | ------------------- | ------------- |
+| Main pot   | 4 × 200 + 100 = 900 | A, B, C, D    |
+| Side pot 1 | 3 × 300 = 900       | B, C, D       |
+| Side pot 2 | 2 × 300 = 600       | C, D          |
+
+### Awarding the pots
+
+At the end of the hand, each pot goes to the best hand among the players who can win it:
+
+- **One player left:** everyone else folded, so they win every pot without showing.
+- **A tie:** the pot is shared evenly.
+- **Odd chips:** chips left over when a pot can't be shared evenly go one each to the tied winners, starting with the first left of the button and going clockwise.
+
+Each pot is decided on its own: in the example, A can have the best hand and win the main pot while C and D tie for both side pots.
 
 ## Rejections
 

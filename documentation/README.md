@@ -21,7 +21,7 @@ Most pages don't exist yet. Pages marked _(planned)_ are written in the same cha
 - _(planned)_ Table options: blinds, buy-ins, seats, time limits
 - [Actions](reference/actions.md): the buttons players send, the rules' actions they become, and the buttons to show; seating and system actions are planned
 - _(planned)_ State and views: the stored table state, and what each audience sees
-- [Rules as implemented](reference/rules.md): blinds and betting; all-ins across pots, side pots, showdown and odd chips are planned
+- [Rules as implemented](reference/rules.md): blinds, betting, the uncalled bet, side pots, and awarding the pots; ranking hands at showdown is planned
 - _(planned)_ Timers: names, durations, and the actions they run
 
 ## Explanation: understand the design
