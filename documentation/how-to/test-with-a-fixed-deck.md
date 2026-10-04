@@ -15,18 +15,13 @@ No cards are burned. With three players and the button on the first (index 0), t
 ```ts
 import { fixedDraw, startHand } from "poker-game";
 
+// prettier-ignore
 const draw = fixedDraw([
-  "Kd",
-  "7c",
-  "Ah", // first hole cards: players 2, 3, 1
-  "Kc",
-  "2d",
-  "As", // second hole cards
-  "Kh",
-  "9s",
-  "4d", // flop
-  "Qc", // turn
-  "3h", // river
+  "Kd", "7c", "Ah", // first hole cards: players 2, 3, 1
+  "Kc", "2d", "As", // second hole cards
+  "Kh", "9s", "4d", // flop
+  "Qc",             // turn
+  "3h",             // river
 ]);
 
 const players = [
