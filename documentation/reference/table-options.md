@@ -9,6 +9,7 @@ interface TableOptions {
   seats: number;
   newPlayers?: "nextHand" | "waitForBigBlind" | "postBigBlind"; // default "nextHand"
   nextHandDelay?: number | null; // milliseconds, default 5000
+  turnTimeout?: number | null; // milliseconds, default 30000
 }
 ```
 
@@ -19,6 +20,7 @@ interface TableOptions {
 | `seats`         | The number of seats                                                                                                                                                                                              | A whole number from 2 to 10                                              |
 | `newPlayers`    | How a player who sits down while a game is running is dealt in ([0006](../explanation/decisions/0006-new-players-by-table-option.md))                                                                            | One of the three below                                                   |
 | `nextHandDelay` | Milliseconds from the moment a hand can start until it does, by the `nextHand` [timer](timers.md); `null` leaves starting hands to the host ([0013](../explanation/decisions/0013-hands-start-by-themselves.md)) | `null`, or whole milliseconds from 0 to 2,147,483,647                    |
+| `turnTimeout`   | Milliseconds a player has to act before they fold, by the `turn` [timer](timers.md); `null` for no limit ([0014](../explanation/decisions/0014-a-turn-that-runs-out-folds.md))                                   | `null`, or whole milliseconds from 1 to 2,147,483,647                    |
 
 ## `newPlayers`
 

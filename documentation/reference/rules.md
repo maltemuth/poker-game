@@ -22,6 +22,7 @@ Amounts are whole chips. "Bet" below means the chips a player has bet in the cur
 - **Play goes clockwise,** skipping players who have folded or are all-in.
 - **After the flop,** the first player left of the button who can act starts. Heads-up, that's the big blind.
 - **A player must act** if they owe chips to the bet to match, or if they haven't acted in this betting round and someone else could still bet against them.
+- **A turn that runs out folds** the player to act, even if they could check; the table's `turnTimeout` says how long a turn may take ([Timers](timers.md#the-turn-timer)).
 - **The betting round is over** when no player must act:
   - everyone still in has acted and matched the bet, or is all-in;
   - or only one player is left in the hand.

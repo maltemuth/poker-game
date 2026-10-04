@@ -14,10 +14,11 @@ A [`Table`](../../src/table/Table.ts) is plain JSON. It holds everything, includ
 | `button`     | Index into `seats` of the last hand's button; `null` before the first hand                                  |
 | `hand`       | The [hand](../../src/hand/Hand.ts) being played, or the last one; `null` before the first hand              |
 | `paused`     | No new hands are dealt while it's paused ([0012](../explanation/decisions/0012-host-controls-the-table.md)) |
+| `handNumber` | How many hands were dealt: the number of the current or last hand                                           |
 
 A seated player has `playerId`, `name`, `stack`, `sittingOut` (on a break), `newPlayer` (waiting to be dealt in by the table's rule) and `leaving` (leaves when the hand is over). During a hand, a dealt-in player's `stack` is what they started the hand with; their chips are in the hand's betting until it's settled.
 
-A hand has the betting ([`BettingRound`](../../src/betting/BettingRound.ts)), every dealt-in seat's `holeCards`, the `board`, the `bettingRound` (`preFlop`, `flop`, `turn` or `river`), and `result` once it's over. No deck is stored: cards are drawn when they're dealt ([0004](../explanation/decisions/0004-cards-as-strings-drawn-when-dealt.md)).
+A hand has the betting ([`BettingRound`](../../src/betting/BettingRound.ts)), every dealt-in seat's `holeCards`, the `board`, the `bettingRound` (`preFlop`, `flop`, `turn` or `river`), the `turn` counter (0 for the first player to act, one more with every action in turn), and `result` once it's over. No deck is stored: cards are drawn when they're dealt ([0004](../explanation/decisions/0004-cards-as-strings-drawn-when-dealt.md)).
 
 ## Audiences
 
@@ -40,21 +41,23 @@ A hand has the betting ([`BettingRound`](../../src/betting/BettingRound.ts)), ev
 | `hand`       | The hand being played, or the last one; `null` before the first hand                                    |
 | `you`        | For a seated player: `playerId`, `seat`, and `buttons`; `null` for spectators                           |
 | `paused`     | Whether the table is paused                                                                             |
+| `handNumber` | The number of the current or last hand; 0 before the first                                              |
 
 A seat's `stack` is what the player has outside the middle: during a hand, what they have left in it.
 
 ### The hand
 
-| Field          | Contents                                                                                |
-| -------------- | --------------------------------------------------------------------------------------- |
-| `bettingRound` | `preFlop`, `flop`, `turn` or `river`                                                    |
-| `board`        | The board cards dealt so far                                                            |
-| `pots`         | The pots collected from earlier betting rounds: `{ amount, seats }`, the main pot first |
-| `players`      | Per player dealt in: `seat`, `bet` (in front of them), `folded`, `allIn`, and `cards`   |
-| `button`       | The button's seat number                                                                |
-| `toAct`        | The seat number of the player to act, or `null`                                         |
-| `currentBet`   | The bet to match in this betting round                                                  |
-| `result`       | `null` while the hand is played; then the hands shown and who won what, per pot         |
+| Field          | Contents                                                                                                |
+| -------------- | ------------------------------------------------------------------------------------------------------- |
+| `bettingRound` | `preFlop`, `flop`, `turn` or `river`                                                                    |
+| `board`        | The board cards dealt so far                                                                            |
+| `pots`         | The pots collected from earlier betting rounds: `{ amount, seats }`, the main pot first                 |
+| `players`      | Per player dealt in: `seat`, `bet` (in front of them), `folded`, `allIn`, and `cards`                   |
+| `button`       | The button's seat number                                                                                |
+| `toAct`        | The seat number of the player to act, or `null`                                                         |
+| `currentBet`   | The bet to match in this betting round                                                                  |
+| `turn`         | Changes with every new turn, so a client can restart its countdown ([Timers](timers.md#the-turn-timer)) |
+| `result`       | `null` while the hand is played; then the hands shown and who won what, per pot                         |
 
 ### Hole cards
 

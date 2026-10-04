@@ -58,7 +58,7 @@ if ("rejected" in result) console.log(result.rejected); // e.g. "Waiting for pla
 
 ## After a restart
 
-Timers are lost when the server restarts. A table whose next hand was waiting doesn't start it until an action makes a hand startable again. For every open table, start it yourself:
+Timers are lost when the server restarts. A table whose next hand was waiting doesn't start it until an action makes a hand startable again; a turn that was running has no time limit until the next action. For every open table, start the next hand yourself:
 
 ```ts
 await server.act(gameId, { type: "startHand" }); // rejected, harmlessly, where a hand is running

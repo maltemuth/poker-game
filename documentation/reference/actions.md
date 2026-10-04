@@ -39,18 +39,19 @@ Any other `type` is rejected with `Unknown action`.
 
 ## System actions
 
-In Remote State, the plugin also takes actions only the system may send: the host through `act`, and the [timers](timers.md) ([0012](../explanation/decisions/0012-host-controls-the-table.md)). The `nextHand` timer sends `startHand` by itself.
+In Remote State, the plugin also takes actions only the system may send: the host through `act`, and the [timers](timers.md) ([0012](../explanation/decisions/0012-host-controls-the-table.md)). The `nextHand` timer sends `startHand`, and the `turn` timer `timeout`.
 
 ```ts
 type SystemAction =
   { type: "startHand" } | { type: "pause" } | { type: "resume" };
 ```
 
-| Action      | What it does                                          | Reasons it's rejected                                                  |
-| ----------- | ----------------------------------------------------- | ---------------------------------------------------------------------- |
-| `startHand` | Deals the next hand ([Rules](rules.md#between-hands)) | `A hand is being played`, `The table is paused`, `Waiting for players` |
-| `pause`     | No new hands are dealt; a hand being played goes on   | `The table is already paused`                                          |
-| `resume`    | Hands can be dealt again                              | `The table isn't paused`                                               |
+| Action      | What it does                                                                     | Reasons it's rejected                                                  |
+| ----------- | -------------------------------------------------------------------------------- | ---------------------------------------------------------------------- |
+| `startHand` | Deals the next hand ([Rules](rules.md#between-hands))                            | `A hand is being played`, `The table is paused`, `Waiting for players` |
+| `pause`     | No new hands are dealt; a hand being played goes on                              | `The table is already paused`                                          |
+| `resume`    | Hands can be dealt again                                                         | `The table isn't paused`                                               |
+| `timeout`   | The player to act folds: their turn ran out ([Timers](timers.md#the-turn-timer)) | `That turn is over`                                                    |
 
 A player who sends a system action gets `Only the host can do that`; the system sending a player's action gets `The system can't act for a player`.
 
