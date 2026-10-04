@@ -70,4 +70,6 @@ export interface TableView {
   hand: HandView | null;
   /** The viewer, if they're seated; null for spectators */
   you: ViewerView | null;
+  /** No new hands are dealt while it's paused */
+  paused: boolean;
 }

@@ -12,6 +12,7 @@ it("creates an empty table with the options", () => {
   expect(table.spectators).toEqual([]);
   expect(table.button).toBeNull();
   expect(table.hand).toBeNull();
+  expect(table.paused).toBe(false);
 });
 
 it("deals new players in from the next hand by default", () => {

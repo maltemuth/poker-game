@@ -51,5 +51,6 @@ export const newTable = (input: TableOptionsInput): Table => {
     seats: Array.from({ length: options.seats }, () => null),
     button: null,
     hand: null,
+    paused: false,
   };
 };

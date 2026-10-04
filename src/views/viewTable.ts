@@ -45,6 +45,7 @@ export const viewTable = (table: Table, audience: string): TableView => {
     seats,
     spectators: table.spectators,
     hand,
+    paused: table.paused,
     you:
       viewerSeat === null
         ? null

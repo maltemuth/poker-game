@@ -4,7 +4,8 @@
  * New players who are dealt in are in the game from then on. If the blinds
  * leave no one to act, the hand is played out and settled at once.
  *
- * Nothing starts hands by itself yet; the host or, later, a timer does.
+ * Nothing starts hands by itself yet: the host does, through Remote State's
+ * `act` (decision 0012), and later a timer. A paused table deals none.
  */
 
 import type { Draw } from "../hand/Draw.js";
@@ -16,6 +17,7 @@ import type { Table } from "./Table.js";
 
 export const checkStartHand = (table: Table): true | string => {
   if (handIsRunning(table)) return "A hand is being played";
+  if (table.paused) return "The table is paused";
   if (!playersToDeal(table)) return "Waiting for players";
   return true;
 };

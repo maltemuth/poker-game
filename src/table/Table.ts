@@ -1,7 +1,7 @@
 /**
  * The state of a table: its options, who is watching, who sits where with
- * how many chips, the last button, and the hand being played or the last
- * one. It's plain JSON. Players are identified by the ID the host gives them;
+ * how many chips, the last button, the hand being played or the last one,
+ * and whether it's paused. It's plain JSON. Players are identified by the ID the host gives them;
  * in Remote State, that's the player ID.
  */
 
@@ -37,4 +37,6 @@ export interface Table {
   button: number | null;
   /** The hand being played, or the last one; null before the first hand */
   hand: Hand | null;
+  /** No new hands are dealt while it's paused (decision 0012) */
+  paused: boolean;
 }
