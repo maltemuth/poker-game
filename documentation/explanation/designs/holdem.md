@@ -110,12 +110,7 @@ Recommended: B. `onJoin` puts every new person in `spectators`. `sitDown` moves 
 
 ### Showdown
 
-- **A. Every hand that reaches showdown is shown.** Simple, and fair to watch. Some players expect to be able to muck a losing hand.
-- **B. Hands are shown in showdown order** (the last aggressor first, then clockwise). A player may muck if they can't win any pot they're in.
-
-Recommended: A for the first version; B is a later rule change that only affects the `shown` cards.
-
-Hands are ranked with the poker-hands TypeScript library, `getBestHand` and `handRank`, which also gives the five cards and a name such as "two pair, aces and kings" for the views. Ranking at most ten hands is quick. Exact odds are not part of the rules: a client can show them in the browser with `@malte.muth/poker-hands-wasm`, for the cards it's allowed to see.
+Decided in [0005](../decisions/0005-every-hand-at-showdown-is-shown.md): every hand still in at showdown is shown, ranked with poker-hands; mucking may come later. Exact odds aren't part of the rules: a client can show them for the cards it may see, with `@malte.muth/poker-hands-wasm`.
 
 ### Time limits
 
