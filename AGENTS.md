@@ -40,4 +40,4 @@ npm run format  # Prettier, applied
 ## Commits
 
 - One change per commit, with a [Conventional Commits](https://www.conventionalcommits.org/) message, such as `feat(betting): post the blinds`.
-- Work on a branch, not on `master`.
+- Work on `master`; no feature branches.
