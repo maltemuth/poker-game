@@ -21,6 +21,7 @@ Records aren't edited after the fact, except to update their status. A decision 
 | [0013](0013-hands-start-by-themselves.md)         | Hands start by themselves, after a delay                                          | Accepted                                         |
 | [0014](0014-a-turn-that-runs-out-folds.md)        | A turn that runs out folds; its length is a table option                          | Accepted                                         |
 | [0015](0015-all-in-hands-are-tabled.md)           | All-in hands are tabled, and the runout is dealt one betting round at a time      | Accepted                                         |
+| [0016](0016-spectators-may-see-hole-cards.md)     | Spectators may see the hole cards, if the table allows it                         | Accepted                                         |
 
 ## Writing a record
 
