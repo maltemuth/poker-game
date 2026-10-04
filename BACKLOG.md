@@ -6,20 +6,7 @@ The betting core comes first, as plain functions with unit tests. Remote State i
 
 Each milestone lists the pages it writes or updates ([Writing documentation](documentation/README.md#writing-documentation)). A milestone is done when its tests pass and its pages describe what was built. Remove a milestone when it's done.
 
-## 1. Project setup
-
-- [ ] First commit of the repository as it is, then remove the sketch's sources in a separate commit.
-- [ ] ESM (`"type": "module"`), Node.js 24 in `.nvmrc` and `engines`, TypeScript 6, ESLint 10, Prettier 3.
-- [ ] Jest 30 with `@swc/jest`, with the `.js` import mapping used in poker-hands.
-- [ ] `README.md`: what the project is, and the commands.
-- [ ] `AGENTS.md`: the conventions:
-  - small files, one rule or query each;
-  - every file starts with a comment that says what it's for;
-  - functions return new states;
-  - rejections are returned as reasons.
-- Pages: a decision record for the toolchain.
-
-## 2. Betting
+## 1. Betting
 
 Chips and seats only, no cards. Depends on: betting actions.
 
@@ -45,7 +32,7 @@ A possible layout, one small file each:
 - [ ] Tests: every rule above, and chips conserved after every action.
 - Pages: reference _Rules as implemented_ (blinds, betting), reference _Actions_ (betting).
 
-## 3. All-ins and split pots
+## 2. All-ins and split pots
 
 Hand ranks are passed in as numbers, so no cards are needed. Depends on: pots.
 
@@ -62,17 +49,17 @@ Hand ranks are passed in as numbers, so no cards are needed. Depends on: pots.
 - [ ] Tests: multi-way all-ins, ties in a side pot but not the main pot, a folded player's chips in a side pot, and chips conserved.
 - Pages: reference _Rules as implemented_ (all-ins, side pots, split pots).
 
-## 4. The hand
+## 3. The hand
 
 Adds poker-hands as a dependency, by local path until 0.12 or later is on npm. Depends on: cards as strings, the deck, showdown.
 
 - [ ] Cards as strings. Dealing from the cards still out with an injected random source; tests use a fixed deck.
 - [ ] A hand from the blinds to showdown: hole cards, the four betting rounds, and dealing the flop, turn and river as each round closes. The rest of the board is dealt when no more betting is possible.
-- [ ] Showdown: ranks from poker-hands, then the pots split as in milestone 3. The hand ends early when one player is left.
+- [ ] Showdown: ranks from poker-hands, then the pots split as in milestone 2. The hand ends early when one player is left.
 - [ ] Tests: scripted hands from a fixed deck.
 - Pages: how-to _Test the rules with a fixed deck_, reference _Rules as implemented_ (showdown).
 
-## 5. The table
+## 4. The table
 
 Depends on: joining a running table, the button, busting.
 
@@ -81,7 +68,7 @@ Depends on: joining a running table, the button, busting.
 - [ ] The button and blinds moving from hand to hand as players come and go.
 - Pages: reference _Table options_, reference _Actions_ (seating).
 
-## 6. Views
+## 5. Views
 
 - [ ] What each audience sees:
   - each seated player gets their own hole cards;
@@ -92,7 +79,7 @@ Depends on: joining a running table, the button, busting.
 - [ ] Tests: no view of any state in a scripted hand contains a card its audience mustn't see.
 - Pages: reference _State and views_.
 
-## 7. The plugin
+## 6. The plugin
 
 Adds Remote State as a dependency, by local path until it's on npm. Depends on: audiences.
 
@@ -101,7 +88,7 @@ Adds Remote State as a dependency, by local path until it's on npm. Depends on: 
 - [ ] Integration tests through Remote State's HTTP API with supertest: admission, seating, a full hand, views.
 - Pages: explanation _Architecture_, how-to _Host a table_.
 
-## 8. Time limits
+## 7. Time limits
 
 Depends on: time limits.
 
@@ -111,7 +98,7 @@ Depends on: time limits.
 - [ ] `resume` for the host after a restart, scheduling the timers the state calls for. The host keeps the IDs of its open tables to find them.
 - Pages: reference _Timers_, how-to _Set the time limits_, how-to _Resume tables after a restart_.
 
-## 9. A table to play at
+## 8. A table to play at
 
 - [ ] A host server: create a table, admit people, serve a minimal web client.
 - [ ] The client: seats, cards, pots, the actions allowed for the viewer, the turn countdown.
