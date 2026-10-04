@@ -23,6 +23,6 @@ The `nextHand` and `turn` timers are done ([0013](documentation/explanation/deci
 
 - Tournaments: rising blinds with a `blinds` timer, and a payout when one player is left.
 - [Tri-Coin Hold'em](documentation/explanation/designs/tri-coin.md), on the same dealing, seating and showdown.
-- Odds for the viewer's own cards in the client, with `@malte.muth/poker-hands-wasm`.
+- Odds for the viewer's own cards against unknown hands, in the client. The odds of known hands, in all-in runouts and for spectators who see the hole cards, are done ([Odds](documentation/reference/odds.md)).
 - Mucking at showdown, run-it-twice, antes and straddles.
 - Replacing `poker-ui` (React 16, Create React App, poker-hands 0.3), or reusing parts of it for the client.
