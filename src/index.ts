@@ -1,7 +1,7 @@
 /**
  * The package's entry point: everything a host or a client imports from
  * poker-game. Rules are exported here as they're added: so far the betting,
- * the pots, and the buttons players click.
+ * the pots, the hand, and the buttons players click.
  */
 
 export type { BettingAction } from "./betting/BettingAction.js";
@@ -16,6 +16,26 @@ export { nextBettingRound } from "./betting/nextBettingRound.js";
 export { nextToAct } from "./betting/nextToAct.js";
 export { postBlinds } from "./betting/postBlinds.js";
 export { canAct, isAllIn, isInHand } from "./betting/seatStatus.js";
+
+export type { Card } from "./hand/cards.js";
+export type { Draw } from "./hand/Draw.js";
+export type {
+  BettingRoundName,
+  Hand,
+  HandResult,
+  ShownHand,
+} from "./hand/Hand.js";
+export type { RankedHand } from "./hand/rankHand.js";
+export { allCards, cardsOut, isCard } from "./hand/cards.js";
+export { applyHandAction } from "./hand/applyHandAction.js";
+export { checkHandAction } from "./hand/checkHandAction.js";
+export { continueHand } from "./hand/continueHand.js";
+export { drawCards } from "./hand/Draw.js";
+export { endHand } from "./hand/endHand.js";
+export { fixedDraw } from "./hand/fixedDraw.js";
+export { randomDraw } from "./hand/randomDraw.js";
+export { rankHand } from "./hand/rankHand.js";
+export { startHand } from "./hand/startHand.js";
 
 export type { Pot } from "./pots/Pot.js";
 export type { Award, Ranks } from "./pots/splitPot.js";
