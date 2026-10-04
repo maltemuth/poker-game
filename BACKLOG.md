@@ -2,18 +2,16 @@
 
 Planned work for Texas Hold'em, in order. The choices behind it are discussed in the [Texas Hold'em design](documentation/explanation/designs/holdem.md); a milestone that depends on an open question waits for its decision record.
 
-The betting core came first, as plain functions with unit tests; the betting, the pots, the hand, the table, the views and the Remote State plugin are done ([Architecture](documentation/explanation/architecture.md)), and hands start by themselves. The turn timer comes next.
+The betting core came first, as plain functions with unit tests; the betting, the pots, the hand, the table, the views and the Remote State plugin are done ([Architecture](documentation/explanation/architecture.md)), and hands start and turns end by themselves.
 
 Each milestone lists the pages it writes or updates ([Writing documentation](documentation/README.md#writing-documentation)). A milestone is done when its tests pass and its pages describe what was built. Remove a milestone when it's done.
 
-## 1. Time limits
+## 1. Timers after a restart
 
-The `nextHand` timer is done ([0013](documentation/explanation/decisions/0013-hands-start-by-themselves.md), [Timers](documentation/reference/timers.md)). Depends on: time limits, for the turn timer.
+The `nextHand` and `turn` timers are done ([0013](documentation/explanation/decisions/0013-hands-start-by-themselves.md), [0014](documentation/explanation/decisions/0014-a-turn-that-runs-out-folds.md), [Timers](documentation/reference/timers.md)). Remote State loses timers when the server restarts, and how they should come back is open there ([its 0042](../remote-state/docs/explanation/decisions/0042-timer-restarts-open.md)).
 
-- [ ] The `turn` timer: rescheduled by every action, with the deadline in the state. A stale timeout is rejected.
-- [ ] On timeout, check or fold, and take a break after two timeouts in a row.
-- [ ] After a restart, the host restarts the timers the state calls for: `startHand` does it for `nextHand` today; the turn timer needs its own way back. The host keeps the IDs of its open tables to find them.
-- Pages: reference _Timers_ (the turn timer), how-to _Set the time limits_, how-to _Resume tables after a restart_.
+- [ ] A system action with which the host brings back the timers a table's state calls for, after a restart: the next hand's, or the current turn's, with its full time. The host keeps the IDs of its open tables to find them.
+- Pages: how-to _Resume tables after a restart_, reference _Timers_.
 
 ## 2. A table to play at
 
