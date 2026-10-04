@@ -1,18 +1,22 @@
 /**
  * An empty table with the host's options, checked: whole chips, a small blind
  * no bigger than the big blind, a buy-in of at least the big blind, and 2 to
- * 10 seats. New players are dealt in from the next hand unless the options
- * say otherwise (decision 0006).
+ * 10 seats. Unless the options say otherwise, new players are dealt in from
+ * the next hand (decision 0006), and hands start 5 seconds after they can
+ * (decision 0013).
  */
 
 import type { Table } from "./Table.js";
-import { newPlayerRules, type TableOptions } from "./TableOptions.js";
+import { maxDelay, newPlayerRules, type TableOptions } from "./TableOptions.js";
 
-export type TableOptionsInput = Omit<TableOptions, "newPlayers"> &
-  Partial<Pick<TableOptions, "newPlayers">>;
+export type TableOptionsInput = Omit<
+  TableOptions,
+  "newPlayers" | "nextHandDelay"
+> &
+  Partial<Pick<TableOptions, "newPlayers" | "nextHandDelay">>;
 
 const problemsWith = (options: TableOptions): string[] => {
-  const { blinds, buyIn, seats, newPlayers } = options;
+  const { blinds, buyIn, seats, newPlayers, nextHandDelay } = options;
   const chips = [blinds.small, blinds.big, buyIn.min, buyIn.max];
   return [
     chips.every((amount) => Number.isInteger(amount) && amount > 0)
@@ -33,6 +37,12 @@ const problemsWith = (options: TableOptions): string[] => {
     newPlayerRules.includes(newPlayers)
       ? null
       : `newPlayers must be one of ${newPlayerRules.join(", ")}`,
+    nextHandDelay === null ||
+    (Number.isInteger(nextHandDelay) &&
+      nextHandDelay >= 0 &&
+      nextHandDelay <= maxDelay)
+      ? null
+      : `nextHandDelay must be null or whole milliseconds from 0 to ${maxDelay}`,
   ].filter((problem) => problem !== null);
 };
 
@@ -40,7 +50,11 @@ const problemsWith = (options: TableOptions): string[] => {
  * @throws {Error} If the options are invalid, naming every problem
  */
 export const newTable = (input: TableOptionsInput): Table => {
-  const options: TableOptions = { newPlayers: "nextHand", ...input };
+  const options: TableOptions = {
+    newPlayers: "nextHand",
+    nextHandDelay: 5000,
+    ...input,
+  };
   const problems = problemsWith(options);
   if (problems.length > 0) {
     throw new Error(`Invalid table options: ${problems.join("; ")}`);

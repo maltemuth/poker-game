@@ -44,3 +44,16 @@ it("refuses invalid options, naming every problem", () => {
     "newPlayers must be one of nextHand, waitForBigBlind, postBigBlind"
   );
 });
+
+it("starts hands 5 seconds after they can by default", () => {
+  expect(newTable(options).options.nextHandDelay).toBe(5000);
+  expect(
+    newTable({ ...options, nextHandDelay: null }).options.nextHandDelay
+  ).toBeNull();
+  expect(() => newTable({ ...options, nextHandDelay: -1 })).toThrow(
+    "nextHandDelay must be null or whole milliseconds from 0 to 2147483647"
+  );
+  expect(() => newTable({ ...options, nextHandDelay: 2.5 })).toThrow(
+    "nextHandDelay must be null or whole milliseconds"
+  );
+});

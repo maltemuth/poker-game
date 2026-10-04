@@ -1,7 +1,7 @@
 /**
  * A table's settings, chosen by the host when it creates the table: the
- * blinds, the buy-in range, the number of seats, and how new players join a
- * running game (decision 0006).
+ * blinds, the buy-in range, the number of seats, how new players join a
+ * running game (decision 0006), and how soon hands start (decision 0013).
  */
 
 import type { Blinds } from "../betting/postBlinds.js";
@@ -16,7 +16,15 @@ export interface TableOptions {
   /** The number of seats, 2 to 10 */
   seats: number;
   newPlayers: NewPlayerRule;
+  /**
+   * Milliseconds from the moment a hand can start until it does (decision
+   * 0013); null to leave starting hands to the host
+   */
+  nextHandDelay: number | null;
 }
+
+/** The longest delay Remote State's timers take: about 24.8 days */
+export const maxDelay = 2 ** 31 - 1;
 
 export const newPlayerRules: readonly NewPlayerRule[] = [
   "nextHand",
