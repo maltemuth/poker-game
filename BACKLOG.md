@@ -2,19 +2,18 @@
 
 Planned work for Texas Hold'em, in order. The choices behind it are discussed in the [Texas Hold'em design](documentation/explanation/designs/holdem.md); a milestone that depends on an open question waits for its decision record.
 
-The betting core came first, as plain functions with unit tests; the betting, the pots, the hand, the table, the views and the Remote State plugin are done ([Architecture](documentation/explanation/architecture.md)). Timers come next.
+The betting core came first, as plain functions with unit tests; the betting, the pots, the hand, the table, the views and the Remote State plugin are done ([Architecture](documentation/explanation/architecture.md)), and hands start by themselves. The turn timer comes next.
 
 Each milestone lists the pages it writes or updates ([Writing documentation](documentation/README.md#writing-documentation)). A milestone is done when its tests pass and its pages describe what was built. Remove a milestone when it's done.
 
 ## 1. Time limits
 
-Depends on: time limits.
+The `nextHand` timer is done ([0013](documentation/explanation/decisions/0013-hands-start-by-themselves.md), [Timers](documentation/reference/timers.md)). Depends on: time limits, for the turn timer.
 
 - [ ] The `turn` timer: rescheduled by every action, with the deadline in the state. A stale timeout is rejected.
-- [ ] On timeout, check or fold, and sit out after two timeouts in a row.
-- [ ] The `nextHand` timer, and starting a hand when the second player sits down.
-- [ ] `resume` for the host after a restart, scheduling the timers the state calls for. The host keeps the IDs of its open tables to find them.
-- Pages: reference _Timers_, how-to _Set the time limits_, how-to _Resume tables after a restart_.
+- [ ] On timeout, check or fold, and take a break after two timeouts in a row.
+- [ ] After a restart, the host restarts the timers the state calls for: `startHand` does it for `nextHand` today; the turn timer needs its own way back. The host keeps the IDs of its open tables to find them.
+- Pages: reference _Timers_ (the turn timer), how-to _Set the time limits_, how-to _Resume tables after a restart_.
 
 ## 2. A table to play at
 
