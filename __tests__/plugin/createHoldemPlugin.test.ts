@@ -109,3 +109,23 @@ it("filters the state with viewTable", async () => {
   expect(view.you).toBeNull();
   expect(view.seats[0]?.name).toBe("a");
 });
+
+it("accepts a timeout only from the system, for the current turn", async () => {
+  const draw = deck(["AhAs", "KdKc"], 0);
+  const game = createHoldemPlugin({ draw });
+  const table = unwrap(
+    await game.executeAction(
+      tableWith([seated("a"), seated("b")]),
+      { type: "startHand" },
+      SYSTEM
+    )
+  ).state;
+  const timeout = { type: "timeout", hand: 1, turn: 0 } as const;
+  expect(await game.validateAction(table, timeout, "a")).toBe(
+    "Only the host can do that"
+  );
+  expect(await game.validateAction(table, timeout, SYSTEM)).toBe(true);
+  expect(
+    await game.validateAction(table, { ...timeout, turn: 1 }, SYSTEM)
+  ).toBe("That turn is over");
+});

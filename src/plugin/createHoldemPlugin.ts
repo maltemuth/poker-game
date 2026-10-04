@@ -7,7 +7,8 @@
  * - Players' actions are the table's; the system's are starting a hand,
  *   pausing and resuming (decision 0012).
  * - Each audience's view is `viewTable` (decision 0005 for shown hands).
- * - Hands start by themselves, by the `nextHand` timer (decision 0013).
+ * - Hands start by themselves, by the `nextHand` timer (decision 0013), and
+ *   a turn that runs out folds, by the `turn` timer (decision 0014).
  *
  * Cards are drawn with `draw`, at random by default; tests pass a fixed deck.
  */
@@ -24,6 +25,7 @@ import type { TableView } from "../views/TableView.js";
 import { viewTable } from "../views/viewTable.js";
 import { audienceChanges } from "./audienceChanges.js";
 import { nextHandTimer } from "./nextHandTimer.js";
+import { turnTimer } from "./turnTimer.js";
 import { type HoldemAction, isSystemAction } from "./HoldemAction.js";
 import { applySystemAction, checkSystemAction } from "./systemActions.js";
 
@@ -64,9 +66,14 @@ export const createHoldemPlugin = ({
       : applyTableAction(table, playerId, action, draw);
     const audiences = audienceChanges(table, after);
     const dealt = isSystemAction(action) && action.type === "startHand";
-    const timers = nextHandTimer(table, after, dealt);
-    return Object.keys(audiences).length > 0 || timers.schedule || timers.cancel
-      ? transition(after, { audiences, ...timers })
+    const timers = [
+      nextHandTimer(table, after, dealt),
+      turnTimer(table, after),
+    ];
+    const schedule = timers.flatMap((timer) => timer.schedule ?? []);
+    const cancel = timers.flatMap((timer) => timer.cancel ?? []);
+    return Object.keys(audiences).length > 0 || schedule.length || cancel.length
+      ? transition(after, { audiences, schedule, cancel })
       : after;
   },
 
