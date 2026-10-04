@@ -41,6 +41,15 @@ it("counts earlier betting rounds in the totals", () => {
   });
 });
 
+it("returns nothing to a player who folded, out of turn", () => {
+  // heads-up: the big blind folded before the small blind acted
+  const seats = [
+    seat(0, { bet: 50, stack: 950 }),
+    seat(1, { bet: 100, stack: 900, folded: true }),
+  ];
+  expect(returnUncalledBet(seats)).toBe(seats);
+});
+
 it("returns nothing when the highest total was matched", () => {
   const seats = [seat(0, { bet: 400 }), seat(1, { bet: 400 }), seat(2)];
   expect(returnUncalledBet(seats)).toBe(seats);
