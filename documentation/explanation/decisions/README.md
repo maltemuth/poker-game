@@ -14,6 +14,7 @@ Records aren't edited after the fact, except to update their status. A decision 
 | [0006](0006-new-players-by-table-option.md)       | How new players join a running game is a table option                             | Accepted |
 | [0007](0007-moving-button.md)                     | The button moves to the next player dealt in                                      | Accepted |
 | [0008](0008-busted-players-become-spectators.md)  | Players without chips become spectators                                           | Accepted |
+| [0009](0009-standing-up-folds.md)                 | Standing up folds                                                                 | Accepted |
 
 ## Writing a record
 
