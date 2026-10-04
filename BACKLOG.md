@@ -8,18 +8,23 @@ Each milestone lists the pages it writes or updates ([Writing documentation](doc
 
 ## 1. Betting
 
-Chips and seats only, no cards. Depends on: betting actions.
+Chips and seats only, no cards. The rules take a fold or a total to bet to, and the buttons are translated ([0002](documentation/explanation/decisions/0002-fold-or-bet-to.md)).
 
 A possible layout, one small file each:
 
-| File                            | Purpose                                                                                              |
-| ------------------------------- | ---------------------------------------------------------------------------------------------------- |
-| `src/betting/BettingRound.ts`   | The state of one betting round: seats in order, stacks, bets on this street, folded and all-in seats |
-| `src/betting/postBlinds.ts`     | Who posts the small and big blind, and how much, including heads-up and short stacks                 |
-| `src/betting/allowedActions.ts` | What the player to act may do: fold, check, call and how much, raise from and to                     |
-| `src/betting/checkAction.ts`    | Accepts an action, or returns why not                                                                |
-| `src/betting/applyAction.ts`    | The betting round after an accepted action                                                           |
-| `src/betting/nextToAct.ts`      | Who acts next, or that the round is over                                                             |
+| File                           | Purpose                                                                                       |
+| ------------------------------ | --------------------------------------------------------------------------------------------- |
+| `src/betting/BettingRound.ts`  | The state of one betting round: seats in order, stacks, bets on this street, the bet to match |
+| `src/betting/seatStatus.ts`    | Whether a seat is still in the hand, all-in, or can still act                                 |
+| `src/betting/nextToAct.ts`     | Who acts next, or that the round is over                                                      |
+| `src/betting/postBlinds.ts`    | The first round of a hand: who posts the blinds and how much, and who acts first              |
+| `src/betting/nextStreet.ts`    | The betting round of the next street                                                          |
+| `src/betting/allowedBets.ts`   | The totals the player to act may bet to                                                       |
+| `src/betting/checkAction.ts`   | Accepts a rule action, or returns why not                                                     |
+| `src/betting/applyAction.ts`   | The betting round after an accepted action                                                    |
+| `src/ui/UiAction.ts`           | The buttons: fold, check, call, raise to, all-in                                              |
+| `src/ui/availableUiActions.ts` | The buttons that apply to the player to act, with their amounts                               |
+| `src/ui/translateUiAction.ts`  | A button as a rule action, or why it doesn't apply                                            |
 
 - [ ] Posting the blinds. Heads-up, the button posts the small blind and acts first before the flop. A player who can't cover a blind posts what they have and is all-in.
 - [ ] Allowed actions:
@@ -29,6 +34,7 @@ A possible layout, one small file each:
   - all-in for any amount up to the stack.
 - [ ] An all-in that isn't a full raise doesn't reopen the betting for players who have already acted: they may only call or fold.
 - [ ] The round is over when every player still in has acted and matched the bet, or is all-in. Before the flop, the big blind gets to act even when everyone just called.
+- [ ] Translating buttons into rule actions, and the buttons that apply.
 - [ ] Tests: every rule above, and chips conserved after every action.
 - Pages: reference _Rules as implemented_ (blinds, betting), reference _Actions_ (betting).
 

@@ -108,10 +108,7 @@ Recommended: B. Side pots follow from the distinct contribution levels, so stori
 
 ### The betting actions
 
-- **A. `bet` and `raise` with an amount added,** as the sketch's `betAmount`.
-- **B. One `raise` action with the total to raise to on this street,** `{ type: "raise", to: 300 }`, plus `fold`, `check` and `call`. All-in is a raise to the whole stack, or a call for less.
-
-Recommended: B. "Raise to" is how players and most poker software state bets. It also makes the minimum raise easy to check: `to` must be at least the current bet plus the last full raise, unless the player goes all-in.
+Decided in [0002](../decisions/0002-fold-or-bet-to.md): the rules take `fold`, or `bet` with the total to bet to on this street. The buttons a player clicks, `fold`, `check`, `call`, `raise` with `to` and `allIn`, are translated into those two.
 
 ### Audiences
 
