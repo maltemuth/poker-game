@@ -1,7 +1,7 @@
 /**
  * The package's entry point: everything a host or a client imports from
  * poker-game. Rules are exported here as they're added: so far the betting,
- * the pots, the hand, and the buttons players click.
+ * the pots, the hand, the table, and the buttons players click.
  */
 
 export type { BettingAction } from "./betting/BettingAction.js";
@@ -14,7 +14,7 @@ export { betToMatch } from "./betting/betToMatch.js";
 export { checkAction } from "./betting/checkAction.js";
 export { nextBettingRound } from "./betting/nextBettingRound.js";
 export { nextToAct } from "./betting/nextToAct.js";
-export { postBlinds } from "./betting/postBlinds.js";
+export { blindPositions, postBlinds } from "./betting/postBlinds.js";
 export { canAct, isAllIn, isInHand } from "./betting/seatStatus.js";
 
 export type { Card } from "./hand/cards.js";
@@ -46,6 +46,27 @@ export { clockwiseFromButton, oddChipOrder } from "./pots/oddChips.js";
 export { pots } from "./pots/pots.js";
 export { splitPot } from "./pots/splitPot.js";
 export { returnUncalledBet } from "./pots/uncalledBet.js";
+
+export type { Person, SeatedPlayer, Table } from "./table/Table.js";
+export type { TableAction } from "./table/TableAction.js";
+export type { NewPlayerRule, TableOptions } from "./table/TableOptions.js";
+export type { TableOptionsInput } from "./table/newTable.js";
+export type { Deal } from "./table/playersToDeal.js";
+export { addSpectator } from "./table/addSpectator.js";
+export { applyTableAction } from "./table/applyTableAction.js";
+export { checkTableAction } from "./table/checkTableAction.js";
+export {
+  handIsRunning,
+  handSeatOf,
+  isSpectator,
+  playingSeats,
+  seatOf,
+} from "./table/lookups.js";
+export { newTable } from "./table/newTable.js";
+export { newPlayerRules } from "./table/TableOptions.js";
+export { playersToDeal } from "./table/playersToDeal.js";
+export { settleHand } from "./table/settleHand.js";
+export { checkStartHand, startNextHand } from "./table/startNextHand.js";
 
 export type { UiAction } from "./ui/UiAction.js";
 export type { UiOption } from "./ui/availableUiActions.js";
