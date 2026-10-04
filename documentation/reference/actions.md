@@ -1,6 +1,41 @@
 # Actions
 
-What players send to act, and what they're translated into ([0002](../explanation/decisions/0002-fold-or-bet-to.md)). So far, only betting actions exist; seating actions follow with the table.
+What players send to act at a table, and what the betting buttons are translated into ([0002](../explanation/decisions/0002-fold-or-bet-to.md)).
+
+## At the table
+
+A player's action at a table is a `TableAction`: a seating action, or a betting button.
+
+```ts
+type TableAction =
+  | { type: "sitDown"; seat: number; buyIn: number } // seat numbers start at 1
+  | { type: "standUp" }
+  | { type: "sitOut" }
+  | { type: "sitIn" }
+  | UiAction; // the betting buttons, below
+```
+
+| Function                                                                                 | Returns                                                                     |
+| ---------------------------------------------------------------------------------------- | --------------------------------------------------------------------------- |
+| [`checkTableAction(table, playerId, action)`](../../src/table/checkTableAction.ts)       | `true`, or the reason the action is rejected                                |
+| [`applyTableAction(table, playerId, action, draw)`](../../src/table/applyTableAction.ts) | The table after the action. Throws if `checkTableAction` rejects the action |
+
+`draw` deals the board cards a betting action may bring ([Test the rules with a fixed deck](../how-to/test-with-a-fixed-deck.md)). People join a table as spectators, with [`addSpectator(table, person)`](../../src/table/addSpectator.ts), and hands are started by the host, with [`startNextHand(table, draw)`](../../src/table/startNextHand.ts); neither is a player's action.
+
+### Seating
+
+| Action    | What it does                                                                                                                           | Reasons it's rejected                                                                                                                                                            |
+| --------- | -------------------------------------------------------------------------------------------------------------------------------------- | -------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `sitDown` | A spectator takes a free seat with a buy-in. If a game is running, they're a new player ([Table options](table-options.md#newplayers)) | `You already have a seat`, `Only people at the table can sit down`, `There's no seat <n>`, `Seat <n> is taken`, `The buy-in must be a whole number of chips from <min> to <max>` |
+| `standUp` | The player becomes a spectator with their chips. If they were dealt into the hand being played, that happens when it's over            | `You don't have a seat`                                                                                                                                                          |
+| `sitOut`  | The player keeps their seat and chips, but isn't dealt in from the next hand                                                           | `You don't have a seat`, `You're already sitting out`                                                                                                                            |
+| `sitIn`   | The player is dealt in again from the next hand                                                                                        | `You don't have a seat`, `You aren't sitting out`                                                                                                                                |
+
+### Betting at the table
+
+A betting button is accepted only from the player to act in the hand being played. Before it's translated, it can be rejected with `No hand is being played`, `You aren't in this hand` or `It's not your turn`. When an action ends the hand, the hand is settled onto the table at once ([Rules](rules.md#between-hands)).
+
+Any other `type` is rejected with `Unknown action`.
 
 ## Buttons
 
