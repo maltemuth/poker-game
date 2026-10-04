@@ -77,3 +77,25 @@ it("refuses hands that the table should never deal", () => {
     "Every player dealt in needs chips"
   );
 });
+
+describe("extra big blinds from new players", () => {
+  it("posts a live big blind, and the poster still gets to act", () => {
+    // seat 4 is new and posts a big blind; seat 1 acts first after the big blind
+    const round = postBlinds(
+      players(1000, 1000, 1000, 1000, 1000),
+      0,
+      blinds,
+      [3]
+    );
+    expect(round.seats.map((seat) => seat.bet)).toEqual([0, 50, 100, 100, 0]);
+    expect(round.currentBet).toBe(100);
+    expect(round.toAct).toBe(3);
+    expect(round.seats[3].actedAt).toBeNull();
+  });
+
+  it("refuses an extra big blind from a blind", () => {
+    expect(() => postBlinds(players(1000, 1000, 1000), 0, blinds, [1])).toThrow(
+      "The blinds don't post an extra big blind"
+    );
+  });
+});
