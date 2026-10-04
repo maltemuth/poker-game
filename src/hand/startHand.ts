@@ -18,16 +18,18 @@ import type { Hand } from "./Hand.js";
 /**
  * @param players - The players dealt in, in clockwise order
  * @param button - Index into `players` of the button
- * @throws {Error} For hands postBlinds refuses: fewer than two players, or a
- *   player without chips
+ * @param extraBigBlinds - Indices of new players who post a big blind too
+ * @throws {Error} For hands postBlinds refuses: fewer than two players, a
+ *   player without chips, or an extra big blind from a blind
  */
 export const startHand = (
   players: DealtSeat[],
   button: number,
   blinds: Blinds,
-  draw: Draw
+  draw: Draw,
+  extraBigBlinds: number[] = []
 ): Hand => {
-  const betting = postBlinds(players, button, blinds);
+  const betting = postBlinds(players, button, blinds, extraBigBlinds);
   const order = clockwiseFromButton(betting).map((seat) =>
     betting.seats.findIndex((other) => other.seat === seat)
   );

@@ -52,3 +52,14 @@ it("deals the whole board at once when the blinds put everyone all-in", () => {
   expect(hand.board).toEqual(["2c", "7d", "9h", "Js", "Qc"]);
   expect(hand.result).not.toBeNull();
 });
+
+it("passes extra big blinds on to the betting", () => {
+  const hand = startHand(
+    players(1000, 1000, 1000, 1000),
+    0,
+    blinds,
+    deck(["AhAs", "KdKc", "QhQs", "JdJc"], 0),
+    [3]
+  );
+  expect(hand.betting.seats.map((seat) => seat.bet)).toEqual([0, 50, 100, 100]);
+});
