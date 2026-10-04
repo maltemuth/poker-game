@@ -18,6 +18,7 @@ Records aren't edited after the fact, except to update their status. A decision 
 | [0010](0010-standing-up-is-a-break.md)            | Standing up is a break; leaving takes the chips                                   | Accepted                                      |
 | [0011](0011-tests-load-esm-natively.md)           | Tests load ES modules natively                                                    | Accepted                                      |
 | [0012](0012-host-controls-the-table.md)           | The host controls the table                                                       | Accepted                                      |
+| [0013](0013-hands-start-by-themselves.md)         | Hands start by themselves, after a delay                                          | Accepted                                      |
 
 ## Writing a record
 
