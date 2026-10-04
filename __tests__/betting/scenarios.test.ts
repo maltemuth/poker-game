@@ -15,6 +15,7 @@ import { availableUiActions } from "../../src/ui/availableUiActions.js";
 import { translateUiAction } from "../../src/ui/translateUiAction.js";
 import type { UiAction } from "../../src/ui/UiAction.js";
 import { chips } from "../helpers/betting.js";
+import { random } from "../helpers/random.js";
 
 const blinds = { small: 50, big: 100 };
 const players = (...stacks: number[]) =>
@@ -92,14 +93,6 @@ it("deals out without betting once everyone is all-in", () => {
     expect(round.toAct).toBeNull();
   }
 });
-
-/** A small seeded generator, so a failing run can be repeated */
-const random = (seed: number) => () => {
-  seed = (seed + 0x6d2b79f5) | 0;
-  let t = Math.imul(seed ^ (seed >>> 15), 1 | seed);
-  t = (t + Math.imul(t ^ (t >>> 7), 61 | t)) ^ t;
-  return ((t ^ (t >>> 14)) >>> 0) / 4294967296;
-};
 
 /** A random button from the ones offered, with a random raise in the range */
 const randomButton = (round: BettingRound, next: () => number): UiAction => {
