@@ -41,6 +41,7 @@ Cards are strings, a value (`2`–`9`, `T`, `J`, `Q`, `K`, `A`) and a suit (`h`,
 - **The next cards are dealt as soon as a betting round is over,** by the action that ends it.
 - **A betting round in which no one can act is passed straight through:** when everyone left is all-in, the rest of the board is dealt at once.
 - **The hand ends early** when only one player is left in it; no more cards are dealt.
+- **A fold out of turn,** when a player stands up, leaves the player to act as they were, unless no one is left to bet against. The folded player's chips are dead money: none of them come back as an uncalled bet.
 
 ## What a player may do
 
@@ -132,7 +133,7 @@ The hand goes to showdown when the betting on the river is over with at least tw
 When a hand is over, every player dealt in gets their stack from it, winnings included. Then:
 
 - **Players without chips become spectators** ([0008](../explanation/decisions/0008-busted-players-become-spectators.md)). To play again, they sit down with a new buy-in.
-- **Players who stood up during the hand become spectators,** with their chips. Players dealt in can stand up at any time, even after folding; their chips stay in the hand until it's over.
+- **Players who stood up during the hand become spectators,** with the chips they didn't bet. Standing up folded their hand at once, in turn or not ([0009](../explanation/decisions/0009-standing-up-folds.md)); their seat stays part of the hand until it's over.
 
 ### Who is dealt in
 
