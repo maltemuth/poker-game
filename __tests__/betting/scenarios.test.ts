@@ -1,11 +1,12 @@
 /**
  * Betting through whole hands, the way the hand layer will drive it: post
- * the blinds, act until the round is over, start the next street. Scripted
- * hands check known situations; random play checks that chips are conserved
- * and every round comes to an end.
+ * the blinds, act until the round is over, start the next street, award the
+ * pots. Scripted hands check known situations; random play checks that chips
+ * are conserved, every round comes to an end and every hand is paid out.
  */
 
 import { applyAction } from "../../src/betting/applyAction.js";
+import { awardPots } from "../../src/pots/awardPots.js";
 import type { BettingRound } from "../../src/betting/BettingRound.js";
 import { nextStreet } from "../../src/betting/nextStreet.js";
 import { postBlinds } from "../../src/betting/postBlinds.js";
@@ -111,7 +112,12 @@ const randomButton = (round: BettingRound, next: () => number): UiAction => {
   };
 };
 
-it("conserves chips and ends every round in random play", () => {
+/** Every chip: stacks, bets in front of the players, and the pots */
+const onTable = (round: BettingRound): number =>
+  round.seats.reduce((sum, seat) => sum + seat.stack + seat.bet, 0) +
+  round.pots.reduce((sum, pot) => sum + pot.amount, 0);
+
+it("conserves chips, ends every round and pays out every hand in random play", () => {
   for (let game = 0; game < 300; game++) {
     const next = random(game);
     const count = 2 + Math.floor(next() * 8);
@@ -126,14 +132,29 @@ it("conserves chips and ends every round in random play", () => {
       if (street > 0) {
         if (round.seats.filter(isInHand).length < 2) break;
         round = nextStreet(round);
+        expect(onTable(round)).toBe(total);
+        // only players still in the hand can win a pot
+        const inHand = round.seats.filter(isInHand).map((seat) => seat.seat);
+        for (const pot of round.pots) {
+          expect(pot.seats.every((seat) => inHand.includes(seat))).toBe(true);
+        }
       }
       // every action moves the round on, so it ends within a bounded number of steps
       for (let step = 0; round.toAct !== null; step++) {
         expect(step).toBeLessThan(count * 50);
         round = click(round, randomButton(round, next));
         expect(chips(round)).toBe(total);
+        expect(onTable(round)).toBe(total);
         expect(round.seats.every((seat) => seat.stack >= 0)).toBe(true);
       }
     }
+
+    // ranks from 0 to 2, so ties are common
+    const ranks = Object.fromEntries(
+      round.seats.map((seat) => [seat.seat, Math.floor(next() * 3)])
+    );
+    const { round: paid } = awardPots(round, ranks);
+    expect(paid.seats.reduce((sum, seat) => sum + seat.stack, 0)).toBe(total);
+    expect(paid.pots).toEqual([]);
   }
 });
