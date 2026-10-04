@@ -136,12 +136,7 @@ Recommended: A. For poker, starting a turn over with its full time after a resta
 
 ### Who controls the table
 
-The sketch has `START`, `PAUSE` and `UNPAUSE` actions. In Remote State, roles belong to the game state ([0022](../../../../remote-state/docs/explanation/decisions/0022-roles-belong-to-game-state.md)), and the host can act as the system.
-
-- **A. Only the host:** pausing, resuming and closing a table are system actions the host runs through `act`, for example from an admin page.
-- **B. An owner in the state:** the person who created the table may pause and close it from the client.
-
-Recommended: A first. Hands start by themselves once two players sit, so no one needs to press start.
+Decided in [0012](../decisions/0012-host-controls-the-table.md): starting a hand, pausing and resuming are system actions, sent by the host through `act`, and later by the timers.
 
 ## Open questions
 
