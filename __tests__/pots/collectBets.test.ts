@@ -1,9 +1,9 @@
 /**
  * Tests for collecting the bets at the end of a betting round, and for the
- * next street collecting them itself.
+ * next betting round collecting them itself.
  */
 
-import { nextStreet } from "../../src/betting/nextStreet.js";
+import { nextBettingRound } from "../../src/betting/nextBettingRound.js";
 import { collectBets } from "../../src/pots/collectBets.js";
 import { chips, round } from "../helpers/betting.js";
 
@@ -60,8 +60,8 @@ it("refuses while the round is still on", () => {
   );
 });
 
-it("is done by the next street", () => {
-  const flop = nextStreet(allInCalled);
+it("is done by the next betting round", () => {
+  const flop = nextBettingRound(allInCalled);
   expect(flop.pots).toEqual(collectBets(allInCalled).pots);
   expect(flop.seats.map((seat) => seat.bet)).toEqual([0, 0, 0]);
 });

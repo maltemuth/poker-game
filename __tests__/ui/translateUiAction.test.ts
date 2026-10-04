@@ -12,7 +12,7 @@ const facingRaise = round(
   [{ bet: 300, stack: 700, actedAt: 300 }, { bet: 100, stack: 900 }, {}],
   { toAct: 1, currentBet: 300, minRaise: 200 }
 );
-// nothing bet on this street
+// nothing bet in this betting round
 const unopened = round([{}, {}]);
 
 it("translates a fold", () => {

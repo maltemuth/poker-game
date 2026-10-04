@@ -18,7 +18,7 @@ it("exports the betting rules, the pots and the button translation", () => {
     "collectBets",
     "isAllIn",
     "isInHand",
-    "nextStreet",
+    "nextBettingRound",
     "nextToAct",
     "oddChipOrder",
     "postBlinds",

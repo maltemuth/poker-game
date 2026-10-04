@@ -8,6 +8,6 @@ export type UiAction =
   | { type: "fold" }
   | { type: "check" }
   | { type: "call" }
-  /** Raise, or bet first on a street, to `to` chips in total on this street */
+  /** Raise, or bet first in a betting round, to `to` chips in total in this betting round */
   | { type: "raise"; to: number }
   | { type: "allIn" };

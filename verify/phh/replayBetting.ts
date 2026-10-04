@@ -13,7 +13,7 @@ import { applyAction } from "../../src/betting/applyAction.js";
 import { allowedBets } from "../../src/betting/allowedBets.js";
 import type { BettingRound } from "../../src/betting/BettingRound.js";
 import { checkAction } from "../../src/betting/checkAction.js";
-import { nextStreet } from "../../src/betting/nextStreet.js";
+import { nextBettingRound } from "../../src/betting/nextBettingRound.js";
 import { postBlinds } from "../../src/betting/postBlinds.js";
 import { isInHand } from "../../src/betting/seatStatus.js";
 import { translateUiAction } from "../../src/ui/translateUiAction.js";
@@ -73,7 +73,7 @@ export const replayBetting = (hand: BettingHand): Disagreement | null => {
       if (round.seats.filter(isInHand).length < 2) {
         return disagree("board dealt after the hand was won");
       }
-      round = nextStreet(round);
+      round = nextBettingRound(round);
       continue;
     }
 

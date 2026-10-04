@@ -6,7 +6,7 @@
  * returned.
  *
  * Bets are collected at the end of every betting round (decision 0003), so
- * an uncalled part is always part of the bet on the street.
+ * an uncalled part is always part of a bet in the current betting round.
  */
 
 import type { BettingSeat } from "../betting/BettingRound.js";
@@ -23,7 +23,9 @@ export const returnUncalledBet = (seats: BettingSeat[]): BettingSeat[] => {
 
   const seat = seats[top];
   if (uncalled > seat.bet) {
-    throw new Error("An uncalled bet from an earlier street wasn't returned");
+    throw new Error(
+      "An uncalled bet from an earlier betting round wasn't returned"
+    );
   }
   const returned: BettingSeat = {
     ...seat,

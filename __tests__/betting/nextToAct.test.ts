@@ -54,7 +54,7 @@ it("ends the round when only one seat is left in the hand", () => {
 });
 
 it("ends the round when no one could bet against the last seat that can act", () => {
-  // seat 1 is all-in; seat 0 has matched it, or hasn't acted on a new street
+  // seat 1 is all-in; seat 0 has matched it, or hasn't acted in a new betting round
   const matchedAllIn = round(
     [
       { bet: 500, actedAt: 500 },
@@ -63,8 +63,8 @@ it("ends the round when no one could bet against the last seat that can act", ()
     { currentBet: 500 }
   );
   expect(nextToAct(matchedAllIn, 1)).toBeNull();
-  const nextStreet = round([{}, { stack: 0 }]);
-  expect(nextToAct(nextStreet, 1)).toBeNull();
+  const newRound = round([{}, { stack: 0 }]);
+  expect(nextToAct(newRound, 1)).toBeNull();
 });
 
 it("still asks the last seat that can act to call an all-in", () => {

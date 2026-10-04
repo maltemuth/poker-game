@@ -1,7 +1,7 @@
 /**
  * Who acts next in a betting round, going clockwise. A seat must act if it
- * owes chips to the bet it has to match, or if it hasn't acted on this
- * street yet and someone else could still bet against it. When no seat must
+ * owes chips to the bet it has to match, or if it hasn't acted in this
+ * betting round yet and someone else could still bet against it. When no seat must
  * act, the round is over.
  */
 

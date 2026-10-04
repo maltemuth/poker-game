@@ -2,7 +2,7 @@
 
 The no-limit Texas Hold'em rules poker-game applies, as built so far: the blinds, the betting, and the pots. The code is in [`src/betting/`](../../src/betting/) and [`src/pots/`](../../src/pots/). Ranking hands at showdown follows with the hand ([BACKLOG.md](../../BACKLOG.md)); until then, the pots are split by ranks passed in as numbers.
 
-Amounts are whole chips. "Bet" below means a player's chips put in on the current street, and "the bet to match" is the highest bet on the street.
+Amounts are whole chips. "Bet" below means the chips a player has bet in the current betting round, and "the bet to match" is the highest bet in it.
 
 ## Blinds
 
@@ -20,7 +20,7 @@ Amounts are whole chips. "Bet" below means a player's chips put in on the curren
 
 - **Play goes clockwise,** skipping players who have folded or are all-in.
 - **After the flop,** the first player left of the button who can act starts. Heads-up, that's the big blind.
-- **A player must act** if they owe chips to the bet to match, or if they haven't acted on this street and someone else could still bet against them.
+- **A player must act** if they owe chips to the bet to match, or if they haven't acted in this betting round and someone else could still bet against them.
 - **The betting round is over** when no player must act:
   - everyone still in has acted and matched the bet, or is all-in;
   - or only one player is left in the hand.
@@ -30,17 +30,17 @@ Amounts are whole chips. "Bet" below means a player's chips put in on the curren
 
 The player to act may always fold. Otherwise they bet to a total ([0002](../explanation/decisions/0002-fold-or-bet-to.md)):
 
-| Total                                   | Meaning                                     | When                                       |
-| --------------------------------------- | ------------------------------------------- | ------------------------------------------ |
-| What they already have in               | Check                                       | Nothing is owed                            |
-| The bet to match, or everything if less | Call; for everything, an all-in call        | Something is owed                          |
-| From the minimum raise to everything    | Raise; on an unopened street, the first bet | Raising is allowed (below)                 |
-| Everything, if below the minimum raise  | All-in raise for less                       | Raising is allowed, and the stack is short |
+| Total                                   | Meaning                                            | When                                       |
+| --------------------------------------- | -------------------------------------------------- | ------------------------------------------ |
+| What they already have in               | Check                                              | Nothing is owed                            |
+| The bet to match, or everything if less | Call; for everything, an all-in call               | Something is owed                          |
+| From the minimum raise to everything    | Raise; in an unopened betting round, the first bet | Raising is allowed (below)                 |
+| Everything, if below the minimum raise  | All-in raise for less                              | Raising is allowed, and the stack is short |
 
 ### The minimum raise
 
-- **The first bet on a street** is at least the big blind.
-- **A raise** must add at least the last full raise on the street to the bet to match. Before any raise, that's the big blind.
+- **The first bet in a betting round** is at least the big blind.
+- **A raise** must add at least the last full raise in the betting round to the bet to match. Before any raise, that's the big blind.
 - **A raise that adds at least that much is a full raise.** It sets the minimum for the next raise. An all-in that adds less leaves the minimum as it was.
 
 Example, blinds 50/100: a raise to 300 adds 200, so the next raise must be to at least 500.
@@ -51,7 +51,7 @@ All three must hold:
 
 1. **The player has more than the call.**
 2. **Someone else can still act.** Against players who are all all-in, there's no one to raise.
-3. **The betting is open to the player.** Either they haven't acted on this street, or the bet to match has gone up by at least a full raise since they last acted.
+3. **The betting is open to the player.** Either they haven't acted in this betting round, or the bet to match has gone up by at least a full raise since they last acted.
 
 So an all-in that adds less than a full raise doesn't reopen the betting for players who have already acted: they may only call or fold. Several such all-ins reopen it once together they add up to a full raise.
 
@@ -63,7 +63,7 @@ When no one else in the hand can act, the last player only has to match what the
 
 ## Pots
 
-Pots are collected when a betting round is over, before the next street and at the end of the hand ([0003](../explanation/decisions/0003-pots-stored-at-round-end.md)). During a round, the stored pots show what was collected before it, and each player's bet on the street is in front of them.
+Pots are collected when a betting round is over, before the next betting round and at the end of the hand ([0003](../explanation/decisions/0003-pots-stored-at-round-end.md)). During a round, the stored pots show what was collected before it, and each player's bet in the betting round is in front of them.
 
 ### The uncalled bet
 

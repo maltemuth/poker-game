@@ -11,7 +11,7 @@ type UiAction =
   | { type: "fold" }
   | { type: "check" }
   | { type: "call" }
-  | { type: "raise"; to: number } // total on this street; also a first bet
+  | { type: "raise"; to: number } // total in this betting round; also a first bet
   | { type: "allIn" };
 ```
 
@@ -34,7 +34,7 @@ A `raise` is translated whatever its amount, so the rules check it: a raise belo
 What the betting rules take, a `BettingAction`:
 
 ```ts
-type BettingAction = { type: "fold" } | { type: "bet"; to: number }; // the player's total bet on this street
+type BettingAction = { type: "fold" } | { type: "bet"; to: number }; // the player's total bet in this betting round
 ```
 
 | Function                                                         | Returns                                                                |
@@ -55,13 +55,13 @@ type UiOption =
   | { type: "allIn"; to: number };
 ```
 
-| Option  | Listed             | Fields                                                                                        |
-| ------- | ------------------ | --------------------------------------------------------------------------------------------- |
-| `fold`  | Always             |                                                                                               |
-| `check` | Nothing is owed    |                                                                                               |
-| `call`  | Something is owed  | `amount`: the chips the call adds. `allIn`: the call takes everything the player has          |
-| `raise` | Raising is allowed | `min`, `max`: totals on this street. `firstBet`: no one has bet on the street; label it "bet" |
-| `allIn` | Raising is allowed | `to`: everything the player has, as a total                                                   |
+| Option  | Listed             | Fields                                                                                                      |
+| ------- | ------------------ | ----------------------------------------------------------------------------------------------------------- |
+| `fold`  | Always             |                                                                                                             |
+| `check` | Nothing is owed    |                                                                                                             |
+| `call`  | Something is owed  | `amount`: the chips the call adds. `allIn`: the call takes everything the player has                        |
+| `raise` | Raising is allowed | `min`, `max`: totals in this betting round. `firstBet`: no one has bet in the betting round; label it "bet" |
+| `allIn` | Raising is allowed | `to`: everything the player has, as a total                                                                 |
 
 When the player can't cover the call, there's no `allIn` option: the `call` is the all-in, with `allIn: true`.
 

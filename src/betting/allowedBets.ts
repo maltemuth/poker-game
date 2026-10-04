@@ -6,7 +6,7 @@
  * Raising is allowed only if
  * - the player has more than the call,
  * - someone else could still act on a raise, and
- * - the betting is open to this player: they haven't acted on this street,
+ * - the betting is open to this player: they haven't acted in this betting round,
  *   or the bet has gone up by at least a full raise since they did. An
  *   all-in for less than a full raise doesn't reopen the betting for players
  *   who have already acted; they may only call or fold.

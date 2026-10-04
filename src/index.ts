@@ -12,7 +12,7 @@ export { allowedBets } from "./betting/allowedBets.js";
 export { applyAction } from "./betting/applyAction.js";
 export { betToMatch } from "./betting/betToMatch.js";
 export { checkAction } from "./betting/checkAction.js";
-export { nextStreet } from "./betting/nextStreet.js";
+export { nextBettingRound } from "./betting/nextBettingRound.js";
 export { nextToAct } from "./betting/nextToAct.js";
 export { postBlinds } from "./betting/postBlinds.js";
 export { canAct, isAllIn, isInHand } from "./betting/seatStatus.js";

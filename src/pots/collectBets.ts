@@ -4,7 +4,7 @@
  * pots, and the pots are computed again from every seat's total for the
  * hand. Collecting twice gives the same round.
  *
- * Starting the next street and awarding the pots collect the bets
+ * Starting the next betting round and awarding the pots collect the bets
  * themselves, so a round end can't be missed.
  */
 

@@ -28,7 +28,7 @@ it("returns what a short all-in call didn't cover", () => {
   });
 });
 
-it("counts earlier streets in the totals", () => {
+it("counts earlier betting rounds in the totals", () => {
   // both put in 500 before; now seat 1 bets 200 and seat 2 folds
   const seats = [
     seat(0, { bet: 200, committed: 700, stack: 300 }),
@@ -46,12 +46,12 @@ it("returns nothing when the highest total was matched", () => {
   expect(returnUncalledBet(seats)).toBe(seats);
 });
 
-it("refuses an uncalled part beyond this street's bet", () => {
+it("refuses an uncalled part beyond this betting round's bet", () => {
   const seats = [
     seat(0, { bet: 0, committed: 700 }),
     seat(1, { bet: 0, committed: 500 }),
   ];
   expect(() => returnUncalledBet(seats)).toThrow(
-    "An uncalled bet from an earlier street wasn't returned"
+    "An uncalled bet from an earlier betting round wasn't returned"
   );
 });

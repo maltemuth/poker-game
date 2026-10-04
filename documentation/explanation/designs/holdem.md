@@ -52,7 +52,7 @@ From the game:
 | Initial state passed to `createGame`  | An empty table with its options: blinds, buy-in range, number of seats, time limits          |
 | `admit` and `onJoin`                  | Everyone joins as a spectator, with the name the host passed                                 |
 | `validateAction`                      | Is it this player's turn, is the action allowed, and is the amount legal?                    |
-| `executeAction`                       | Apply the action. If a betting round closes, deal the next street or settle the hand         |
+| `executeAction`                       | Apply the action. If a betting round closes, deal the next cards or settle the hand          |
 | `filterStateForAudience`              | A seated player sees their own hole cards; spectators see none; shown hands are public       |
 | `transition(…, { schedule, cancel })` | The `turn` timer after every action that leaves someone to act; `nextHand` after a hand ends |
 | `SYSTEM` and the host's `act`         | Timeouts, starting the next hand, and the host pausing or closing the table                  |
@@ -71,7 +71,7 @@ The rules are plain functions of plain data, and know nothing about Remote State
    - when a betting round is over, and who acts next;
    - the main pot and side pots;
    - splitting each pot among its winners.
-2. **The hand.** Dealing, the four streets, and showdown, ranked with poker-hands.
+2. **The hand.** Dealing, the four betting rounds, and showdown, ranked with poker-hands.
 3. **The table.** Seats, buy-ins, the button moving from hand to hand, sitting out.
 4. **The plugin.** Validation, views, audiences and, last, timers, as a thin layer over the rules.
 
@@ -105,7 +105,7 @@ Decided in [0003](../decisions/0003-pots-stored-at-round-end.md): bets stay in f
 
 ### The betting actions
 
-Decided in [0002](../decisions/0002-fold-or-bet-to.md): the rules take `fold`, or `bet` with the total to bet to on this street. The buttons a player clicks, `fold`, `check`, `call`, `raise` with `to` and `allIn`, are translated into those two.
+Decided in [0002](../decisions/0002-fold-or-bet-to.md): the rules take `fold`, or `bet` with the total to bet to in this betting round. The buttons a player clicks, `fold`, `check`, `call`, `raise` with `to` and `allIn`, are translated into those two.
 
 ### Audiences
 
@@ -139,7 +139,7 @@ Two named timers:
   - The state keeps the turn's deadline, so clients can show a countdown. Remote State's [how-to](../../../../remote-state/docs/how-to/schedule-actions.md) keeps only the limit in the state, and its timers run on the server only. But `executeAction` may read the clock: its result is stored, and the filter just passes the deadline on.
 - **`nextHand`,** a few seconds after a hand is settled, so everyone can see the result. Its action starts the next hand if at least two seated players are in, and otherwise leaves the table waiting. When the second player sits down, `sitDown` starts a hand at once, or schedules `nextHand`.
 
-Dealing the flop, turn and river needs no timer: the action that closes a betting round deals the next street. When everyone left is all-in, the remaining streets can either be dealt at once (**A**) or with a `runout` timer, one street every second or two (**B**). B is better to watch, but adds a third timer. Recommended: A first.
+Dealing the flop, turn and river needs no timer: the action that closes a betting round deals the next cards. When everyone left is all-in, the remaining cards can either be dealt at once (**A**) or with a `runout` timer, one betting round's cards every second or two (**B**). B is better to watch, but adds a third timer. Recommended: A first.
 
 Restarts drop timers ([0042](../../../../remote-state/docs/explanation/decisions/0042-timer-restarts-open.md)). Remote State's answer, that a game waits until a player acts, doesn't help a poker table:
 

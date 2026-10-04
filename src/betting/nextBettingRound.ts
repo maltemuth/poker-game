@@ -1,7 +1,7 @@
 /**
- * The betting round of the next street, once the current one is over. The
- * street's bets are collected into the pots first (decision 0003), and the
- * new street starts with no bet, a minimum bet of the big blind, and the
+ * The next betting round, once the current one is over. The bets of the
+ * round are collected into the pots first (decision 0003), and the new
+ * round starts with no bet, a minimum bet of the big blind, and the
  * first player left of the button to act. Heads-up, that's the big blind.
  *
  * If at most one player can still act, no one does: the board is dealt out
@@ -15,9 +15,9 @@ import { isInHand } from "./seatStatus.js";
 
 /**
  * @throws {Error} If the round isn't over, or only one player is left in the
- *   hand; then the hand is over, and there's no next street.
+ *   hand; then the hand is over, and there's no next betting round.
  */
-export const nextStreet = (round: BettingRound): BettingRound => {
+export const nextBettingRound = (round: BettingRound): BettingRound => {
   if (round.toAct !== null) throw new Error("The betting round isn't over");
   if (round.seats.filter(isInHand).length < 2) {
     throw new Error("Only one player is left in the hand");

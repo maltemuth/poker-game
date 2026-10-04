@@ -1,6 +1,6 @@
 /**
  * Betting through whole hands, the way the hand layer will drive it: post
- * the blinds, act until the round is over, start the next street, award the
+ * the blinds, act until the round is over, start the next betting round, award the
  * pots. Scripted hands check known situations; random play checks that chips
  * are conserved, every round comes to an end and every hand is paid out.
  */
@@ -8,7 +8,7 @@
 import { applyAction } from "../../src/betting/applyAction.js";
 import { awardPots } from "../../src/pots/awardPots.js";
 import type { BettingRound } from "../../src/betting/BettingRound.js";
-import { nextStreet } from "../../src/betting/nextStreet.js";
+import { nextBettingRound } from "../../src/betting/nextBettingRound.js";
 import { postBlinds } from "../../src/betting/postBlinds.js";
 import { isInHand } from "../../src/betting/seatStatus.js";
 import { availableUiActions } from "../../src/ui/availableUiActions.js";
@@ -44,13 +44,13 @@ it("plays a hand to the river", () => {
   ]);
 
   // flop: the big blind acts first and bets, both call
-  round = nextStreet(round);
+  round = nextBettingRound(round);
   expect(round.toAct).toBe(2);
   round = click(round, raise(400), call, call);
 
   // turn and river: checked through
-  round = click(nextStreet(round), check, check, check);
-  round = click(nextStreet(round), check, check, check);
+  round = click(nextBettingRound(round), check, check, check);
+  round = click(nextBettingRound(round), check, check, check);
   expect(round.toAct).toBeNull();
   expect(round.seats.map((seat) => seat.committed)).toEqual([
     700, 50, 700, 700,
@@ -80,15 +80,15 @@ it("lets a short all-in through without reopening the betting", () => {
   round = click(round, call);
   expect(round.toAct).toBeNull();
   // two players can still act on the flop
-  expect(nextStreet(round).toAct).toBe(2);
+  expect(nextBettingRound(round).toAct).toBe(2);
 });
 
 it("deals out without betting once everyone is all-in", () => {
   let round = postBlinds(players(500, 800), 0, blinds);
   round = click(round, allIn, call);
   expect(round.toAct).toBeNull();
-  for (let street = 0; street < 3; street++) {
-    round = nextStreet(round);
+  for (let count = 0; count < 3; count++) {
+    round = nextBettingRound(round);
     expect(round.toAct).toBeNull();
   }
 });
@@ -128,10 +128,10 @@ it("conserves chips, ends every round and pays out every hand in random play", (
     const total = stacks.reduce((sum, stack) => sum + stack);
     let round = postBlinds(players(...stacks), game % count, blinds);
 
-    for (let street = 0; street < 4; street++) {
-      if (street > 0) {
+    for (let number = 0; number < 4; number++) {
+      if (number > 0) {
         if (round.seats.filter(isInHand).length < 2) break;
-        round = nextStreet(round);
+        round = nextBettingRound(round);
         expect(onTable(round)).toBe(total);
         // only players still in the hand can win a pot
         const inHand = round.seats.filter(isInHand).map((seat) => seat.seat);

@@ -1,5 +1,5 @@
 /**
- * What a seat must bring its bet on this street up to, to stay in the hand.
+ * What a seat must bring its bet in this betting round up to, to stay in the hand.
  *
  * That's the current bet, unless no one else in the hand can act any more.
  * Then the seat only has to match what the others actually bet: if a short

@@ -1,9 +1,9 @@
 /**
- * Tests for starting the next street: bets cleared but still committed, who
- * acts first, and streets without betting.
+ * Tests for starting the next betting round: bets cleared but still
+ * committed, who acts first, and rounds without betting.
  */
 
-import { nextStreet } from "../../src/betting/nextStreet.js";
+import { nextBettingRound } from "../../src/betting/nextBettingRound.js";
 import { chips, round } from "../helpers/betting.js";
 
 // the pre-flop round is over: everyone has 300 in, seat 1 folded
@@ -18,7 +18,7 @@ const preFlopOver = round(
 );
 
 it("clears the bets but keeps what each seat committed", () => {
-  const flop = nextStreet(preFlopOver);
+  const flop = nextBettingRound(preFlopOver);
   expect(flop.seats.map((seat) => seat.bet)).toEqual([0, 0, 0, 0]);
   expect(flop.seats.map((seat) => seat.committed)).toEqual([
     300, 100, 300, 300,
@@ -28,14 +28,14 @@ it("clears the bets but keeps what each seat committed", () => {
 });
 
 it("starts with no bet and a minimum bet of the big blind", () => {
-  const flop = nextStreet(preFlopOver);
+  const flop = nextBettingRound(preFlopOver);
   expect(flop.currentBet).toBe(0);
   expect(flop.minRaise).toBe(100);
 });
 
 it("has the first player left of the button act, skipping folded seats", () => {
-  expect(nextStreet(preFlopOver).toAct).toBe(0);
-  expect(nextStreet({ ...preFlopOver, button: 0 }).toAct).toBe(2);
+  expect(nextBettingRound(preFlopOver).toAct).toBe(0);
+  expect(nextBettingRound({ ...preFlopOver, button: 0 }).toAct).toBe(2);
 });
 
 it("has the big blind act first heads-up", () => {
@@ -47,7 +47,7 @@ it("has the big blind act first heads-up", () => {
     ],
     { button: 0, toAct: null, currentBet: 100 }
   );
-  expect(nextStreet(headsUp).toAct).toBe(1);
+  expect(nextBettingRound(headsUp).toAct).toBe(1);
 });
 
 it("has no one act when at most one player can", () => {
@@ -58,15 +58,15 @@ it("has no one act when at most one player can", () => {
     ],
     { toAct: null, currentBet: 1000 }
   );
-  expect(nextStreet(allIn).toAct).toBeNull();
+  expect(nextBettingRound(allIn).toAct).toBeNull();
 });
 
 it("refuses while the round is still on, or the hand is over", () => {
-  expect(() => nextStreet({ ...preFlopOver, toAct: 0 })).toThrow(
+  expect(() => nextBettingRound({ ...preFlopOver, toAct: 0 })).toThrow(
     "The betting round isn't over"
   );
   const foldedToOne = round([{}, { folded: true }], { toAct: null });
-  expect(() => nextStreet(foldedToOne)).toThrow(
+  expect(() => nextBettingRound(foldedToOne)).toThrow(
     "Only one player is left in the hand"
   );
 });
