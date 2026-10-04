@@ -1,6 +1,6 @@
 /**
- * A player who sits out sits in again: they're dealt in from the next hand,
- * without posting anything.
+ * A player back from a break sits in again: they're dealt in from the next
+ * hand, without posting anything.
  */
 
 import { seatOf } from "./lookups.js";
@@ -13,7 +13,7 @@ export interface SitIn {
 export const checkSitIn = (table: Table, playerId: string): true | string => {
   const index = seatOf(table, playerId);
   if (index === null) return "You don't have a seat";
-  return table.seats[index]?.sittingOut ? true : "You aren't sitting out";
+  return table.seats[index]?.sittingOut ? true : "You aren't on a break";
 };
 
 /**

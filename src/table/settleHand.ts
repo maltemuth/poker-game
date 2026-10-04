@@ -1,8 +1,8 @@
 /**
  * The table after a hand is over: every player dealt in gets their stack
  * from the hand, winnings included. Then players without chips become
- * spectators (decision 0008), and so do players who stood up during the
- * hand.
+ * spectators (decision 0008), and so do players who left during the hand
+ * (decision 0010).
  */
 
 import { removeFromSeat } from "./removeFromSeat.js";

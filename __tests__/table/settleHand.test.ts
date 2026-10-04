@@ -1,11 +1,11 @@
 /**
  * Tests for settling a finished hand onto the table: stacks with the
- * winnings, players without chips becoming spectators, and players who stood
- * up during the hand leaving.
+ * winnings, players without chips becoming spectators, and players who left
+ * during the hand going.
  */
 
 import { settleHand } from "../../src/table/settleHand.js";
-import { standUp } from "../../src/table/standUp.js";
+import { leave } from "../../src/table/leave.js";
 import { startNextHand } from "../../src/table/startNextHand.js";
 import type { Table } from "../../src/table/Table.js";
 import { applyHandAction } from "../../src/hand/applyHandAction.js";
@@ -54,14 +54,14 @@ it("makes a player without chips a spectator", () => {
   expect(table.spectators).toEqual([{ playerId: "b", name: "b" }]);
 });
 
-it("lets a player who stood up during the hand leave with their chips", () => {
+it("lets a player who left during the hand go with their chips", () => {
   const draw = deck(["AhAs", "KdKc", "QhQs"], 0);
   let table = startNextHand(
     tableWith([seated("a"), seated("b"), seated("c")]),
     draw
   );
-  // a, the button and first to act, stands up, which folds
-  table = standUp(table, "a", draw);
+  // a, the button and first to act, leaves, which folds
+  table = leave(table, "a", draw);
   expect(table.seats[0]?.leaving).toBe(true);
   expect(table.hand?.betting.seats[0].folded).toBe(true);
   // b (small blind) folds: c wins the blinds, and a leaves

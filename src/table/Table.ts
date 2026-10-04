@@ -19,11 +19,11 @@ export interface SeatedPlayer extends Person {
    * the hand's betting, and this is what they started it with.
    */
   stack: number;
-  /** Not dealt in until they sit in again */
+  /** On a break: not dealt in until they sit in again */
   sittingOut: boolean;
   /** Sat down while a game was running; dealt in by the table's `newPlayers` rule */
   newPlayer: boolean;
-  /** Stands up when the hand they're playing is over */
+  /** Leaves the table when the hand they're in is over */
   leaving: boolean;
 }
 

@@ -11,7 +11,7 @@ const rules = (newPlayers: NewPlayerRule) => ({
   options: { ...emptyTable().options, newPlayers },
 });
 
-it("deals in the players in the game, skipping empty seats and those sitting out", () => {
+it("deals in the players in the game, skipping empty seats and those on a break", () => {
   const table = tableWith(
     [
       seated("a"),

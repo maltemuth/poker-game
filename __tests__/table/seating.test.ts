@@ -1,12 +1,13 @@
 /**
  * Tests for seating: sitting down with a buy-in, new players at a running
- * game, standing up during and between hands, sitting out and in again.
+ * game, a break and sitting in again, and leaving, during and between hands.
  */
 
+import { applyHandAction } from "../../src/hand/applyHandAction.js";
 import { addSpectator } from "../../src/table/addSpectator.js";
+import { checkLeave, leave } from "../../src/table/leave.js";
 import { checkSitDown, sitDown } from "../../src/table/sitDown.js";
 import { checkSitIn, sitIn } from "../../src/table/sitIn.js";
-import { checkSitOut, sitOut } from "../../src/table/sitOut.js";
 import { checkStandUp, standUp } from "../../src/table/standUp.js";
 import { startNextHand } from "../../src/table/startNextHand.js";
 import type { Table } from "../../src/table/Table.js";
@@ -92,9 +93,55 @@ describe("sitting down", () => {
   });
 });
 
-describe("standing up", () => {
-  it("makes a player a spectator between hands", () => {
-    const after = standUp(
+describe("a break", () => {
+  const table = tableWith([seated("ann"), seated("bob")]);
+  const noCards = () => deck([], 0);
+
+  it("keeps the seat and chips, and isn't dealt in until sitting in again", () => {
+    const onBreak = standUp(table, "ann", noCards());
+    expect(onBreak.seats[0]).toMatchObject({ sittingOut: true, stack: 1000 });
+    expect(checkStandUp(onBreak, "ann")).toBe("You're already on a break");
+    expect(sitIn(onBreak, "ann").seats[0]?.sittingOut).toBe(false);
+    expect(checkSitIn(table, "ann")).toBe("You aren't on a break");
+  });
+
+  it("folds a running hand at once, out of turn", () => {
+    const draw = deck(["AhAs", "KdKc", "QhQs"], 0);
+    // a (button) is to act; c, the big blind, takes a break
+    let playing = startNextHand(
+      tableWith([seated("a"), seated("b"), seated("c")]),
+      draw
+    );
+    playing = standUp(playing, "c", draw);
+    expect(playing.hand?.betting.seats[2].folded).toBe(true);
+    expect(playing.hand?.betting.toAct).toBe(0);
+    expect(playing.seats[2]).toMatchObject({
+      sittingOut: true,
+      leaving: false,
+    });
+  });
+
+  it("keeps the seat when the fold ends the hand", () => {
+    const draw = deck(["AhAs", "KdKc"], 0);
+    let playing = startNextHand(tableWith([seated("a"), seated("b")]), draw);
+    playing = standUp(playing, "b", draw);
+    expect(playing.hand?.result).not.toBeNull();
+    // b's big blind is dead money; b keeps the seat with 900
+    expect(playing.seats.slice(0, 2).map((seat) => seat?.stack)).toEqual([
+      1100, 900,
+    ]);
+    expect(playing.seats[1]?.sittingOut).toBe(true);
+  });
+
+  it("refuses someone without a seat", () => {
+    expect(checkStandUp(table, "eve")).toBe("You don't have a seat");
+    expect(checkSitIn(table, "eve")).toBe("You don't have a seat");
+  });
+});
+
+describe("leaving", () => {
+  it("makes a player a spectator with their chips between hands", () => {
+    const after = leave(
       tableWith([seated("ann"), seated("bob")]),
       "ann",
       deck([], 0)
@@ -103,51 +150,43 @@ describe("standing up", () => {
     expect(after.spectators).toEqual([{ playerId: "ann", name: "ann" }]);
   });
 
-  it("refuses someone without a seat", () => {
-    expect(checkStandUp(emptyTable(), "ann")).toBe("You don't have a seat");
-  });
-});
-
-describe("sitting out and in", () => {
-  const table = tableWith([seated("ann"), seated("bob")]);
-
-  it("sits a player out, and in again", () => {
-    const out = sitOut(table, "ann");
-    expect(out.seats[0]?.sittingOut).toBe(true);
-    expect(checkSitOut(out, "ann")).toBe("You're already sitting out");
-    expect(sitIn(out, "ann").seats[0]?.sittingOut).toBe(false);
-    expect(checkSitIn(table, "ann")).toBe("You aren't sitting out");
-  });
-
-  it("refuses someone without a seat", () => {
-    expect(checkSitOut(table, "eve")).toBe("You don't have a seat");
-    expect(checkSitIn(table, "eve")).toBe("You don't have a seat");
-  });
-});
-
-describe("standing up during a hand", () => {
-  it("folds at once, out of turn, and leaves when the hand is over", () => {
+  it("folds a running hand at once, and leaves when it's over", () => {
     const draw = deck(["AhAs", "KdKc", "QhQs"], 0);
-    // a (button) is to act; c, the big blind, stands up
     let table = startNextHand(
       tableWith([seated("a"), seated("b"), seated("c")]),
       draw
     );
-    table = standUp(table, "c", draw);
+    table = leave(table, "c", draw);
     expect(table.hand?.betting.seats[2].folded).toBe(true);
-    expect(table.hand?.betting.toAct).toBe(0);
     expect(table.seats[2]).toMatchObject({ leaving: true, stack: 1000 });
   });
 
-  it("settles the hand at once when the fold leaves one player", () => {
+  it("leaves at once when the fold ends the hand", () => {
     const draw = deck(["AhAs", "KdKc"], 0);
     let table = startNextHand(tableWith([seated("a"), seated("b")]), draw);
-    // heads-up: b, the big blind, stands up before a acts
-    table = standUp(table, "b", draw);
-    expect(table.hand?.result).not.toBeNull();
+    table = leave(table, "b", draw);
     expect(table.seats[1]).toBeNull();
     expect(table.spectators).toEqual([{ playerId: "b", name: "b" }]);
-    // a wins both blinds; b's big blind is dead money
     expect(table.seats[0]?.stack).toBe(1100);
+  });
+
+  it("doesn't fold an all-in player, who leaves when the hand is over", () => {
+    const draw = deck(["AhAs", "KdKc", "QhQs"], 0);
+    // a goes all-in pre-flop, then leaves before the others have acted
+    let table = startNextHand(
+      tableWith([seated("a"), seated("b"), seated("c")]),
+      draw
+    );
+    table = {
+      ...table,
+      hand: applyHandAction(table.hand!, { type: "bet", to: 1000 }, draw),
+    };
+    table = leave(table, "a", draw);
+    expect(table.hand?.betting.seats[0].folded).toBe(false);
+    expect(table.seats[0]?.leaving).toBe(true);
+  });
+
+  it("refuses someone without a seat", () => {
+    expect(checkLeave(emptyTable(), "ann")).toBe("You don't have a seat");
   });
 });

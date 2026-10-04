@@ -30,11 +30,12 @@ it("plays seating and betting actions", () => {
   table = startNextHand(table, draw);
   table = applyTableAction(table, "a", { type: "call" }, draw);
   expect(table.hand?.betting.seats[0].bet).toBe(100);
-  table = applyTableAction(table, "b", { type: "sitOut" }, draw);
-  expect(table.seats[1]?.sittingOut).toBe(true);
-  table = applyTableAction(table, "b", { type: "sitIn" }, draw);
-  // standing up folds b's hand, which ends it: a wins, b leaves with 1,900
+  // b takes a break, which folds the hand: a wins, b keeps the seat
   table = applyTableAction(table, "b", { type: "standUp" }, draw);
+  expect(table.seats[1]).toMatchObject({ sittingOut: true, stack: 1900 });
+  table = applyTableAction(table, "b", { type: "sitIn" }, draw);
+  expect(table.seats[1]?.sittingOut).toBe(false);
+  table = applyTableAction(table, "b", { type: "leave" }, draw);
   expect(table.seats[1]).toBeNull();
   expect(table.seats[0]?.stack).toBe(1100);
 });
@@ -49,7 +50,7 @@ it("refuses unknown actions", () => {
   );
   expect(() =>
     applyTableAction(table, "a", { type: "sitIn" }, deck([], 0))
-  ).toThrow("Invalid action: You aren't sitting out");
+  ).toThrow("Invalid action: You aren't on a break");
 });
 
 it("refuses a game action from a spectator", () => {

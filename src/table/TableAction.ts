@@ -4,9 +4,9 @@
  */
 
 import type { UiAction } from "../ui/UiAction.js";
+import type { Leave } from "./leave.js";
 import type { SitDown } from "./sitDown.js";
 import type { SitIn } from "./sitIn.js";
-import type { SitOut } from "./sitOut.js";
 import type { StandUp } from "./standUp.js";
 
-export type TableAction = SitDown | StandUp | SitOut | SitIn | UiAction;
+export type TableAction = SitDown | StandUp | SitIn | Leave | UiAction;

@@ -1,6 +1,6 @@
 /**
- * Many hands at one table, with people sitting down, standing up and sitting
- * out between and during hands, under each rule for new players. Checks that
+ * Many hands at one table, with people sitting down, taking breaks and
+ * leaving between and during hands, under each rule for new players. Checks that
  * every chip bought in is on the table or left with a player, that the
  * button is always on a player dealt in, that no one sits without chips
  * between hands, and that new players join as their rule says.
@@ -71,8 +71,8 @@ describe.each(newPlayerRules)("random sessions, new players: %s", (rule) => {
           },
           { type: "sitDown", seat: 1 + Math.floor(next() * 6), buyIn: 1000 },
           { type: "standUp" },
-          { type: "sitOut" },
           { type: "sitIn" },
+          { type: "leave" },
         ]);
         tryAction(id, action);
       };

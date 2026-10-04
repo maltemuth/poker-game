@@ -5,9 +5,9 @@
  */
 
 import { checkBet } from "./bet.js";
+import { checkLeave } from "./leave.js";
 import { checkSitDown } from "./sitDown.js";
 import { checkSitIn } from "./sitIn.js";
-import { checkSitOut } from "./sitOut.js";
 import { checkStandUp } from "./standUp.js";
 import type { Table } from "./Table.js";
 import type { TableAction } from "./TableAction.js";
@@ -22,10 +22,10 @@ export const checkTableAction = (
       return checkSitDown(table, playerId, action);
     case "standUp":
       return checkStandUp(table, playerId);
-    case "sitOut":
-      return checkSitOut(table, playerId);
     case "sitIn":
       return checkSitIn(table, playerId);
+    case "leave":
+      return checkLeave(table, playerId);
     case "fold":
     case "check":
     case "call":
