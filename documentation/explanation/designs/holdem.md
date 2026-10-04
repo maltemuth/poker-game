@@ -101,10 +101,7 @@ Recommended: B. It costs no more than A, and a database file or backup gives not
 
 ### Pots
 
-- **A. Store the pots** and update them with every bet, as the sketch's `pots: Pot[]` does.
-- **B. Store each seat's contribution to the hand,** and derive the main pot and side pots from the contributions when they're needed. That's on all-ins, at showdown, and in the views.
-
-Recommended: B. Side pots follow from the distinct contribution levels, so storing them separately only adds a way to be inconsistent. The view filter can derive them too: it's deterministic and cheap.
+Decided in [0003](../decisions/0003-pots-stored-at-round-end.md): bets stay in front of the players during a round. When it's over, the uncalled bet goes back, and the pots are computed from every seat's total for the hand and stored.
 
 ### The betting actions
 

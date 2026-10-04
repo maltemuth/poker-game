@@ -4,10 +4,11 @@ Records of design decisions: what was decided, in what context, and what was rej
 
 Records aren't edited after the fact, except to update their status. A decision that changes gets a new record, and the old one is marked as superseded.
 
-| #                              | Decision                                                           | Status   |
-| ------------------------------ | ------------------------------------------------------------------ | -------- |
-| [0001](0001-toolchain.md)      | ESM on Node.js 24, tested with Jest and swc                        | Accepted |
-| [0002](0002-fold-or-bet-to.md) | The rules take a fold or a total to bet to; buttons are translated | Accepted |
+| #                                        | Decision                                                                          | Status   |
+| ---------------------------------------- | --------------------------------------------------------------------------------- | -------- |
+| [0001](0001-toolchain.md)                | ESM on Node.js 24, tested with Jest and swc                                       | Accepted |
+| [0002](0002-fold-or-bet-to.md)           | The rules take a fold or a total to bet to; buttons are translated                | Accepted |
+| [0003](0003-pots-stored-at-round-end.md) | Pots are stored at the end of each betting round, computed from the hand's totals | Accepted |
 
 ## Writing a record
 

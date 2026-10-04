@@ -8,19 +8,21 @@ Each milestone lists the pages it writes or updates ([Writing documentation](doc
 
 ## 1. All-ins and split pots
 
-Hand ranks are passed in as numbers, so no cards are needed. Depends on: pots.
+Hand ranks are passed in as numbers, so no cards are needed. Pots are stored when a betting round is over, computed from the hand's totals ([0003](documentation/explanation/decisions/0003-pots-stored-at-round-end.md)).
 
-| File                      | Purpose                                                                    |
-| ------------------------- | -------------------------------------------------------------------------- |
-| `src/pots/pots.ts`        | The main pot and side pots, from what each seat put in during the hand     |
-| `src/pots/uncalledBet.ts` | The part of a bet no one called, which goes back to the player who made it |
-| `src/pots/splitPots.ts`   | Each pot to the best ranks among the seats in it, shared on ties           |
-| `src/pots/oddChips.ts`    | Who gets the chips left over when a pot can't be split evenly              |
+| File                      | Purpose                                                                             |
+| ------------------------- | ----------------------------------------------------------------------------------- |
+| `src/pots/pots.ts`        | The main pot and side pots, from what each seat put in during the hand              |
+| `src/pots/uncalledBet.ts` | The part of a bet no one called, which goes back to the player who made it          |
+| `src/pots/collectBets.ts` | At the end of a round: the uncalled bet back, the bets into the stored pots         |
+| `src/pots/oddChips.ts`    | The order in which winners get the chips left over when a pot can't be split evenly |
+| `src/pots/splitPot.ts`    | One pot to the best ranks among the seats that can win it, shared on ties           |
+| `src/pots/awardPots.ts`   | The end of the hand: the last bets collected, every pot paid out to the stacks      |
 
 - [ ] Side pots from the distinct contribution levels. A folded player's chips stay in the pots, but they can't win them.
-- [ ] Returning the uncalled bet.
+- [ ] Returning the uncalled bet, and collecting the bets before each street and at the end of the hand.
 - [ ] Splitting each pot among the best ranks in it. The odd chip goes to the first winner left of the button.
-- [ ] Tests: multi-way all-ins, ties in a side pot but not the main pot, a folded player's chips in a side pot, and chips conserved.
+- [ ] Tests: multi-way all-ins, ties in a side pot but not the main pot, a folded player's chips in a side pot, and chips conserved at every step.
 - Pages: reference _Rules as implemented_ (all-ins, side pots, split pots).
 
 ## 2. The hand
