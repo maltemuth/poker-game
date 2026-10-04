@@ -83,7 +83,7 @@ The code is kept in small files, one rule or query each. Every file starts with 
 
 This is how Remote State's tic-tac-toe example is split. It keeps the betting rules testable with plain objects, and lets Tri-Coin reuse the dealing, seating and showdown parts. Rules written inside the plugin functions would be harder to test and to share with a variant.
 
-### Representing cards and the deck
+### Representing cards
 
 Decided in [0004](../decisions/0004-cards-as-strings-drawn-when-dealt.md): cards are strings such as `"Ah"`, and each card is drawn when it's dealt, from the cards still out, by a function the host passes in. No deck is stored, so stored states hold only cards that were dealt.
 
