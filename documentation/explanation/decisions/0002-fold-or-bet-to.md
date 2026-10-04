@@ -18,8 +18,10 @@ A player who acts has to say what they do, and how much. Players think in button
 - **What may be bet is a set of totals:**
   - what the player already has in, if nothing is owed (check);
   - the current bet, capped at what the player has (call);
-  - from the minimum raise to everything, when raising is allowed;
-  - everything, which is always allowed.
+  - from the minimum raise to everything, when raising is allowed. A player who can't make the minimum raise may still raise all-in for less.
+
+  Going all-in is therefore a call or the top of the raise range. It isn't always allowed: a player who faces a short all-in that doesn't reopen the betting may only call or fold.
+
 - **Buttons are UI actions, translated into rule actions:** `fold`, `check`, `call`, `raise` with `to`, and `allIn`. A first bet on a street is a `raise` too; the client may label it "bet". The translation fails with a reason when a button doesn't apply, for example "check" while facing a bet. A query gives the buttons that apply, with their amounts, so the client can show them.
 - **Amounts are whole chips.**
 
