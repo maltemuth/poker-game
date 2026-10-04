@@ -147,7 +147,7 @@ Recommended: A first. Hands start by themselves once two players sit, so no one 
 
 - **Joining a running table:** decided in [0006](../decisions/0006-new-players-by-table-option.md): a table option, dealt in next hand by default.
 - **The button when players leave:** decided in [0007](../decisions/0007-moving-button.md): a moving button, skipping empty seats.
-- **Busting:** does a player with no chips stay seated and sit out until they rebuy, or are they stood up?
+- **Busting:** decided in [0008](../decisions/0008-busted-players-become-spectators.md): they become spectators.
 - **Leaving with chips:** does a player who stands up and sits down again have to bring at least what they left with, against "ratholing"?
 - **Hiding a person's name** from other players, and whether spectators may see who is watching.
 - **Hand history in the client:** should the state keep the last hand's actions and result for the client to show, or should clients read them from `GET …/updates`? Keeping only the last hand bounds the state's size.
