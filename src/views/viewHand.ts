@@ -37,6 +37,7 @@ export const viewHand = (hand: Hand, viewerSeat: number | null): HandView => {
     button: betting.seats[betting.button].seat,
     toAct: betting.toAct === null ? null : betting.seats[betting.toAct].seat,
     currentBet: betting.currentBet,
+    turn: hand.turn,
     result: hand.result,
   };
 };

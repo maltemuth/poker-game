@@ -48,6 +48,8 @@ export interface HandView {
   toAct: number | null;
   /** The bet to match in this betting round */
   currentBet: number;
+  /** Changes with every new turn, so a client can restart its countdown */
+  turn: number;
   /** Null while the hand is played; then the shown hands and who won what */
   result: HandResult | null;
 }
@@ -72,4 +74,6 @@ export interface TableView {
   you: ViewerView | null;
   /** No new hands are dealt while it's paused */
   paused: boolean;
+  /** The number of the current or last hand; 0 before the first */
+  handNumber: number;
 }

@@ -43,6 +43,12 @@ export const startNextHand = (table: Table, draw: Draw): Table => {
     draw,
     deal.extraBigBlinds.map((index) => deal.seats.indexOf(index))
   );
-  const started: Table = { ...table, seats, button: deal.button, hand };
+  const started: Table = {
+    ...table,
+    seats,
+    button: deal.button,
+    hand,
+    handNumber: table.handNumber + 1,
+  };
   return hand.result ? settleHand(started) : started;
 };

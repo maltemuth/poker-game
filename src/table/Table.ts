@@ -39,4 +39,6 @@ export interface Table {
   hand: Hand | null;
   /** No new hands are dealt while it's paused (decision 0012) */
   paused: boolean;
+  /** How many hands were dealt: the number of the current or last hand */
+  handNumber: number;
 }

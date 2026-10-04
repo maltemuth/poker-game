@@ -74,5 +74,6 @@ export const newTable = (input: TableOptionsInput): Table => {
     button: null,
     hand: null,
     paused: false,
+    handNumber: 0,
   };
 };
