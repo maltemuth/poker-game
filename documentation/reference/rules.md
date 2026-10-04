@@ -1,6 +1,6 @@
 # Rules as implemented
 
-The no-limit Texas Hold'em rules poker-game applies, as built so far: the blinds, the betting, and the pots. The code is in [`src/betting/`](../../src/betting/) and [`src/pots/`](../../src/pots/). Ranking hands at showdown follows with the hand ([BACKLOG.md](../../BACKLOG.md)); until then, the pots are split by ranks passed in as numbers.
+The no-limit Texas Hold'em rules poker-game applies, as built so far: the blinds, the betting, dealing, the pots, and showdown. The code is in [`src/betting/`](../../src/betting/), [`src/pots/`](../../src/pots/) and [`src/hand/`](../../src/hand/). Seats, buy-ins and the button moving from hand to hand follow with the table ([BACKLOG.md](../../BACKLOG.md)).
 
 Amounts are whole chips. "Bet" below means the chips a player has bet in the current betting round, and "the bet to match" is the highest bet in it.
 
@@ -25,6 +25,21 @@ Amounts are whole chips. "Bet" below means the chips a player has bet in the cur
   - everyone still in has acted and matched the bet, or is all-in;
   - or only one player is left in the hand.
 - **When at most one player can still act** and has matched what the others bet, no one acts, and the rest of the board is dealt without betting.
+
+## Dealing
+
+Cards are strings, a value (`2`–`9`, `T`, `J`, `Q`, `K`, `A`) and a suit (`h`, `d`, `c`, `s`), such as `"Ah"`. Each card is drawn when it's dealt, from the cards no one holds and the board doesn't show ([0004](../explanation/decisions/0004-cards-as-strings-drawn-when-dealt.md)). No cards are burned.
+
+| Betting round | Cards dealt before it                                                                  |
+| ------------- | -------------------------------------------------------------------------------------- |
+| Pre-flop      | Two hole cards each, one at a time, clockwise from the first player left of the button |
+| Flop          | Three board cards                                                                      |
+| Turn          | One board card                                                                         |
+| River         | One board card                                                                         |
+
+- **The next cards are dealt as soon as a betting round is over,** by the action that ends it.
+- **A betting round in which no one can act is passed straight through:** when everyone left is all-in, the rest of the board is dealt at once.
+- **The hand ends early** when only one player is left in it; no more cards are dealt.
 
 ## What a player may do
 
@@ -99,6 +114,15 @@ At the end of the hand, each pot goes to the best hand among the players who can
 - **Odd chips:** chips left over when a pot can't be shared evenly go one each to the tied winners, starting with the first left of the button and going clockwise.
 
 Each pot is decided on its own: in the example, A can have the best hand and win the main pot while C and D tie for both side pots.
+
+## Showdown
+
+The hand goes to showdown when the betting on the river is over with at least two players still in ([0005](../explanation/decisions/0005-every-hand-at-showdown-is-shown.md)).
+
+- **Every player still in shows,** at the same time: their hole cards, their best five cards from the hole cards and the board, and the hand type, from `highCard` to `royalFlush`.
+- **Hands are ranked with poker-hands.** Equal hands rank the same, whatever their suits, so a board that plays splits the pot.
+- **Each pot goes to the best hand among the players who can win it** ([Awarding the pots](#awarding-the-pots)).
+- **A hand won because everyone else folded isn't shown.**
 
 ## Rejections
 
