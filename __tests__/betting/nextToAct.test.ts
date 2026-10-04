@@ -73,3 +73,15 @@ it("still asks the last seat that can act to call an all-in", () => {
   });
   expect(nextToAct(facingAllIn, 1)).toBe(0);
 });
+
+it("doesn't ask the last seat that can act to match more than the all-in players bet", () => {
+  // heads-up, the big blind is all-in for 40, less than the small blind of 50
+  const shortBigBlind = round(
+    [
+      { bet: 50, stack: 950 },
+      { stack: 0, bet: 40 },
+    ],
+    { currentBet: 100 }
+  );
+  expect(nextToAct(shortBigBlind, 1)).toBeNull();
+});
