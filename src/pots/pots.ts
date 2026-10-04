@@ -12,12 +12,9 @@
 
 import type { BettingSeat } from "../betting/BettingRound.js";
 import { isInHand } from "../betting/seatStatus.js";
+import type { Pot } from "./Pot.js";
 
-export interface Pot {
-  amount: number;
-  /** The seat numbers that can win the pot, in the order of the round's seats */
-  seats: number[];
-}
+export type { Pot };
 
 /** The pots for the seats' totals, the main pot first */
 export const pots = (seats: BettingSeat[]): Pot[] => {

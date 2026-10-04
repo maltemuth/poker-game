@@ -72,6 +72,7 @@ export const postBlinds = (
     currentBet: blinds.big,
     minRaise: blinds.big,
     bigBlind: blinds.big,
+    pots: [],
   };
   return { ...round, toAct: nextToAct(round, bigBlind) };
 };

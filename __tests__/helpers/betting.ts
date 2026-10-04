@@ -22,7 +22,7 @@ export const seat = (
   ...fields,
 });
 
-/** A round of `seats`, with the button on the first, blinds of 50/100 and no bet yet */
+/** A round of `seats`, with the button on the first, blinds of 50/100, no bet yet and no pots */
 export const round = (
   seats: Partial<BettingSeat>[],
   fields: Partial<BettingRound> = {}
@@ -33,6 +33,7 @@ export const round = (
   currentBet: 0,
   minRaise: 100,
   bigBlind: 100,
+  pots: [],
   ...fields,
 });
 

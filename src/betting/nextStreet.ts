@@ -1,7 +1,7 @@
 /**
  * The betting round of the next street, once the current one is over. The
- * bets of the street stay in what each seat has committed to the hand, and
- * the new street starts with no bet, a minimum bet of the big blind, and the
+ * street's bets are collected into the pots first (decision 0003), and the
+ * new street starts with no bet, a minimum bet of the big blind, and the
  * first player left of the button to act. Heads-up, that's the big blind.
  *
  * If at most one player can still act, no one does: the board is dealt out
@@ -9,6 +9,7 @@
  */
 
 import type { BettingRound } from "./BettingRound.js";
+import { collectBets } from "../pots/collectBets.js";
 import { nextToAct } from "./nextToAct.js";
 import { isInHand } from "./seatStatus.js";
 
@@ -21,10 +22,10 @@ export const nextStreet = (round: BettingRound): BettingRound => {
   if (round.seats.filter(isInHand).length < 2) {
     throw new Error("Only one player is left in the hand");
   }
+  const collected = collectBets(round);
   const next: BettingRound = {
-    ...round,
-    seats: round.seats.map((seat) => ({ ...seat, bet: 0, actedAt: null })),
-    currentBet: 0,
+    ...collected,
+    seats: collected.seats.map((seat) => ({ ...seat, actedAt: null })),
     minRaise: round.bigBlind,
   };
   return { ...next, toAct: nextToAct(next, round.button) };

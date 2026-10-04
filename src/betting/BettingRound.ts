@@ -1,9 +1,11 @@
 /**
  * The state of one betting round: the seats in the hand, what each has bet on
- * this street, and the bet to match. It's plain JSON, and the betting rules
- * take one and return a new one. Cards aren't part of it: betting only needs
- * chips and seats.
+ * this street, the bet to match, and the pots collected from earlier
+ * streets. It's plain JSON, and the betting rules take one and return a new
+ * one. Cards aren't part of it: betting only needs chips and seats.
  */
+
+import type { Pot } from "../pots/Pot.js";
 
 /** One player in the hand, as the betting rules see them */
 export interface BettingSeat {
@@ -37,4 +39,9 @@ export interface BettingRound {
   minRaise: number;
   /** The big blind, which is also the smallest bet on every street */
   bigBlind: number;
+  /**
+   * The pots, as collected at the end of the last betting round (decision
+   * 0003). Bets on the current street aren't in them yet.
+   */
+  pots: Pot[];
 }
