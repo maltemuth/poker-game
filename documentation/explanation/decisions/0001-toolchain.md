@@ -1,6 +1,6 @@
 # 0001. ESM on Node.js 24, tested with Jest and swc
 
-Status: Accepted
+Status: Accepted; tests load ES modules natively since [0011](0011-tests-load-esm-natively.md)
 Date: 2026-10-04
 
 ## Context
