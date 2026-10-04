@@ -144,3 +144,37 @@ it("folds a player whose turn runs out, after a player who acted in time", async
     1100, 900,
   ]);
 });
+
+it("deals an all-in runout one betting round at a time, with the hands tabled", async () => {
+  const gameId = await server.createGame(
+    newTable({ ...options, nextHandDelay: null, runoutDelay: 100 })
+  );
+  const ann = await join(gameId, "Ann");
+  const bob = await join(gameId, "Bob");
+  const sue = await join(gameId, "Sue");
+  await send(gameId, ann.token, { type: "sitDown", seat: 1, buyIn: 1000 });
+  await send(gameId, bob.token, { type: "sitDown", seat: 2, buyIn: 1000 });
+  await server.act(gameId, { type: "startHand" });
+  await send(gameId, ann.token, { type: "allIn" });
+  await send(gameId, bob.token, { type: "call" });
+
+  // at once: both hands face up for the spectator, no board yet
+  const tabled = await view(gameId, sue.token);
+  expect(tabled.hand).toMatchObject({ tabled: true, board: [], result: null });
+  expect(tabled.hand?.players.every((p) => p.cards !== null)).toBe(true);
+
+  // then the flop, the turn, and the river with the showdown
+  await eventually(
+    () => view(gameId, sue.token),
+    (v) => v.hand?.board.length === 3
+  );
+  await eventually(
+    () => view(gameId, sue.token),
+    (v) => v.hand?.board.length === 4
+  );
+  const done = await eventually(
+    () => view(gameId, sue.token),
+    (v) => v.hand?.result !== null
+  );
+  expect(done.hand?.board).toHaveLength(5);
+});
