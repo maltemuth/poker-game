@@ -1,7 +1,8 @@
 /**
  * What one audience sees of a table: everything public, plus, for a seated
  * player, their own hole cards and the buttons they may click. No one else's
- * hole cards appear until they're shown at showdown. Seats are identified by
+ * hole cards appear until they're tabled or shown, except to spectators at a
+ * table that allows it. Seats are identified by
  * seat number, from 1, as players see them.
  */
 
@@ -50,6 +51,8 @@ export interface HandView {
   currentBet: number;
   /** Changes with every new turn, so a client can restart its countdown */
   turn: number;
+  /** No more betting is possible, and the hands still in are face up */
+  tabled: boolean;
   /** Null while the hand is played; then the shown hands and who won what */
   result: HandResult | null;
 }

@@ -22,7 +22,9 @@ const liveStack = (table: Table, index: number, stack: number): number => {
 export const viewTable = (table: Table, audience: string): TableView => {
   const index = seatOf(table, audience);
   const viewerSeat = index === null ? null : index + 1;
-  const hand = table.hand && viewHand(table.hand, viewerSeat);
+  const allHoleCards =
+    viewerSeat === null && table.options.spectatorsSeeHoleCards;
+  const hand = table.hand && viewHand(table.hand, viewerSeat, allHoleCards);
 
   const seats = table.seats.map((seat, i): SeatView | null =>
     seat

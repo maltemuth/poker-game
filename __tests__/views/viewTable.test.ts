@@ -10,7 +10,7 @@ import { startNextHand } from "../../src/table/startNextHand.js";
 import { audienceOf, SPECTATORS } from "../../src/views/audiences.js";
 import { viewTable } from "../../src/views/viewTable.js";
 import { deck } from "../helpers/hand.js";
-import { seated, tableWith } from "../helpers/table.js";
+import { emptyTable, seated, tableWith } from "../helpers/table.js";
 
 const draw = () => deck(["AhAs", "KdKc", "QhQs"], 0, "2c7d9hJs3c");
 // a (button) is to act; b and c have the blinds
@@ -105,4 +105,45 @@ it("is plain JSON, and the same every time", () => {
   const view = viewTable(table, "b");
   expect(JSON.parse(JSON.stringify(view))).toEqual(view);
   expect(viewTable(table, "b")).toEqual(view);
+});
+
+it("shows the tabled hands to everyone once no more betting is possible", () => {
+  const d = draw();
+  let table = startNextHand(
+    tableWith([seated("a"), seated("b"), seated("c")], {
+      options: { ...emptyTable().options, runoutDelay: 1000 },
+    }),
+    d
+  );
+  table = applyTableAction(table, "a", { type: "allIn" }, d);
+  table = applyTableAction(table, "b", { type: "call" }, d);
+  table = applyTableAction(table, "c", { type: "fold" }, d);
+  const view = viewTable(table, SPECTATORS);
+  expect(view.hand).toMatchObject({ tabled: true, board: [], result: null });
+  expect(view.hand?.players.map((player) => player.cards)).toEqual([
+    ["Ah", "As"],
+    ["Kd", "Kc"],
+    null,
+  ]);
+});
+
+it("shows spectators every hole card at a table that allows it, and players still only theirs", () => {
+  const table = startNextHand(
+    tableWith([seated("a"), seated("b"), seated("c")], {
+      options: { ...emptyTable().options, spectatorsSeeHoleCards: true },
+    }),
+    draw()
+  );
+  expect(
+    viewTable(table, SPECTATORS).hand?.players.map((p) => p.cards)
+  ).toEqual([
+    ["Ah", "As"],
+    ["Kd", "Kc"],
+    ["Qh", "Qs"],
+  ]);
+  expect(viewTable(table, "b").hand?.players.map((p) => p.cards)).toEqual([
+    null,
+    ["Kd", "Kc"],
+    null,
+  ]);
 });
