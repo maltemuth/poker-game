@@ -1,0 +1,92 @@
+/**
+ * Tests for translating buttons into the rules' actions, and the reasons
+ * when a button doesn't apply.
+ */
+
+import { translateUiAction } from "../../src/ui/translateUiAction.js";
+import type { UiAction } from "../../src/ui/UiAction.js";
+import { round } from "../helpers/betting.js";
+
+// seat 1 faces a raise to 300 with the big blind of 100 in
+const facingRaise = round(
+  [{ bet: 300, stack: 700, actedAt: 300 }, { bet: 100, stack: 900 }, {}],
+  { toAct: 1, currentBet: 300, minRaise: 200 }
+);
+// nothing bet on this street
+const unopened = round([{}, {}]);
+
+it("translates a fold", () => {
+  expect(translateUiAction(facingRaise, { type: "fold" })).toEqual({
+    type: "fold",
+  });
+});
+
+it("translates a check into a bet to what the player has in", () => {
+  expect(translateUiAction(unopened, { type: "check" })).toEqual({
+    type: "bet",
+    to: 0,
+  });
+  expect(translateUiAction(facingRaise, { type: "check" })).toBe(
+    "You can't check: there's 200 to call"
+  );
+});
+
+it("translates a call into a bet to the call", () => {
+  expect(translateUiAction(facingRaise, { type: "call" })).toEqual({
+    type: "bet",
+    to: 300,
+  });
+  expect(translateUiAction(unopened, { type: "call" })).toBe(
+    "There's nothing to call; you can check"
+  );
+});
+
+it("translates a raise into a bet to its total, leaving the amount to the rules", () => {
+  expect(translateUiAction(facingRaise, { type: "raise", to: 600 })).toEqual({
+    type: "bet",
+    to: 600,
+  });
+  expect(translateUiAction(facingRaise, { type: "raise", to: 400 })).toEqual({
+    type: "bet",
+    to: 400,
+  });
+  expect(translateUiAction(facingRaise, { type: "raise", to: 300 })).toBe(
+    "A raise must be to more than 300"
+  );
+});
+
+it("translates an all-in into a raise to everything", () => {
+  expect(translateUiAction(facingRaise, { type: "allIn" })).toEqual({
+    type: "bet",
+    to: 1000,
+  });
+});
+
+it("translates an all-in into a call when the call takes everything", () => {
+  const short = round(
+    [{ bet: 2000, stack: 0, actedAt: 2000 }, { stack: 600 }, {}],
+    { currentBet: 2000 }
+  );
+  expect(translateUiAction(short, { type: "allIn" })).toEqual({
+    type: "bet",
+    to: 600,
+  });
+});
+
+it("refuses an all-in when raising isn't allowed, with the reason", () => {
+  const againstAllIn = round([{ bet: 500, stack: 0 }, { bet: 100 }], {
+    currentBet: 500,
+  });
+  expect(translateUiAction(againstAllIn, { type: "allIn" })).toBe(
+    "Everyone else is all-in"
+  );
+});
+
+it("refuses unknown buttons, and everything once the round is over", () => {
+  expect(
+    translateUiAction(unopened, { type: "pot" } as unknown as UiAction)
+  ).toBe("Unknown action");
+  expect(
+    translateUiAction(round([{}, {}], { toAct: null }), { type: "fold" })
+  ).toBe("The betting round is over");
+});
