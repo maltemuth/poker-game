@@ -46,3 +46,14 @@ it("accepts nothing once the hand is over", () => {
   expect(over.result).not.toBeNull();
   expect(checkHandAction(over, { type: "fold" })).toBe("The hand is over");
 });
+
+it("counts a turn for every action in turn", () => {
+  const draw = deck(["AhAs", "KdKc"], 1, "2c7d9h");
+  const hand = startHand(players(1000, 1000), 1, blinds, draw);
+  expect(hand.turn).toBe(0);
+  const flop = [call, check].reduce(
+    (current, action) => applyHandAction(current, action, draw),
+    hand
+  );
+  expect(flop.turn).toBe(2);
+});

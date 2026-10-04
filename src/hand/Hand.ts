@@ -1,8 +1,8 @@
 /**
  * The state of one hand: the betting, every seat's hole cards, the board,
- * which betting round is played, and once the hand is over, its result. It's
- * plain JSON. The hole cards are in it, so it must never be sent to players
- * as it is; the view filter decides who sees what.
+ * which betting round is played, the turn, and once the hand is over, its
+ * result. It's plain JSON. The hole cards are in it, so it must never be
+ * sent to players as it is; the view filter decides who sees what.
  */
 
 import type { BettingRound } from "../betting/BettingRound.js";
@@ -37,4 +37,9 @@ export interface Hand {
   bettingRound: BettingRoundName;
   /** Null while the hand is played */
   result: HandResult | null;
+  /**
+   * Counts the turns: 0 for the first player to act, and one more with every
+   * action taken in turn. A fold out of turn doesn't start a new turn.
+   */
+  turn: number;
 }

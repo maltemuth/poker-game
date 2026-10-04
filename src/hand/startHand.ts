@@ -41,7 +41,14 @@ export const startHand = (
     }
   }
   return continueHand(
-    { betting, holeCards, board: [], bettingRound: "preFlop", result: null },
+    {
+      betting,
+      holeCards,
+      board: [],
+      bettingRound: "preFlop",
+      result: null,
+      turn: 0,
+    },
     draw
   );
 };

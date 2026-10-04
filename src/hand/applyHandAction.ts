@@ -1,7 +1,7 @@
 /**
- * The hand after the player to act's action: the betting rules apply it,
- * and the hand moves on as far as it goes, dealing the next cards or ending
- * the hand when a betting round is over.
+ * The hand after the player to act's action: the betting rules apply it, the
+ * next turn begins, and the hand moves on as far as it goes, dealing the
+ * next cards or ending the hand when a betting round is over.
  */
 
 import type { BettingAction } from "../betting/BettingAction.js";
@@ -22,7 +22,11 @@ export const applyHandAction = (
   const accepted = checkHandAction(hand, action);
   if (accepted !== true) throw new Error(`Invalid action: ${accepted}`);
   return continueHand(
-    { ...hand, betting: applyAction(hand.betting, action) },
+    {
+      ...hand,
+      betting: applyAction(hand.betting, action),
+      turn: hand.turn + 1,
+    },
     draw
   );
 };

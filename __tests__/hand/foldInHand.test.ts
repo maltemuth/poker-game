@@ -36,3 +36,10 @@ it("refuses once the hand is over", () => {
   );
   expect(() => foldInHand(over, 0, draw)).toThrow("The hand is over");
 });
+
+it("starts a new turn only for a fold in turn", () => {
+  const draw = deck(["AhAs", "KdKc", "QhQs"], 0);
+  const hand = startHand(players(1000, 1000, 1000), 0, blinds, draw);
+  expect(foldInHand(hand, 2, draw).turn).toBe(0);
+  expect(foldInHand(hand, 0, draw).turn).toBe(1);
+});
