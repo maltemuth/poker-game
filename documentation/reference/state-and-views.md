@@ -6,13 +6,14 @@ What a table stores, and what each audience is shown of it.
 
 A [`Table`](../../src/table/Table.ts) is plain JSON. It holds everything, including every player's hole cards, so it's never sent to players as it is.
 
-| Field        | Contents                                                                                       |
-| ------------ | ---------------------------------------------------------------------------------------------- |
-| `options`    | The [table options](table-options.md)                                                          |
-| `spectators` | People at the table without a seat: `{ playerId, name }`                                       |
-| `seats`      | One entry per seat, the seat number being the index plus one: a seated player, or `null`       |
-| `button`     | Index into `seats` of the last hand's button; `null` before the first hand                     |
-| `hand`       | The [hand](../../src/hand/Hand.ts) being played, or the last one; `null` before the first hand |
+| Field        | Contents                                                                                                    |
+| ------------ | ----------------------------------------------------------------------------------------------------------- |
+| `options`    | The [table options](table-options.md)                                                                       |
+| `spectators` | People at the table without a seat: `{ playerId, name }`                                                    |
+| `seats`      | One entry per seat, the seat number being the index plus one: a seated player, or `null`                    |
+| `button`     | Index into `seats` of the last hand's button; `null` before the first hand                                  |
+| `hand`       | The [hand](../../src/hand/Hand.ts) being played, or the last one; `null` before the first hand              |
+| `paused`     | No new hands are dealt while it's paused ([0012](../explanation/decisions/0012-host-controls-the-table.md)) |
 
 A seated player has `playerId`, `name`, `stack`, `sittingOut` (on a break), `newPlayer` (waiting to be dealt in by the table's rule) and `leaving` (leaves when the hand is over). During a hand, a dealt-in player's `stack` is what they started the hand with; their chips are in the hand's betting until it's settled.
 
@@ -38,6 +39,7 @@ A hand has the betting ([`BettingRound`](../../src/betting/BettingRound.ts)), ev
 | `spectators` | Everyone watching, with their names                                                                     |
 | `hand`       | The hand being played, or the last one; `null` before the first hand                                    |
 | `you`        | For a seated player: `playerId`, `seat`, and `buttons`; `null` for spectators                           |
+| `paused`     | Whether the table is paused                                                                             |
 
 A seat's `stack` is what the player has outside the middle: during a hand, what they have left in it.
 
