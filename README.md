@@ -6,7 +6,7 @@ So far, it has the betting and the pots: blinds, the allowed bets and raises, sh
 
 ## Development
 
-Needs Node.js 24 (`nvm use` picks the version in `.nvmrc`).
+Needs Node.js 24 (`nvm use` picks the version in `.nvmrc`), and [poker-hands](../poker-hands) checked out and built next to this repository: it's linked by path until version 0.12 or later is on npm.
 
 ```sh
 npm install
