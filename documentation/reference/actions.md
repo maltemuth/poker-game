@@ -37,6 +37,23 @@ A betting button is accepted only from the player to act in the hand being playe
 
 Any other `type` is rejected with `Unknown action`.
 
+## System actions
+
+In Remote State, the plugin also takes actions only the system may send: the host through `act`, and later the timers ([0012](../explanation/decisions/0012-host-controls-the-table.md)).
+
+```ts
+type SystemAction =
+  { type: "startHand" } | { type: "pause" } | { type: "resume" };
+```
+
+| Action      | What it does                                          | Reasons it's rejected                                                  |
+| ----------- | ----------------------------------------------------- | ---------------------------------------------------------------------- |
+| `startHand` | Deals the next hand ([Rules](rules.md#between-hands)) | `A hand is being played`, `The table is paused`, `Waiting for players` |
+| `pause`     | No new hands are dealt; a hand being played goes on   | `The table is already paused`                                          |
+| `resume`    | Hands can be dealt again                              | `The table isn't paused`                                               |
+
+A player who sends a system action gets `Only the host can do that`; the system sending a player's action gets `The system can't act for a player`.
+
 ## Buttons
 
 Clients send the button a player clicked, a `UiAction`:
