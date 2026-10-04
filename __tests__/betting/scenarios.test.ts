@@ -1,0 +1,139 @@
+/**
+ * Betting through whole hands, the way the hand layer will drive it: post
+ * the blinds, act until the round is over, start the next street. Scripted
+ * hands check known situations; random play checks that chips are conserved
+ * and every round comes to an end.
+ */
+
+import { applyAction } from "../../src/betting/applyAction.js";
+import type { BettingRound } from "../../src/betting/BettingRound.js";
+import { nextStreet } from "../../src/betting/nextStreet.js";
+import { postBlinds } from "../../src/betting/postBlinds.js";
+import { isInHand } from "../../src/betting/seatStatus.js";
+import { availableUiActions } from "../../src/ui/availableUiActions.js";
+import { translateUiAction } from "../../src/ui/translateUiAction.js";
+import type { UiAction } from "../../src/ui/UiAction.js";
+import { chips } from "../helpers/betting.js";
+
+const blinds = { small: 50, big: 100 };
+const players = (...stacks: number[]) =>
+  stacks.map((stack, index) => ({ seat: index + 1, stack }));
+
+/** Clicks the buttons in order, failing on any the rules refuse */
+const click = (round: BettingRound, ...buttons: UiAction[]): BettingRound =>
+  buttons.reduce((current, button) => {
+    const action = translateUiAction(current, button);
+    if (typeof action === "string") throw new Error(action);
+    return applyAction(current, action);
+  }, round);
+
+const fold: UiAction = { type: "fold" };
+const check: UiAction = { type: "check" };
+const call: UiAction = { type: "call" };
+const allIn: UiAction = { type: "allIn" };
+const raise = (to: number): UiAction => ({ type: "raise", to });
+
+it("plays a hand to the river", () => {
+  // button seat 1, blinds seats 2 and 3; seat 4 raises, seat 1 and the big blind call
+  let round = postBlinds(players(1000, 1000, 1000, 1000), 0, blinds);
+  round = click(round, raise(300), call, fold, call);
+  expect(round.toAct).toBeNull();
+  expect(round.seats.map((seat) => seat.committed)).toEqual([
+    300, 50, 300, 300,
+  ]);
+
+  // flop: the big blind acts first and bets, both call
+  round = nextStreet(round);
+  expect(round.toAct).toBe(2);
+  round = click(round, raise(400), call, call);
+
+  // turn and river: checked through
+  round = click(nextStreet(round), check, check, check);
+  round = click(nextStreet(round), check, check, check);
+  expect(round.toAct).toBeNull();
+  expect(round.seats.map((seat) => seat.committed)).toEqual([
+    700, 50, 700, 700,
+  ]);
+});
+
+it("ends the hand when everyone folds to the big blind", () => {
+  const round = click(
+    postBlinds(players(1000, 1000, 1000), 0, blinds),
+    fold,
+    fold
+  );
+  expect(round.toAct).toBeNull();
+  expect(round.seats.filter(isInHand).map((seat) => seat.seat)).toEqual([3]);
+});
+
+it("lets a short all-in through without reopening the betting", () => {
+  // seat 1 (button) raises to 300; seat 2 goes all-in for 400 total, less
+  // than a full raise; seat 3 (big blind) calls; seat 1 may only call or fold
+  let round = postBlinds(players(1000, 400, 1000), 0, blinds);
+  round = click(round, raise(300), allIn, call);
+  expect(round.toAct).toBe(0);
+  expect(availableUiActions(round).map((option) => option.type)).toEqual([
+    "fold",
+    "call",
+  ]);
+  round = click(round, call);
+  expect(round.toAct).toBeNull();
+  // two players can still act on the flop
+  expect(nextStreet(round).toAct).toBe(2);
+});
+
+it("deals out without betting once everyone is all-in", () => {
+  let round = postBlinds(players(500, 800), 0, blinds);
+  round = click(round, allIn, call);
+  expect(round.toAct).toBeNull();
+  for (let street = 0; street < 3; street++) {
+    round = nextStreet(round);
+    expect(round.toAct).toBeNull();
+  }
+});
+
+/** A small seeded generator, so a failing run can be repeated */
+const random = (seed: number) => () => {
+  seed = (seed + 0x6d2b79f5) | 0;
+  let t = Math.imul(seed ^ (seed >>> 15), 1 | seed);
+  t = (t + Math.imul(t ^ (t >>> 7), 61 | t)) ^ t;
+  return ((t ^ (t >>> 14)) >>> 0) / 4294967296;
+};
+
+/** A random button from the ones offered, with a random raise in the range */
+const randomButton = (round: BettingRound, next: () => number): UiAction => {
+  const options = availableUiActions(round);
+  const option = options[Math.floor(next() * options.length)];
+  if (option.type !== "raise") return { type: option.type };
+  return {
+    type: "raise",
+    to: option.min + Math.floor(next() * (option.max - option.min + 1)),
+  };
+};
+
+it("conserves chips and ends every round in random play", () => {
+  for (let game = 0; game < 300; game++) {
+    const next = random(game);
+    const count = 2 + Math.floor(next() * 8);
+    const stacks = Array.from(
+      { length: count },
+      () => 1 + Math.floor(next() * 3000)
+    );
+    const total = stacks.reduce((sum, stack) => sum + stack);
+    let round = postBlinds(players(...stacks), game % count, blinds);
+
+    for (let street = 0; street < 4; street++) {
+      if (street > 0) {
+        if (round.seats.filter(isInHand).length < 2) break;
+        round = nextStreet(round);
+      }
+      // every action moves the round on, so it ends within a bounded number of steps
+      for (let step = 0; round.toAct !== null; step++) {
+        expect(step).toBeLessThan(count * 50);
+        round = click(round, randomButton(round, next));
+        expect(chips(round)).toBe(total);
+        expect(round.seats.every((seat) => seat.stack >= 0)).toBe(true);
+      }
+    }
+  }
+});
