@@ -2,20 +2,11 @@
 
 Planned work for Texas Hold'em, in order. The choices behind it are discussed in the [Texas Hold'em design](documentation/explanation/designs/holdem.md); a milestone that depends on an open question waits for its decision record.
 
-The betting core comes first, as plain functions with unit tests; the betting, the pots, the hand, the table and the views are done ([Rules as implemented](documentation/reference/rules.md), [State and views](documentation/reference/state-and-views.md)). Remote State isn't used until the plugin, and timers come last.
+The betting core came first, as plain functions with unit tests; the betting, the pots, the hand, the table, the views and the Remote State plugin are done ([Architecture](documentation/explanation/architecture.md)). Timers come next.
 
 Each milestone lists the pages it writes or updates ([Writing documentation](documentation/README.md#writing-documentation)). A milestone is done when its tests pass and its pages describe what was built. Remove a milestone when it's done.
 
-## 1. The plugin
-
-Adds Remote State as a dependency, by local path until it's on npm. Depends on: audiences.
-
-- [ ] `createHoldemPlugin({ random })`: `onJoin` as a spectator, `validateAction` and `executeAction` over the rules, audiences for seated players and spectators, the view filter.
-- [ ] Pause, resume and close through the host's `act`.
-- [ ] Integration tests through Remote State's HTTP API with supertest: admission, seating, a full hand, views.
-- Pages: explanation _Architecture_, how-to _Host a table_.
-
-## 2. Time limits
+## 1. Time limits
 
 Depends on: time limits.
 
@@ -25,7 +16,7 @@ Depends on: time limits.
 - [ ] `resume` for the host after a restart, scheduling the timers the state calls for. The host keeps the IDs of its open tables to find them.
 - Pages: reference _Timers_, how-to _Set the time limits_, how-to _Resume tables after a restart_.
 
-## 3. A table to play at
+## 2. A table to play at
 
 - [ ] A host server: create a table, admit people, serve a minimal web client.
 - [ ] The client: seats, cards, pots, the actions allowed for the viewer, the turn countdown.
