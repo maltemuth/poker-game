@@ -1,14 +1,8 @@
 {
   "name": "poker-game",
   "version": "0.0.1",
-  "main": "index.js",
-  "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1"
-  },
-  "author": "",
-  "license": "ISC",
-  "description": "",
-  "dependencies": {
-    "@malte.muth/poker-hands": "^0.3.1"
-  }
+  "private": true,
+  "description": "Texas Hold'em rules, to be played through Remote State",
+  "author": "Malte Muth",
+  "license": "ISC"
 }
