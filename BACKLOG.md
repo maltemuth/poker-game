@@ -2,43 +2,11 @@
 
 Planned work for Texas Hold'em, in order. The choices behind it are discussed in the [Texas Hold'em design](documentation/explanation/designs/holdem.md); a milestone that depends on an open question waits for its decision record.
 
-The betting core comes first, as plain functions with unit tests. Remote State isn't used until the plugin, and timers come last.
+The betting core comes first, as plain functions with unit tests; the betting itself is done ([Rules as implemented](documentation/reference/rules.md)). Remote State isn't used until the plugin, and timers come last.
 
 Each milestone lists the pages it writes or updates ([Writing documentation](documentation/README.md#writing-documentation)). A milestone is done when its tests pass and its pages describe what was built. Remove a milestone when it's done.
 
-## 1. Betting
-
-Chips and seats only, no cards. The rules take a fold or a total to bet to, and the buttons are translated ([0002](documentation/explanation/decisions/0002-fold-or-bet-to.md)).
-
-A possible layout, one small file each:
-
-| File                           | Purpose                                                                                       |
-| ------------------------------ | --------------------------------------------------------------------------------------------- |
-| `src/betting/BettingRound.ts`  | The state of one betting round: seats in order, stacks, bets on this street, the bet to match |
-| `src/betting/seatStatus.ts`    | Whether a seat is still in the hand, all-in, or can still act                                 |
-| `src/betting/nextToAct.ts`     | Who acts next, or that the round is over                                                      |
-| `src/betting/postBlinds.ts`    | The first round of a hand: who posts the blinds and how much, and who acts first              |
-| `src/betting/nextStreet.ts`    | The betting round of the next street                                                          |
-| `src/betting/allowedBets.ts`   | The totals the player to act may bet to                                                       |
-| `src/betting/checkAction.ts`   | Accepts a rule action, or returns why not                                                     |
-| `src/betting/applyAction.ts`   | The betting round after an accepted action                                                    |
-| `src/ui/UiAction.ts`           | The buttons: fold, check, call, raise to, all-in                                              |
-| `src/ui/availableUiActions.ts` | The buttons that apply to the player to act, with their amounts                               |
-| `src/ui/translateUiAction.ts`  | A button as a rule action, or why it doesn't apply                                            |
-
-- [ ] Posting the blinds. Heads-up, the button posts the small blind and acts first before the flop. A player who can't cover a blind posts what they have and is all-in.
-- [ ] Allowed actions:
-  - check only with nothing to call;
-  - a bet of at least the big blind;
-  - a raise of at least the last full raise;
-  - all-in for any amount up to the stack.
-- [ ] An all-in that isn't a full raise doesn't reopen the betting for players who have already acted: they may only call or fold.
-- [ ] The round is over when every player still in has acted and matched the bet, or is all-in. Before the flop, the big blind gets to act even when everyone just called.
-- [ ] Translating buttons into rule actions, and the buttons that apply.
-- [ ] Tests: every rule above, and chips conserved after every action.
-- Pages: reference _Rules as implemented_ (blinds, betting), reference _Actions_ (betting).
-
-## 2. All-ins and split pots
+## 1. All-ins and split pots
 
 Hand ranks are passed in as numbers, so no cards are needed. Depends on: pots.
 
@@ -55,17 +23,17 @@ Hand ranks are passed in as numbers, so no cards are needed. Depends on: pots.
 - [ ] Tests: multi-way all-ins, ties in a side pot but not the main pot, a folded player's chips in a side pot, and chips conserved.
 - Pages: reference _Rules as implemented_ (all-ins, side pots, split pots).
 
-## 3. The hand
+## 2. The hand
 
 Adds poker-hands as a dependency, by local path until 0.12 or later is on npm. Depends on: cards as strings, the deck, showdown.
 
 - [ ] Cards as strings. Dealing from the cards still out with an injected random source; tests use a fixed deck.
 - [ ] A hand from the blinds to showdown: hole cards, the four betting rounds, and dealing the flop, turn and river as each round closes. The rest of the board is dealt when no more betting is possible.
-- [ ] Showdown: ranks from poker-hands, then the pots split as in milestone 2. The hand ends early when one player is left.
+- [ ] Showdown: ranks from poker-hands, then the pots split as in milestone 1. The hand ends early when one player is left.
 - [ ] Tests: scripted hands from a fixed deck.
 - Pages: how-to _Test the rules with a fixed deck_, reference _Rules as implemented_ (showdown).
 
-## 4. The table
+## 3. The table
 
 Depends on: joining a running table, the button, busting.
 
@@ -74,7 +42,7 @@ Depends on: joining a running table, the button, busting.
 - [ ] The button and blinds moving from hand to hand as players come and go.
 - Pages: reference _Table options_, reference _Actions_ (seating).
 
-## 5. Views
+## 4. Views
 
 - [ ] What each audience sees:
   - each seated player gets their own hole cards;
@@ -85,7 +53,7 @@ Depends on: joining a running table, the button, busting.
 - [ ] Tests: no view of any state in a scripted hand contains a card its audience mustn't see.
 - Pages: reference _State and views_.
 
-## 6. The plugin
+## 5. The plugin
 
 Adds Remote State as a dependency, by local path until it's on npm. Depends on: audiences.
 
@@ -94,7 +62,7 @@ Adds Remote State as a dependency, by local path until it's on npm. Depends on: 
 - [ ] Integration tests through Remote State's HTTP API with supertest: admission, seating, a full hand, views.
 - Pages: explanation _Architecture_, how-to _Host a table_.
 
-## 7. Time limits
+## 6. Time limits
 
 Depends on: time limits.
 
@@ -104,7 +72,7 @@ Depends on: time limits.
 - [ ] `resume` for the host after a restart, scheduling the timers the state calls for. The host keeps the IDs of its open tables to find them.
 - Pages: reference _Timers_, how-to _Set the time limits_, how-to _Resume tables after a restart_.
 
-## 8. A table to play at
+## 7. A table to play at
 
 - [ ] A host server: create a table, admit people, serve a minimal web client.
 - [ ] The client: seats, cards, pots, the actions allowed for the viewer, the turn countdown.
