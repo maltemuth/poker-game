@@ -12,8 +12,8 @@ Each milestone lists the pages it writes or updates ([Writing documentation](doc
   - each seated player gets their own hole cards;
   - spectators get none;
   - shown hands are visible to everyone;
-  - pots are derived for display;
-  - nothing about the deck appears.
+  - the pots and the bets in front of the players, as stored;
+  - the buttons for the player to act, so clients don't compute them.
 - [ ] Tests: no view of any state in a scripted hand contains a card its audience mustn't see.
 - Pages: reference _State and views_.
 
