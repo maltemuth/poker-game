@@ -19,6 +19,8 @@ const river = (
   bettingRound: "river",
   result: null,
   turn: 0,
+  tabled: false,
+  pacedRunout: false,
 });
 
 it("shows every hand still in, and pays the best one", () => {

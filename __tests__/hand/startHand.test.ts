@@ -59,7 +59,7 @@ it("passes extra big blinds on to the betting", () => {
     0,
     blinds,
     deck(["AhAs", "KdKc", "QhQs", "JdJc"], 0),
-    [3]
+    { extraBigBlinds: [3] }
   );
   expect(hand.betting.seats.map((seat) => seat.bet)).toEqual([0, 50, 100, 100]);
 });

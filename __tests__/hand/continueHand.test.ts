@@ -27,6 +27,8 @@ const preFlopOver: Hand = {
   bettingRound: "preFlop",
   result: null,
   turn: 0,
+  tabled: false,
+  pacedRunout: false,
 };
 
 it("deals the flop and starts its betting round", () => {

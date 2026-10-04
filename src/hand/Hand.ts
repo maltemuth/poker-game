@@ -42,4 +42,8 @@ export interface Hand {
    * action taken in turn. A fold out of turn doesn't start a new turn.
    */
   turn: number;
+  /** No more betting is possible: the hands still in are face up (decision 0015) */
+  tabled: boolean;
+  /** An all-in runout is dealt one betting round at a time, by `dealRunout` */
+  pacedRunout: boolean;
 }

@@ -41,7 +41,12 @@ export const startNextHand = (table: Table, draw: Draw): Table => {
     deal.seats.indexOf(deal.button),
     table.options.blinds,
     draw,
-    deal.extraBigBlinds.map((index) => deal.seats.indexOf(index))
+    {
+      extraBigBlinds: deal.extraBigBlinds.map((index) =>
+        deal.seats.indexOf(index)
+      ),
+      pacedRunout: table.options.runoutDelay !== null,
+    }
   );
   const started: Table = {
     ...table,
