@@ -1,6 +1,7 @@
 /**
  * Builds tables for tests: blinds of 50/100, buy-ins from 1,000 to 5,000,
- * six seats, and players named after their IDs.
+ * six seats, all-in runouts dealt at once, and players named after their
+ * IDs.
  */
 
 import { newTable } from "../../src/table/newTable.js";
@@ -11,6 +12,8 @@ export const options = {
   blinds: { small: 50, big: 100 },
   buyIn: { min: 1000, max: 5000 },
   seats: 6,
+  // most tests want the rest of an all-in board at once
+  runoutDelay: null,
 };
 
 export const emptyTable = (newPlayers: NewPlayerRule = "nextHand"): Table =>

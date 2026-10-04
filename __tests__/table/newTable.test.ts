@@ -67,3 +67,18 @@ it("gives a player 30 seconds to act by default", () => {
     "turnTimeout must be null or whole milliseconds from 1 to 2147483647"
   );
 });
+
+it("deals a runout every 2 seconds, and hides hole cards from spectators, by default", () => {
+  const table = newTable({ ...options, runoutDelay: undefined });
+  expect(table.options.runoutDelay).toBe(2000);
+  expect(table.options.spectatorsSeeHoleCards).toBe(false);
+  expect(() => newTable({ ...options, runoutDelay: -5 })).toThrow(
+    "runoutDelay must be null or whole milliseconds from 0 to 2147483647"
+  );
+  expect(() =>
+    newTable({
+      ...options,
+      spectatorsSeeHoleCards: "yes" as unknown as boolean,
+    })
+  ).toThrow("spectatorsSeeHoleCards must be true or false");
+});

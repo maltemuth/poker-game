@@ -3,21 +3,27 @@
  * no bigger than the big blind, a buy-in of at least the big blind, and 2 to
  * 10 seats. Unless the options say otherwise, new players are dealt in from
  * the next hand (decision 0006), hands start 5 seconds after they can
- * (decision 0013), and a player has 30 seconds to act (decision 0014).
+ * (decision 0013), a player has 30 seconds to act (decision 0014), an
+ * all-in runout deals a betting round's cards every 2 seconds (decision
+ * 0015), and spectators see no hole cards (decision 0016).
  */
 
 import type { Table } from "./Table.js";
 import { maxDelay, newPlayerRules, type TableOptions } from "./TableOptions.js";
 
-export type TableOptionsInput = Omit<
-  TableOptions,
-  "newPlayers" | "nextHandDelay" | "turnTimeout"
-> &
-  Partial<Pick<TableOptions, "newPlayers" | "nextHandDelay" | "turnTimeout">>;
+type Defaulted =
+  | "newPlayers"
+  | "nextHandDelay"
+  | "turnTimeout"
+  | "runoutDelay"
+  | "spectatorsSeeHoleCards";
+
+export type TableOptionsInput = Omit<TableOptions, Defaulted> &
+  Partial<Pick<TableOptions, Defaulted>>;
 
 const problemsWith = (options: TableOptions): string[] => {
-  const { blinds, buyIn, seats, newPlayers, nextHandDelay, turnTimeout } =
-    options;
+  const { blinds, buyIn, seats, newPlayers } = options;
+  const { nextHandDelay, turnTimeout, runoutDelay } = options;
   const chips = [blinds.small, blinds.big, buyIn.min, buyIn.max];
   return [
     chips.every((amount) => Number.isInteger(amount) && amount > 0)
@@ -50,6 +56,15 @@ const problemsWith = (options: TableOptions): string[] => {
       turnTimeout <= maxDelay)
       ? null
       : `turnTimeout must be null or whole milliseconds from 1 to ${maxDelay}`,
+    runoutDelay === null ||
+    (Number.isInteger(runoutDelay) &&
+      runoutDelay >= 0 &&
+      runoutDelay <= maxDelay)
+      ? null
+      : `runoutDelay must be null or whole milliseconds from 0 to ${maxDelay}`,
+    typeof options.spectatorsSeeHoleCards === "boolean"
+      ? null
+      : "spectatorsSeeHoleCards must be true or false",
   ].filter((problem) => problem !== null);
 };
 
@@ -61,7 +76,12 @@ export const newTable = (input: TableOptionsInput): Table => {
     newPlayers: "nextHand",
     nextHandDelay: 5000,
     turnTimeout: 30000,
-    ...input,
+    runoutDelay: 2000,
+    spectatorsSeeHoleCards: false,
+    // an option given as undefined keeps its default
+    ...(Object.fromEntries(
+      Object.entries(input).filter(([, value]) => value !== undefined)
+    ) as TableOptionsInput),
   };
   const problems = problemsWith(options);
   if (problems.length > 0) {
