@@ -145,7 +145,7 @@ Recommended: A first. Hands start by themselves once two players sit, so no one 
 
 ## Open questions
 
-- **Joining a running table:** does a new player wait for the big blind, post a blind to be dealt in at once, or simply get dealt in next hand? The last is simplest and slightly favors new players.
+- **Joining a running table:** decided in [0006](../decisions/0006-new-players-by-table-option.md): a table option, dealt in next hand by default.
 - **The button when players leave:** a moving button (it always goes to the next seated player) or a dead button (the blinds are what move)? A moving button is simpler; a dead button is fairer.
 - **Busting:** does a player with no chips stay seated and sit out until they rebuy, or are they stood up?
 - **Leaving with chips:** does a player who stands up and sits down again have to bring at least what they left with, against "ratholing"?
