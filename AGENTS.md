@@ -7,7 +7,7 @@ Guidelines for coding agents working on poker-game.
 Node.js 24, from `.nvmrc`. Run npm and node through `nvm use`, or with Node 24 first in `PATH`.
 
 ```sh
-npm test        # tsc on sources and tests, then Jest
+npm test        # tsc on sources and tests, then Jest (with --experimental-vm-modules, decision 0011)
 npm run lint    # ESLint and Prettier's check; run before every commit
 npm run format  # Prettier, applied
 ```

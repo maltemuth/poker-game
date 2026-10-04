@@ -6,7 +6,7 @@ So far, it runs a table: seats and buy-ins, new players joining by the table's r
 
 ## Development
 
-Needs Node.js 24 (`nvm use` picks the version in `.nvmrc`), and [poker-hands](../poker-hands) checked out and built next to this repository: it's linked by path until version 0.12 or later is on npm.
+Needs Node.js 24 (`nvm use` picks the version in `.nvmrc`), and [poker-hands](../poker-hands) and [Remote State](../remote-state) checked out, installed and built next to this repository: they're linked by path until the versions needed are on npm.
 
 ```sh
 npm install
