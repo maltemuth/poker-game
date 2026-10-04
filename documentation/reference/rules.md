@@ -1,6 +1,6 @@
 # Rules as implemented
 
-The no-limit Texas Hold'em rules poker-game applies, as built so far: the blinds, the betting, dealing, the pots, and showdown. The code is in [`src/betting/`](../../src/betting/), [`src/pots/`](../../src/pots/) and [`src/hand/`](../../src/hand/). Seats, buy-ins and the button moving from hand to hand follow with the table ([BACKLOG.md](../../BACKLOG.md)).
+The no-limit Texas Hold'em rules poker-game applies, as built so far: the blinds, the betting, dealing, the pots, showdown, and the table between hands. The code is in [`src/betting/`](../../src/betting/), [`src/pots/`](../../src/pots/) and [`src/hand/`](../../src/hand/). Seats, buy-ins and what happens between hands are in [`src/table/`](../../src/table/).
 
 Amounts are whole chips. "Bet" below means the chips a player has bet in the current betting round, and "the bet to match" is the highest bet in it.
 
@@ -14,6 +14,7 @@ Amounts are whole chips. "Bet" below means the chips a player has bet in the cur
 - **A player who can't cover a blind** posts what they have and is all-in.
 - **The bet to match is the full big blind,** even if the big blind posted less.
 - **Posting a blind isn't acting.** The big blind gets to act even when everyone just called: it may check or raise.
+- **A new player may post an extra big blind,** when the table's `newPlayers` option is `postBigBlind` ([Table options](table-options.md#newplayers)). It's a live bet, like the big blind: they may check or raise when the betting comes back to them unraised.
 - **A hand needs at least two players,** each with chips. `postBlinds` throws otherwise; the table only deals in players who can play.
 
 ## Order of play
@@ -123,6 +124,25 @@ The hand goes to showdown when the betting on the river is over with at least tw
 - **Hands are ranked with poker-hands.** Equal hands rank the same, whatever their suits, so a board that plays splits the pot.
 - **Each pot goes to the best hand among the players who can win it** ([Awarding the pots](#awarding-the-pots)).
 - **A hand won because everyone else folded isn't shown.**
+
+## Between hands
+
+### The end of a hand
+
+When a hand is over, every player dealt in gets their stack from it, winnings included. Then:
+
+- **Players without chips become spectators** ([0008](../explanation/decisions/0008-busted-players-become-spectators.md)). To play again, they sit down with a new buy-in.
+- **Players who stood up during the hand become spectators,** with their chips. Players dealt in can stand up at any time, even after folding; their chips stay in the hand until it's over.
+
+### Who is dealt in
+
+The next hand is dealt to the players in the game: seated, not sitting out, and not new players still waiting. With fewer than two of them, the table is starting, and everyone seated and not sitting out is dealt in.
+
+New players join by the table's `newPlayers` option ([Table options](table-options.md#newplayers)).
+
+### The button
+
+The button moves to the next seat clockwise whose player is in the game, skipping empty seats, players sitting out and new players still waiting ([0007](../explanation/decisions/0007-moving-button.md)). For the first hand, it's the first such seat in seat order. The blinds follow from the button, so when players leave, someone may pay the big blind twice in a row, or skip a blind.
 
 ## Rejections
 
