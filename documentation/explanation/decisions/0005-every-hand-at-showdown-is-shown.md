@@ -1,6 +1,6 @@
 # 0005. Every hand that reaches showdown is shown
 
-Status: Accepted
+Status: Accepted; all-in hands are tabled before showdown since [0015](0015-all-in-hands-are-tabled.md)
 Date: 2026-10-04
 
 ## Context
