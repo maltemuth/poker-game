@@ -29,12 +29,8 @@ const typeName = (type: HandType): HandTypeName => {
   return (name[0].toLowerCase() + name.slice(1)) as HandTypeName;
 };
 
-/**
- * @throws {Error} Without any cards; poker-hands finds no hand then
- */
 export const rankHand = (hole: Card[], board: Card[]): RankedHand => {
   const hand = getBestHand(toCards(...hole, ...board));
-  if (!hand) throw new Error("There are no cards to rank");
   return {
     best: [...hand.cards(), ...hand.kickers()].map(toString),
     type: typeName(hand.type),
