@@ -82,9 +82,4 @@ export const createHoldemPlugin = ({
   },
 
   filterStateForAudience: (table, audience) => viewTable(table, audience),
-
-  gameConfig: {
-    name: "Texas Hold'em",
-    description: "No-limit Texas Hold'em cash tables",
-  },
 });
