@@ -3,12 +3,14 @@
  * tests and at random for real hands.
  */
 
+import assert from "node:assert/strict";
+import { it } from "node:test";
 import { drawCards } from "../../src/hand/Draw.js";
 import { fixedDraw } from "../../src/hand/fixedDraw.js";
 import { randomDraw } from "../../src/hand/randomDraw.js";
 
 it("deals a fixed deck in order", () => {
-  expect(drawCards([], 3, fixedDraw(["Ah", "Kd", "2c"]))).toEqual([
+  assert.deepEqual(drawCards([], 3, fixedDraw(["Ah", "Kd", "2c"])), [
     "Ah",
     "Kd",
     "2c",
@@ -16,18 +18,22 @@ it("deals a fixed deck in order", () => {
 });
 
 it("refuses a fixed card that's already dealt or used up", () => {
-  expect(() => drawCards(["Ah"], 1, fixedDraw(["Ah"]))).toThrow("Ah isn't out");
-  expect(() => drawCards([], 2, fixedDraw(["Ah"]))).toThrow(
-    "The fixed deck is used up"
-  );
+  assert.throws(() => drawCards(["Ah"], 1, fixedDraw(["Ah"])), {
+    message: "Ah isn't out",
+  });
+  assert.throws(() => drawCards([], 2, fixedDraw(["Ah"])), {
+    message: "The fixed deck is used up",
+  });
 });
 
 it("refuses a draw that picks a card that isn't out", () => {
-  expect(() => drawCards(["Ah"], 1, () => "Ah")).toThrow("Ah isn't out");
+  assert.throws(() => drawCards(["Ah"], 1, () => "Ah"), {
+    message: "Ah isn't out",
+  });
 });
 
 it("draws random cards from the cards still out, each once", () => {
   const used = ["Ah", "Kd"];
   const drawn = drawCards(used, 50, randomDraw);
-  expect(new Set([...used, ...drawn]).size).toBe(52);
+  assert.equal(new Set([...used, ...drawn]).size, 52);
 });

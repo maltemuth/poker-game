@@ -4,6 +4,9 @@
  * everyone else folded.
  */
 
+import assert from "node:assert/strict";
+import { it } from "node:test";
+import { assertMatchObject } from "../helpers/assert.js";
 import { endHand } from "../../src/hand/endHand.js";
 import type { Hand } from "../../src/hand/Hand.js";
 import { round } from "../helpers/betting.js";
@@ -38,16 +41,22 @@ it("shows every hand still in, and pays the best one", () => {
     ]
   );
   const { result, betting } = endHand(hand);
-  expect(result?.shown.map((shown) => [shown.seat, shown.type])).toEqual([
-    [1, "pair"],
-    [2, "pair"],
-  ]);
-  expect(result?.shown[0]).toMatchObject({
+  assert.deepEqual(
+    result?.shown.map((shown) => [shown.seat, shown.type]),
+    [
+      [1, "pair"],
+      [2, "pair"],
+    ]
+  );
+  assertMatchObject(result?.shown[0], {
     cards: ["Ah", "As"],
     best: ["Ah", "As", "Js", "Tc", "9h"],
   });
-  expect(result?.awards).toEqual([[{ seat: 1, amount: 700 }]]);
-  expect(betting.seats.map((seat) => seat.stack)).toEqual([1400, 700, 900]);
+  assert.deepEqual(result?.awards, [[{ seat: 1, amount: 700 }]]);
+  assert.deepEqual(
+    betting.seats.map((seat) => seat.stack),
+    [1400, 700, 900]
+  );
 });
 
 it("splits the pot when the board plays", () => {
@@ -62,7 +71,7 @@ it("splits the pot when the board plays", () => {
       { committed: 500, stack: 500 },
     ]
   );
-  expect(endHand(hand).result?.awards).toEqual([
+  assert.deepEqual(endHand(hand).result?.awards, [
     [
       { seat: 2, amount: 500 },
       { seat: 1, amount: 500 },
@@ -85,7 +94,7 @@ it("pays a side pot to another player than the main pot", () => {
       { committed: 600, stack: 400 },
     ]
   );
-  expect(endHand(hand).result?.awards).toEqual([
+  assert.deepEqual(endHand(hand).result?.awards, [
     [{ seat: 1, amount: 600 }],
     [{ seat: 2, amount: 800 }],
   ]);
@@ -107,6 +116,6 @@ it("pays the last player without showing when everyone else folded", () => {
     bettingRound: "preFlop",
   };
   const { result } = endHand(hand);
-  expect(result?.shown).toEqual([]);
-  expect(result?.awards).toEqual([[{ seat: 1, amount: 100 }]]);
+  assert.deepEqual(result?.shown, []);
+  assert.deepEqual(result?.awards, [[{ seat: 1, amount: 100 }]]);
 });

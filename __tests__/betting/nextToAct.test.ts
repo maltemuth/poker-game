@@ -3,13 +3,15 @@
  * option, and the end of a betting round.
  */
 
+import assert from "node:assert/strict";
+import { it } from "node:test";
 import { nextToAct } from "../../src/betting/nextToAct.js";
 import { round } from "../helpers/betting.js";
 
 it("goes clockwise, wrapping around the table", () => {
   const fresh = round([{}, {}, {}]);
-  expect(nextToAct(fresh, 0)).toBe(1);
-  expect(nextToAct(fresh, 2)).toBe(0);
+  assert.equal(nextToAct(fresh, 0), 1);
+  assert.equal(nextToAct(fresh, 2), 0);
 });
 
 it("skips folded and all-in seats", () => {
@@ -17,7 +19,7 @@ it("skips folded and all-in seats", () => {
     [{}, { folded: true }, { stack: 0, bet: 100, actedAt: 100 }, {}],
     { currentBet: 100 }
   );
-  expect(nextToAct(someOut, 0)).toBe(3);
+  assert.equal(nextToAct(someOut, 0), 3);
 });
 
 it("asks a seat that owes chips, even if it acted before", () => {
@@ -28,7 +30,7 @@ it("asks a seat that owes chips, even if it acted before", () => {
     ],
     { currentBet: 300 }
   );
-  expect(nextToAct(raised, 1)).toBe(0);
+  assert.equal(nextToAct(raised, 1), 0);
 });
 
 it("gives a seat that hasn't acted its turn, like the big blind before the flop", () => {
@@ -37,7 +39,7 @@ it("gives a seat that hasn't acted its turn, like the big blind before the flop"
     [{ bet: 100, actedAt: 100 }, { bet: 100, actedAt: 100 }, { bet: 100 }],
     { currentBet: 100 }
   );
-  expect(nextToAct(called, 1)).toBe(2);
+  assert.equal(nextToAct(called, 1), 2);
 });
 
 it("ends the round when everyone has acted and matched the bet", () => {
@@ -45,12 +47,12 @@ it("ends the round when everyone has acted and matched the bet", () => {
     [{ bet: 200, actedAt: 200 }, { bet: 200, actedAt: 200 }, { folded: true }],
     { currentBet: 200 }
   );
-  expect(nextToAct(matched, 1)).toBeNull();
+  assert.equal(nextToAct(matched, 1), null);
 });
 
 it("ends the round when only one seat is left in the hand", () => {
   const foldedAround = round([{}, { folded: true }, { folded: true }]);
-  expect(nextToAct(foldedAround, 0)).toBeNull();
+  assert.equal(nextToAct(foldedAround, 0), null);
 });
 
 it("ends the round when no one could bet against the last seat that can act", () => {
@@ -62,16 +64,16 @@ it("ends the round when no one could bet against the last seat that can act", ()
     ],
     { currentBet: 500 }
   );
-  expect(nextToAct(matchedAllIn, 1)).toBeNull();
+  assert.equal(nextToAct(matchedAllIn, 1), null);
   const newRound = round([{}, { stack: 0 }]);
-  expect(nextToAct(newRound, 1)).toBeNull();
+  assert.equal(nextToAct(newRound, 1), null);
 });
 
 it("still asks the last seat that can act to call an all-in", () => {
   const facingAllIn = round([{ bet: 100 }, { stack: 0, bet: 800 }], {
     currentBet: 800,
   });
-  expect(nextToAct(facingAllIn, 1)).toBe(0);
+  assert.equal(nextToAct(facingAllIn, 1), 0);
 });
 
 it("doesn't ask the last seat that can act to match more than the all-in players bet", () => {
@@ -83,5 +85,5 @@ it("doesn't ask the last seat that can act to match more than the all-in players
     ],
     { currentBet: 100 }
   );
-  expect(nextToAct(shortBigBlind, 1)).toBeNull();
+  assert.equal(nextToAct(shortBigBlind, 1), null);
 });

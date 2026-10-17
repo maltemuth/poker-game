@@ -10,7 +10,7 @@ Needs Node.js 24 (`nvm use` picks the version in `.nvmrc`), and [poker-hands](..
 
 ```sh
 npm install
-npm test        # type-checks the sources and tests, then runs Jest
+npm test        # type-checks the sources and tests, then runs them on Node's test runner
 npm run lint    # ESLint, then Prettier's check
 npm run format  # Prettier, applied
 npm run build   # TypeScript → dist/

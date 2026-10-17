@@ -4,12 +4,14 @@
  * the plugin, the WebAssembly package only for the odds.
  */
 
+import assert from "node:assert/strict";
+import { it } from "node:test";
 import { readFileSync } from "node:fs";
 import { dirname, join, resolve } from "node:path";
 import * as plugin from "../../src/plugin/index.js";
 
 it("exports the plugin", () => {
-  expect(Object.keys(plugin).sort()).toEqual([
+  assert.deepEqual(Object.keys(plugin).sort(), [
     "createHoldemPlugin",
     "isSystemAction",
   ]);
@@ -40,10 +42,10 @@ it("loads Remote State only for the plugin, and the WebAssembly package only for
   const rules = packagesImported(join(src, "index.ts"));
   const pluginEntry = packagesImported(join(src, "plugin/index.ts"));
   const odds = packagesImported(join(src, "odds/index.ts"));
-  expect(rules).not.toContain("@malte.muth/remote-state");
-  expect(rules).not.toContain("@malte.muth/poker-hands-wasm");
-  expect(pluginEntry).toContain("@malte.muth/remote-state");
-  expect(pluginEntry).not.toContain("@malte.muth/poker-hands-wasm");
-  expect(odds).toContain("@malte.muth/poker-hands-wasm");
-  expect(odds).not.toContain("@malte.muth/remote-state");
+  assert.ok(!rules.has("@malte.muth/remote-state"));
+  assert.ok(!rules.has("@malte.muth/poker-hands-wasm"));
+  assert.ok(pluginEntry.has("@malte.muth/remote-state"));
+  assert.ok(!pluginEntry.has("@malte.muth/poker-hands-wasm"));
+  assert.ok(odds.has("@malte.muth/poker-hands-wasm"));
+  assert.ok(!odds.has("@malte.muth/remote-state"));
 });

@@ -3,10 +3,12 @@
  * tests of their own, next to this file.
  */
 
+import assert from "node:assert/strict";
+import { it } from "node:test";
 import * as pokerGame from "../src/index.js";
 
 it("exports the rules, the button translation and the views", () => {
-  expect(Object.keys(pokerGame).sort()).toEqual([
+  assert.deepEqual(Object.keys(pokerGame).sort(), [
     "SPECTATORS",
     "addSpectator",
     "allCards",

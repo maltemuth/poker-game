@@ -4,6 +4,9 @@
  * at a time.
  */
 
+import assert from "node:assert/strict";
+import { it } from "node:test";
+import { assertMatchObject } from "../helpers/assert.js";
 import { applyHandAction } from "../../src/hand/applyHandAction.js";
 import { dealRunout, waitsForRunout } from "../../src/hand/dealRunout.js";
 import { startHand } from "../../src/hand/startHand.js";
@@ -20,30 +23,30 @@ const allInAndCall = (pacedRunout: boolean) => {
 
 it("tables the hands and deals the rest at once without pacing", () => {
   const { hand } = allInAndCall(false);
-  expect(hand.tabled).toBe(true);
-  expect(hand.board).toHaveLength(5);
-  expect(hand.result).not.toBeNull();
+  assert.equal(hand.tabled, true);
+  assert.equal(hand.board.length, 5);
+  assert.notEqual(hand.result, null);
 });
 
 it("tables the hands and waits for each betting round's cards with pacing", () => {
   const { draw, hand: tabled } = allInAndCall(true);
   let hand = tabled;
-  expect(hand).toMatchObject({ tabled: true, board: [], result: null });
-  expect(waitsForRunout(hand)).toBe(true);
+  assertMatchObject(hand, { tabled: true, board: [], result: null });
+  assert.equal(waitsForRunout(hand), true);
 
   hand = dealRunout(hand, draw);
-  expect(hand.board).toEqual(["2c", "7d", "9h"]);
-  expect(hand.bettingRound).toBe("flop");
-  expect(waitsForRunout(hand)).toBe(true);
+  assert.deepEqual(hand.board, ["2c", "7d", "9h"]);
+  assert.equal(hand.bettingRound, "flop");
+  assert.equal(waitsForRunout(hand), true);
 
   hand = dealRunout(hand, draw);
-  expect(hand.board).toHaveLength(4);
+  assert.equal(hand.board.length, 4);
 
   // the river comes with the showdown
   hand = dealRunout(hand, draw);
-  expect(hand.board).toHaveLength(5);
-  expect(hand.result?.awards).toEqual([[{ seat: 1, amount: 2000 }]]);
-  expect(waitsForRunout(hand)).toBe(false);
+  assert.equal(hand.board.length, 5);
+  assert.deepEqual(hand.result?.awards, [[{ seat: 1, amount: 2000 }]]);
+  assert.equal(waitsForRunout(hand), false);
 });
 
 it("tables when one player still has chips but no one to bet against", () => {
@@ -54,10 +57,10 @@ it("tables when one player still has chips but no one to bet against", () => {
   });
   hand = applyHandAction(hand, { type: "bet", to: 2000 }, draw); // seat 1 all-in
   hand = applyHandAction(hand, { type: "bet", to: 300 }, draw); // seat 2 all-in
-  expect(hand.tabled).toBe(false); // seat 3 still to act
+  assert.equal(hand.tabled, false); // seat 3 still to act
   hand = applyHandAction(hand, { type: "bet", to: 2000 }, draw); // seat 3 calls all-in
-  expect(hand.tabled).toBe(true);
-  expect(waitsForRunout(hand)).toBe(true);
+  assert.equal(hand.tabled, true);
+  assert.equal(waitsForRunout(hand), true);
 });
 
 it("doesn't table hands while betting goes on", () => {
@@ -67,8 +70,8 @@ it("doesn't table hands while betting goes on", () => {
   });
   hand = applyHandAction(hand, { type: "bet", to: 100 }, draw);
   hand = applyHandAction(hand, { type: "bet", to: 100 }, draw);
-  expect(hand.bettingRound).toBe("flop");
-  expect(hand.tabled).toBe(false);
+  assert.equal(hand.bettingRound, "flop");
+  assert.equal(hand.tabled, false);
 });
 
 it("refuses to deal a runout to a hand that isn't waiting for one", () => {
@@ -76,7 +79,7 @@ it("refuses to deal a runout to a hand that isn't waiting for one", () => {
   const hand = startHand(players(1000, 1000), 0, blinds, draw, {
     pacedRunout: true,
   });
-  expect(() => dealRunout(hand, draw)).toThrow(
-    "The hand isn't waiting for a runout"
-  );
+  assert.throws(() => dealRunout(hand, draw), {
+    message: "The hand isn't waiting for a runout",
+  });
 });

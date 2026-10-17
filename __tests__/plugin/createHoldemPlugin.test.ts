@@ -3,6 +3,8 @@
  * who may send which actions, and the audience changes actions bring.
  */
 
+import assert from "node:assert/strict";
+import { it } from "node:test";
 import {
   SYSTEM,
   type Transition,
@@ -31,41 +33,47 @@ it("adds everyone who joins as a spectator, in the spectators' audience", async 
       details: { name: " Ann " },
     })
   );
-  expect(state.spectators).toEqual([{ playerId: "p1", name: "Ann" }]);
-  expect(changes.audiences).toEqual({ p1: SPECTATORS });
+  assert.deepEqual(state.spectators, [{ playerId: "p1", name: "Ann" }]);
+  assert.deepEqual(changes.audiences, { p1: SPECTATORS });
 });
 
 it("names someone without a name Player", async () => {
   const { state } = unwrap(
     await plugin.onJoin!(emptyTable(), { playerId: "p1", details: {} })
   );
-  expect(state.spectators[0].name).toBe("Player");
+  assert.equal(state.spectators[0].name, "Player");
 });
 
 it("lets only the system start hands, pause and resume", async () => {
   const table = tableWith([seated("a"), seated("b")]);
-  expect(
-    await plugin.validateAction(table, { type: "startHand" }, SYSTEM)
-  ).toBe(true);
-  expect(await plugin.validateAction(table, { type: "startHand" }, "a")).toBe(
+  assert.equal(
+    await plugin.validateAction(table, { type: "startHand" }, SYSTEM),
+    true
+  );
+  assert.equal(
+    await plugin.validateAction(table, { type: "startHand" }, "a"),
     "Only the host can do that"
   );
-  expect(await plugin.validateAction(table, { type: "sitIn" }, SYSTEM)).toBe(
+  assert.equal(
+    await plugin.validateAction(table, { type: "sitIn" }, SYSTEM),
     "The system can't act for a player"
   );
-  expect(await plugin.validateAction(table, { type: "resume" }, SYSTEM)).toBe(
+  assert.equal(
+    await plugin.validateAction(table, { type: "resume" }, SYSTEM),
     "The table isn't paused"
   );
 });
 
 it("passes players' actions to the table's rules", async () => {
   const table = tableWith([seated("a")]);
-  expect(await plugin.validateAction(table, { type: "sitIn" }, "a")).toBe(
+  assert.equal(
+    await plugin.validateAction(table, { type: "sitIn" }, "a"),
     "You aren't on a break"
   );
-  expect(
-    await plugin.validateAction(table, { type: "nonsense" } as never, "a")
-  ).toBe("Unknown action");
+  assert.equal(
+    await plugin.validateAction(table, { type: "nonsense" } as never, "a"),
+    "Unknown action"
+  );
 });
 
 it("moves a player who sits down to their own audience, and back when they leave", async () => {
@@ -80,11 +88,11 @@ it("moves a player who sits down to their own audience, and back when they leave
       "a"
     )
   );
-  expect(sat.changes.audiences).toEqual({ a: null });
+  assert.deepEqual(sat.changes.audiences, { a: null });
   const left = unwrap(
     await plugin.executeAction(sat.state, { type: "leave" }, "a")
   );
-  expect(left.changes.audiences).toEqual({ a: SPECTATORS });
+  assert.deepEqual(left.changes.audiences, { a: SPECTATORS });
 });
 
 it("moves a player who runs out of chips to the spectators", async () => {
@@ -100,14 +108,14 @@ it("moves a player who runs out of chips to the spectators", async () => {
   table = unwrap(await game.executeAction(table, { type: "allIn" }, "a")).state;
   const called = unwrap(await game.executeAction(table, { type: "call" }, "b"));
   // a's aces beat b's kings; b has nothing left
-  expect(called.changes.audiences).toEqual({ b: SPECTATORS });
+  assert.deepEqual(called.changes.audiences, { b: SPECTATORS });
 });
 
 it("filters the state with viewTable", async () => {
   const table = tableWith([seated("a"), seated("b")]);
   const view = await plugin.filterStateForAudience!(table, SPECTATORS);
-  expect(view.you).toBeNull();
-  expect(view.seats[0]?.name).toBe("a");
+  assert.equal(view.you, null);
+  assert.equal(view.seats[0]?.name, "a");
 });
 
 it("accepts a timeout only from the system, for the current turn", async () => {
@@ -121,11 +129,13 @@ it("accepts a timeout only from the system, for the current turn", async () => {
     )
   ).state;
   const timeout = { type: "timeout", hand: 1, turn: 0 } as const;
-  expect(await game.validateAction(table, timeout, "a")).toBe(
+  assert.equal(
+    await game.validateAction(table, timeout, "a"),
     "Only the host can do that"
   );
-  expect(await game.validateAction(table, timeout, SYSTEM)).toBe(true);
-  expect(
-    await game.validateAction(table, { ...timeout, turn: 1 }, SYSTEM)
-  ).toBe("That turn is over");
+  assert.equal(await game.validateAction(table, timeout, SYSTEM), true);
+  assert.equal(
+    await game.validateAction(table, { ...timeout, turn: 1 }, SYSTEM),
+    "That turn is over"
+  );
 });

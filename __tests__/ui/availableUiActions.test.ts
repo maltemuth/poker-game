@@ -3,6 +3,8 @@
  * offered translates into an action the rules accept.
  */
 
+import assert from "node:assert/strict";
+import { it } from "node:test";
 import { checkAction } from "../../src/betting/checkAction.js";
 import type { BettingRound } from "../../src/betting/BettingRound.js";
 import { availableUiActions } from "../../src/ui/availableUiActions.js";
@@ -21,7 +23,7 @@ const shortStack = round(
 );
 
 it("offers fold, check and a first bet when nothing is bet", () => {
-  expect(availableUiActions(unopened)).toEqual([
+  assert.deepEqual(availableUiActions(unopened), [
     { type: "fold" },
     { type: "check" },
     { type: "raise", min: 100, max: 1000, firstBet: true },
@@ -30,7 +32,7 @@ it("offers fold, check and a first bet when nothing is bet", () => {
 });
 
 it("offers fold, call with what it adds, and a raise when facing a bet", () => {
-  expect(availableUiActions(facingRaise)).toEqual([
+  assert.deepEqual(availableUiActions(facingRaise), [
     { type: "fold" },
     { type: "call", amount: 200, allIn: false },
     { type: "raise", min: 500, max: 1000, firstBet: false },
@@ -39,14 +41,14 @@ it("offers fold, call with what it adds, and a raise when facing a bet", () => {
 });
 
 it("offers only fold and an all-in call to a player who can't cover the bet", () => {
-  expect(availableUiActions(shortStack)).toEqual([
+  assert.deepEqual(availableUiActions(shortStack), [
     { type: "fold" },
     { type: "call", amount: 600, allIn: true },
   ]);
 });
 
 it("offers nothing once the round is over", () => {
-  expect(availableUiActions(round([{}, {}], { toAct: null }))).toEqual([]);
+  assert.deepEqual(availableUiActions(round([{}, {}], { toAct: null })), []);
 });
 
 it("offers only buttons that translate into accepted actions", () => {
@@ -57,10 +59,10 @@ it("offers only buttons that translate into accepted actions", () => {
   for (const r of [unopened, facingRaise, shortStack]) {
     for (const option of availableUiActions(r)) {
       if (option.type === "raise") {
-        expect(accepted(r, { type: "raise", to: option.min })).toBe(true);
-        expect(accepted(r, { type: "raise", to: option.max })).toBe(true);
+        assert.equal(accepted(r, { type: "raise", to: option.min }), true);
+        assert.equal(accepted(r, { type: "raise", to: option.max }), true);
       } else {
-        expect(accepted(r, { type: option.type })).toBe(true);
+        assert.equal(accepted(r, { type: option.type }), true);
       }
     }
   }

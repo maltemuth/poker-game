@@ -3,82 +3,105 @@
  * and the options that are refused.
  */
 
+import assert from "node:assert/strict";
+import { it } from "node:test";
 import { newTable } from "../../src/table/newTable.js";
 import { options } from "../helpers/table.js";
 
 it("creates an empty table with the options", () => {
   const table = newTable(options);
-  expect(table.seats).toEqual([null, null, null, null, null, null]);
-  expect(table.spectators).toEqual([]);
-  expect(table.button).toBeNull();
-  expect(table.hand).toBeNull();
-  expect(table.paused).toBe(false);
+  assert.deepEqual(table.seats, [null, null, null, null, null, null]);
+  assert.deepEqual(table.spectators, []);
+  assert.equal(table.button, null);
+  assert.equal(table.hand, null);
+  assert.equal(table.paused, false);
 });
 
 it("deals new players in from the next hand by default", () => {
-  expect(newTable(options).options.newPlayers).toBe("nextHand");
-  expect(
-    newTable({ ...options, newPlayers: "waitForBigBlind" }).options.newPlayers
-  ).toBe("waitForBigBlind");
+  assert.equal(newTable(options).options.newPlayers, "nextHand");
+  assert.equal(
+    newTable({ ...options, newPlayers: "waitForBigBlind" }).options.newPlayers,
+    "waitForBigBlind"
+  );
 });
 
 it("refuses invalid options, naming every problem", () => {
-  expect(() =>
-    newTable({
-      blinds: { small: 200, big: 100 },
-      buyIn: { min: 50, max: 40 },
-      seats: 11,
-    })
-  ).toThrow(
-    "Invalid table options: the small blind can't be bigger than the big blind; " +
-      "the smallest buy-in must be at least the big blind; " +
-      "the largest buy-in can't be smaller than the smallest; " +
-      "a table has 2 to 10 seats"
+  assert.throws(
+    () =>
+      newTable({
+        blinds: { small: 200, big: 100 },
+        buyIn: { min: 50, max: 40 },
+        seats: 11,
+      }),
+    {
+      message:
+        "Invalid table options: the small blind can't be bigger than the big blind; " +
+        "the smallest buy-in must be at least the big blind; " +
+        "the largest buy-in can't be smaller than the smallest; " +
+        "a table has 2 to 10 seats",
+    }
   );
-  expect(() =>
-    newTable({ ...options, blinds: { small: 0.5, big: 1 } })
-  ).toThrow("blinds and buy-ins must be positive whole numbers of chips");
-  expect(() =>
-    newTable({ ...options, newPlayers: "whenever" as "nextHand" })
-  ).toThrow(
-    "newPlayers must be one of nextHand, waitForBigBlind, postBigBlind"
+  assert.throws(
+    () => newTable({ ...options, blinds: { small: 0.5, big: 1 } }),
+    {
+      message:
+        "Invalid table options: blinds and buy-ins must be positive whole numbers of chips",
+    }
+  );
+  assert.throws(
+    () => newTable({ ...options, newPlayers: "whenever" as "nextHand" }),
+    {
+      message:
+        "Invalid table options: newPlayers must be one of nextHand, waitForBigBlind, postBigBlind",
+    }
   );
 });
 
 it("starts hands 5 seconds after they can by default", () => {
-  expect(newTable(options).options.nextHandDelay).toBe(5000);
-  expect(
-    newTable({ ...options, nextHandDelay: null }).options.nextHandDelay
-  ).toBeNull();
-  expect(() => newTable({ ...options, nextHandDelay: -1 })).toThrow(
-    "nextHandDelay must be null or whole milliseconds from 0 to 2147483647"
+  assert.equal(newTable(options).options.nextHandDelay, 5000);
+  assert.equal(
+    newTable({ ...options, nextHandDelay: null }).options.nextHandDelay,
+    null
   );
-  expect(() => newTable({ ...options, nextHandDelay: 2.5 })).toThrow(
-    "nextHandDelay must be null or whole milliseconds"
-  );
+  assert.throws(() => newTable({ ...options, nextHandDelay: -1 }), {
+    message:
+      "Invalid table options: nextHandDelay must be null or whole milliseconds from 0 to 2147483647",
+  });
+  assert.throws(() => newTable({ ...options, nextHandDelay: 2.5 }), {
+    message:
+      "Invalid table options: nextHandDelay must be null or whole milliseconds from 0 to 2147483647",
+  });
 });
 
 it("gives a player 30 seconds to act by default", () => {
-  expect(newTable(options).options.turnTimeout).toBe(30000);
-  expect(
-    newTable({ ...options, turnTimeout: null }).options.turnTimeout
-  ).toBeNull();
-  expect(() => newTable({ ...options, turnTimeout: 0 })).toThrow(
-    "turnTimeout must be null or whole milliseconds from 1 to 2147483647"
+  assert.equal(newTable(options).options.turnTimeout, 30000);
+  assert.equal(
+    newTable({ ...options, turnTimeout: null }).options.turnTimeout,
+    null
   );
+  assert.throws(() => newTable({ ...options, turnTimeout: 0 }), {
+    message:
+      "Invalid table options: turnTimeout must be null or whole milliseconds from 1 to 2147483647",
+  });
 });
 
 it("deals a runout every 2 seconds, and hides hole cards from spectators, by default", () => {
   const table = newTable({ ...options, runoutDelay: undefined });
-  expect(table.options.runoutDelay).toBe(2000);
-  expect(table.options.spectatorsSeeHoleCards).toBe(false);
-  expect(() => newTable({ ...options, runoutDelay: -5 })).toThrow(
-    "runoutDelay must be null or whole milliseconds from 0 to 2147483647"
+  assert.equal(table.options.runoutDelay, 2000);
+  assert.equal(table.options.spectatorsSeeHoleCards, false);
+  assert.throws(() => newTable({ ...options, runoutDelay: -5 }), {
+    message:
+      "Invalid table options: runoutDelay must be null or whole milliseconds from 0 to 2147483647",
+  });
+  assert.throws(
+    () =>
+      newTable({
+        ...options,
+        spectatorsSeeHoleCards: "yes" as unknown as boolean,
+      }),
+    {
+      message:
+        "Invalid table options: spectatorsSeeHoleCards must be true or false",
+    }
   );
-  expect(() =>
-    newTable({
-      ...options,
-      spectatorsSeeHoleCards: "yes" as unknown as boolean,
-    })
-  ).toThrow("spectatorsSeeHoleCards must be true or false");
 });

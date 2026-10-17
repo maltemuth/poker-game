@@ -3,6 +3,9 @@
  * game, a break and sitting in again, and leaving, during and between hands.
  */
 
+import assert from "node:assert/strict";
+import { describe, it } from "node:test";
+import { assertMatchObject } from "../helpers/assert.js";
 import { applyHandAction } from "../../src/hand/applyHandAction.js";
 import { addSpectator } from "../../src/table/addSpectator.js";
 import { checkLeave, leave } from "../../src/table/leave.js";
@@ -26,8 +29,8 @@ describe("sitting down", () => {
       seat: 3,
       buyIn: 2000,
     });
-    expect(after.spectators).toEqual([]);
-    expect(after.seats[2]).toEqual(seated("ann", { stack: 2000 }));
+    assert.deepEqual(after.spectators, []);
+    assert.deepEqual(after.seats[2], seated("ann", { stack: 2000 }));
   });
 
   it("refuses taken and missing seats, and buy-ins out of range", () => {
@@ -36,25 +39,29 @@ describe("sitting down", () => {
     });
     const check = (t: Table, seat: number, buyIn: number) =>
       checkSitDown(t, "ann", { type: "sitDown", seat, buyIn });
-    expect(check(taken, 1, 2000)).toBe("Seat 1 is taken");
-    expect(check(table, 7, 2000)).toBe("There's no seat 7");
-    expect(check(table, 1.5, 2000)).toBe("There's no seat 1.5");
-    expect(check(table, 1, 999)).toBe(
+    assert.equal(check(taken, 1, 2000), "Seat 1 is taken");
+    assert.equal(check(table, 7, 2000), "There's no seat 7");
+    assert.equal(check(table, 1.5, 2000), "There's no seat 1.5");
+    assert.equal(
+      check(table, 1, 999),
       "The buy-in must be a whole number of chips from 1000 to 5000"
     );
-    expect(check(table, 1, 5001)).toBe(
+    assert.equal(
+      check(table, 1, 5001),
       "The buy-in must be a whole number of chips from 1000 to 5000"
     );
   });
 
   it("refuses someone seated or not at the table", () => {
     const sitting = tableWith([seated("ann")]);
-    expect(
-      checkSitDown(sitting, "ann", { type: "sitDown", seat: 2, buyIn: 1000 })
-    ).toBe("You already have a seat");
-    expect(
-      checkSitDown(table, "eve", { type: "sitDown", seat: 2, buyIn: 1000 })
-    ).toBe("Only people at the table can sit down");
+    assert.equal(
+      checkSitDown(sitting, "ann", { type: "sitDown", seat: 2, buyIn: 1000 }),
+      "You already have a seat"
+    );
+    assert.equal(
+      checkSitDown(table, "eve", { type: "sitDown", seat: 2, buyIn: 1000 }),
+      "Only people at the table can sit down"
+    );
   });
 
   it("makes them a new player when a game is running and the table has a rule for it", () => {
@@ -70,7 +77,7 @@ describe("sitting down", () => {
         seat: 4,
         buyIn: 1000,
       });
-      expect(after.seats[3]?.newPlayer).toBe(true);
+      assert.equal(after.seats[3]?.newPlayer, true);
     }
   });
 
@@ -81,15 +88,17 @@ describe("sitting down", () => {
       }),
       "ann"
     );
-    expect(
+    assert.equal(
       sitDown(starting, "ann", { type: "sitDown", seat: 4, buyIn: 1000 })
-        .seats[3]?.newPlayer
-    ).toBe(false);
+        .seats[3]?.newPlayer,
+      false
+    );
     const byDefault = watching(tableWith([seated("bob"), seated("cy")]), "ann");
-    expect(
+    assert.equal(
       sitDown(byDefault, "ann", { type: "sitDown", seat: 4, buyIn: 1000 })
-        .seats[3]?.newPlayer
-    ).toBe(false);
+        .seats[3]?.newPlayer,
+      false
+    );
   });
 });
 
@@ -99,10 +108,10 @@ describe("a break", () => {
 
   it("keeps the seat and chips, and isn't dealt in until sitting in again", () => {
     const onBreak = standUp(table, "ann", noCards());
-    expect(onBreak.seats[0]).toMatchObject({ sittingOut: true, stack: 1000 });
-    expect(checkStandUp(onBreak, "ann")).toBe("You're already on a break");
-    expect(sitIn(onBreak, "ann").seats[0]?.sittingOut).toBe(false);
-    expect(checkSitIn(table, "ann")).toBe("You aren't on a break");
+    assertMatchObject(onBreak.seats[0], { sittingOut: true, stack: 1000 });
+    assert.equal(checkStandUp(onBreak, "ann"), "You're already on a break");
+    assert.equal(sitIn(onBreak, "ann").seats[0]?.sittingOut, false);
+    assert.equal(checkSitIn(table, "ann"), "You aren't on a break");
   });
 
   it("folds a running hand at once, out of turn", () => {
@@ -113,9 +122,9 @@ describe("a break", () => {
       draw
     );
     playing = standUp(playing, "c", draw);
-    expect(playing.hand?.betting.seats[2].folded).toBe(true);
-    expect(playing.hand?.betting.toAct).toBe(0);
-    expect(playing.seats[2]).toMatchObject({
+    assert.equal(playing.hand?.betting.seats[2].folded, true);
+    assert.equal(playing.hand?.betting.toAct, 0);
+    assertMatchObject(playing.seats[2], {
       sittingOut: true,
       leaving: false,
     });
@@ -125,17 +134,18 @@ describe("a break", () => {
     const draw = deck(["AhAs", "KdKc"], 0);
     let playing = startNextHand(tableWith([seated("a"), seated("b")]), draw);
     playing = standUp(playing, "b", draw);
-    expect(playing.hand?.result).not.toBeNull();
+    assert.notEqual(playing.hand?.result, null);
     // b's big blind is dead money; b keeps the seat with 900
-    expect(playing.seats.slice(0, 2).map((seat) => seat?.stack)).toEqual([
-      1100, 900,
-    ]);
-    expect(playing.seats[1]?.sittingOut).toBe(true);
+    assert.deepEqual(
+      playing.seats.slice(0, 2).map((seat) => seat?.stack),
+      [1100, 900]
+    );
+    assert.equal(playing.seats[1]?.sittingOut, true);
   });
 
   it("refuses someone without a seat", () => {
-    expect(checkStandUp(table, "eve")).toBe("You don't have a seat");
-    expect(checkSitIn(table, "eve")).toBe("You don't have a seat");
+    assert.equal(checkStandUp(table, "eve"), "You don't have a seat");
+    assert.equal(checkSitIn(table, "eve"), "You don't have a seat");
   });
 });
 
@@ -146,8 +156,8 @@ describe("leaving", () => {
       "ann",
       deck([], 0)
     );
-    expect(after.seats[0]).toBeNull();
-    expect(after.spectators).toEqual([{ playerId: "ann", name: "ann" }]);
+    assert.equal(after.seats[0], null);
+    assert.deepEqual(after.spectators, [{ playerId: "ann", name: "ann" }]);
   });
 
   it("folds a running hand at once, and leaves when it's over", () => {
@@ -157,17 +167,17 @@ describe("leaving", () => {
       draw
     );
     table = leave(table, "c", draw);
-    expect(table.hand?.betting.seats[2].folded).toBe(true);
-    expect(table.seats[2]).toMatchObject({ leaving: true, stack: 1000 });
+    assert.equal(table.hand?.betting.seats[2].folded, true);
+    assertMatchObject(table.seats[2], { leaving: true, stack: 1000 });
   });
 
   it("leaves at once when the fold ends the hand", () => {
     const draw = deck(["AhAs", "KdKc"], 0);
     let table = startNextHand(tableWith([seated("a"), seated("b")]), draw);
     table = leave(table, "b", draw);
-    expect(table.seats[1]).toBeNull();
-    expect(table.spectators).toEqual([{ playerId: "b", name: "b" }]);
-    expect(table.seats[0]?.stack).toBe(1100);
+    assert.equal(table.seats[1], null);
+    assert.deepEqual(table.spectators, [{ playerId: "b", name: "b" }]);
+    assert.equal(table.seats[0]?.stack, 1100);
   });
 
   it("doesn't fold an all-in player, who leaves when the hand is over", () => {
@@ -182,11 +192,11 @@ describe("leaving", () => {
       hand: applyHandAction(table.hand!, { type: "bet", to: 1000 }, draw),
     };
     table = leave(table, "a", draw);
-    expect(table.hand?.betting.seats[0].folded).toBe(false);
-    expect(table.seats[0]?.leaving).toBe(true);
+    assert.equal(table.hand?.betting.seats[0].folded, false);
+    assert.equal(table.seats[0]?.leaving, true);
   });
 
   it("refuses someone without a seat", () => {
-    expect(checkLeave(emptyTable(), "ann")).toBe("You don't have a seat");
+    assert.equal(checkLeave(emptyTable(), "ann"), "You don't have a seat");
   });
 });

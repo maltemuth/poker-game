@@ -9,7 +9,7 @@ export default defineConfig(
   tseslint.configs.recommended,
   {
     languageOptions: {
-      globals: { ...globals.node, ...globals.jest },
+      globals: globals.node,
     },
     rules: {
       "@typescript-eslint/no-unused-vars": "error",

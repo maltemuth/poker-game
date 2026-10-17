@@ -7,7 +7,7 @@ Guidelines for coding agents working on poker-game.
 Node.js 24, from `.nvmrc`. Run npm and node through `nvm use`, or with Node 24 first in `PATH`.
 
 ```sh
-npm test        # tsc on sources and tests, then Jest (with --experimental-vm-modules, decision 0011)
+npm test        # tsc on sources and tests, then Node's test runner through tsx (decision 0017)
 npm run lint    # ESLint and Prettier's check; run before every commit
 npm run format  # Prettier, applied
 ```
@@ -22,11 +22,12 @@ npm run format  # Prettier, applied
   - the rules come first: betting, then the hand, then the table;
   - the Remote State plugin is a thin layer over them;
   - only the plugin imports `@malte.muth/remote-state`.
-- **Imports end in `.js`,** as ESM requires (`import { pots } from "./pots.js"`); Jest maps them to the `.ts` files.
+- **Imports end in `.js`,** as ESM requires (`import { pots } from "./pots.js"`); tsx resolves them to the `.ts` files in tests.
 
 ## Tests
 
 - Tests live in `__tests__/`, mirroring `src/`, as `<name>.test.ts`. Each test file also starts with a comment saying what it covers.
+- Tests use `node:test` and `node:assert/strict`, with `assertMatchObject` and `assertCloseTo` from `__tests__/helpers/assert.ts`. An expected error gives its whole message.
 - Test every rule on its own, with plain objects built in the test.
 - Wherever chips move, check that they're conserved: stacks plus everything in pots add up to the same total before and after.
 - `verify/` checks the rules against real hand histories (`npm run download:hands`, then `npm run verify:hands`). It's not part of `npm test`; run it after changing the betting rules.

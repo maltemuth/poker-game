@@ -3,6 +3,9 @@
  * rule, and unknown actions are refused.
  */
 
+import assert from "node:assert/strict";
+import { it } from "node:test";
+import { assertMatchObject } from "../helpers/assert.js";
 import { addSpectator } from "../../src/table/addSpectator.js";
 import { applyTableAction } from "../../src/table/applyTableAction.js";
 import { checkTableAction } from "../../src/table/checkTableAction.js";
@@ -29,28 +32,31 @@ it("plays seating and betting actions", () => {
   );
   table = startNextHand(table, draw);
   table = applyTableAction(table, "a", { type: "call" }, draw);
-  expect(table.hand?.betting.seats[0].bet).toBe(100);
+  assert.equal(table.hand?.betting.seats[0].bet, 100);
   // b takes a break, which folds the hand: a wins, b keeps the seat
   table = applyTableAction(table, "b", { type: "standUp" }, draw);
-  expect(table.seats[1]).toMatchObject({ sittingOut: true, stack: 1900 });
+  assertMatchObject(table.seats[1], { sittingOut: true, stack: 1900 });
   table = applyTableAction(table, "b", { type: "sitIn" }, draw);
-  expect(table.seats[1]?.sittingOut).toBe(false);
+  assert.equal(table.seats[1]?.sittingOut, false);
   table = applyTableAction(table, "b", { type: "leave" }, draw);
-  expect(table.seats[1]).toBeNull();
-  expect(table.seats[0]?.stack).toBe(1100);
+  assert.equal(table.seats[1], null);
+  assert.equal(table.seats[0]?.stack, 1100);
 });
 
 it("refuses unknown actions", () => {
   const table = tableWith([seated("a")]);
-  expect(
-    checkTableAction(table, "a", { type: "dance" } as unknown as TableAction)
-  ).toBe("Unknown action");
-  expect(checkTableAction(table, "a", null as unknown as TableAction)).toBe(
+  assert.equal(
+    checkTableAction(table, "a", { type: "dance" } as unknown as TableAction),
     "Unknown action"
   );
-  expect(() =>
-    applyTableAction(table, "a", { type: "sitIn" }, deck([], 0))
-  ).toThrow("Invalid action: You aren't on a break");
+  assert.equal(
+    checkTableAction(table, "a", null as unknown as TableAction),
+    "Unknown action"
+  );
+  assert.throws(
+    () => applyTableAction(table, "a", { type: "sitIn" }, deck([], 0)),
+    { message: "Invalid action: You aren't on a break" }
+  );
 });
 
 it("refuses a game action from a spectator", () => {
@@ -59,10 +65,12 @@ it("refuses a game action from a spectator", () => {
     startNextHand(tableWith([seated("a"), seated("b")]), draw),
     { playerId: "s", name: "Sue" }
   );
-  expect(checkTableAction(table, "s", { type: "fold" })).toBe(
+  assert.equal(
+    checkTableAction(table, "s", { type: "fold" }),
     "You aren't in this hand"
   );
-  expect(checkTableAction(table, "s", { type: "standUp" })).toBe(
+  assert.equal(
+    checkTableAction(table, "s", { type: "standUp" }),
     "You don't have a seat"
   );
 });

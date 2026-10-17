@@ -3,12 +3,14 @@
  * type, and ranks that order and tie hands.
  */
 
+import assert from "node:assert/strict";
+import { it } from "node:test";
 import { rankHand } from "../../src/hand/rankHand.js";
 
 const board = ["Kh", "Kc", "7d", "4s", "2c"];
 
 it("finds the best five cards and the hand type", () => {
-  expect(rankHand(["Ks", "7h"], board)).toEqual({
+  assert.deepEqual(rankHand(["Ks", "7h"], board), {
     best: ["Ks", "Kh", "Kc", "7h", "7d"],
     type: "fullHouse",
     rank: 0x7ddd77,
@@ -18,19 +20,19 @@ it("finds the best five cards and the hand type", () => {
 it("ranks better hands higher", () => {
   const trips = rankHand(["Kd", "9s"], board);
   const twoPair = rankHand(["Ac", "7h"], board);
-  expect(trips.type).toBe("threeOfAKind");
-  expect(twoPair.type).toBe("twoPair");
-  expect(trips.rank).toBeGreaterThan(twoPair.rank);
+  assert.equal(trips.type, "threeOfAKind");
+  assert.equal(twoPair.type, "twoPair");
+  assert.ok(trips.rank > twoPair.rank);
 });
 
 it("ranks hands that tie equally, whatever the suits", () => {
   const plays = rankHand(["Ad", "Qs"], board);
   const same = rankHand(["Ah", "Qd"], board);
-  expect(plays.rank).toBe(same.rank);
+  assert.equal(plays.rank, same.rank);
 });
 
 it("counts the kickers", () => {
-  expect(rankHand(["Ad", "Qs"], board).rank).toBeGreaterThan(
-    rankHand(["Ad", "Js"], board).rank
+  assert.ok(
+    rankHand(["Ad", "Qs"], board).rank > rankHand(["Ad", "Js"], board).rank
   );
 });

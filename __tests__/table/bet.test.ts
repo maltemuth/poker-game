@@ -3,6 +3,8 @@
  * translated, and the hand settled when it ends.
  */
 
+import assert from "node:assert/strict";
+import { it } from "node:test";
 import { bet, checkBet } from "../../src/table/bet.js";
 import { startNextHand } from "../../src/table/startNextHand.js";
 import { deck } from "../helpers/hand.js";
@@ -15,26 +17,30 @@ const playing = () =>
 
 it("lets the player to act click a button", () => {
   const after = bet(playing(), "a", { type: "raise", to: 300 }, draw());
-  expect(after.hand?.betting.seats[0].bet).toBe(300);
+  assert.equal(after.hand?.betting.seats[0].bet, 300);
 });
 
 it("refuses players whose turn it isn't, or who aren't in the hand", () => {
   const table = playing();
-  expect(checkBet(table, "b", { type: "call" })).toBe("It's not your turn");
-  expect(checkBet(table, "eve", { type: "call" })).toBe(
+  assert.equal(checkBet(table, "b", { type: "call" }), "It's not your turn");
+  assert.equal(
+    checkBet(table, "eve", { type: "call" }),
     "You aren't in this hand"
   );
-  expect(checkBet(tableWith([seated("a")]), "a", { type: "call" })).toBe(
+  assert.equal(
+    checkBet(tableWith([seated("a")]), "a", { type: "call" }),
     "No hand is being played"
   );
 });
 
 it("passes on the reasons of the translation and the rules", () => {
   const table = playing();
-  expect(checkBet(table, "a", { type: "check" })).toBe(
+  assert.equal(
+    checkBet(table, "a", { type: "check" }),
     "You can't check: there's 100 to call"
   );
-  expect(checkBet(table, "a", { type: "raise", to: 150 })).toBe(
+  assert.equal(
+    checkBet(table, "a", { type: "raise", to: 150 }),
     "A raise must be to at least 200"
   );
 });
@@ -47,8 +53,9 @@ it("settles the hand when it ends", () => {
   );
   table = bet(table, "a", { type: "fold" }, d);
   table = bet(table, "b", { type: "fold" }, d);
-  expect(table.hand?.result).not.toBeNull();
-  expect(table.seats.slice(0, 3).map((seat) => seat?.stack)).toEqual([
-    1000, 950, 1050,
-  ]);
+  assert.notEqual(table.hand?.result, null);
+  assert.deepEqual(
+    table.seats.slice(0, 3).map((seat) => seat?.stack),
+    [1000, 950, 1050]
+  );
 });

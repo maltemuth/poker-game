@@ -2,6 +2,8 @@
  * Tests for pausing a table: no new hands while paused, and resuming.
  */
 
+import assert from "node:assert/strict";
+import { it } from "node:test";
 import {
   checkPause,
   checkResume,
@@ -15,11 +17,11 @@ const table = tableWith([seated("a"), seated("b")]);
 
 it("deals no new hands while paused", () => {
   const paused = pause(table);
-  expect(checkStartHand(paused)).toBe("The table is paused");
-  expect(checkStartHand(resume(paused))).toBe(true);
+  assert.equal(checkStartHand(paused), "The table is paused");
+  assert.equal(checkStartHand(resume(paused)), true);
 });
 
 it("refuses to pause twice, or resume a table that isn't paused", () => {
-  expect(checkPause(pause(table))).toBe("The table is already paused");
-  expect(checkResume(table)).toBe("The table isn't paused");
+  assert.equal(checkPause(pause(table)), "The table is already paused");
+  assert.equal(checkResume(table), "The table isn't paused");
 });

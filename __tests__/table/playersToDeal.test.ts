@@ -3,6 +3,8 @@
  * table that's starting, and the three rules for new players.
  */
 
+import assert from "node:assert/strict";
+import { describe, it } from "node:test";
 import { playersToDeal } from "../../src/table/playersToDeal.js";
 import type { NewPlayerRule } from "../../src/table/TableOptions.js";
 import { emptyTable, seated, tableWith } from "../helpers/table.js";
@@ -22,7 +24,7 @@ it("deals in the players in the game, skipping empty seats and those on a break"
     ],
     { button: 0 }
   );
-  expect(playersToDeal(table)).toEqual({
+  assert.deepEqual(playersToDeal(table), {
     seats: [0, 3, 4],
     button: 3,
     extraBigBlinds: [],
@@ -30,10 +32,11 @@ it("deals in the players in the game, skipping empty seats and those on a break"
 });
 
 it("deals no hand to fewer than two players", () => {
-  expect(playersToDeal(tableWith([seated("a")]))).toBeNull();
-  expect(
-    playersToDeal(tableWith([seated("a"), seated("b", { sittingOut: true })]))
-  ).toBeNull();
+  assert.equal(playersToDeal(tableWith([seated("a")])), null);
+  assert.equal(
+    playersToDeal(tableWith([seated("a"), seated("b", { sittingOut: true })])),
+    null
+  );
 });
 
 it("deals everyone in at a table that's starting, new or not", () => {
@@ -45,7 +48,7 @@ it("deals everyone in at a table that's starting, new or not", () => {
     ],
     rules("waitForBigBlind")
   );
-  expect(playersToDeal(table)?.seats).toEqual([0, 1, 2]);
+  assert.deepEqual(playersToDeal(table)?.seats, [0, 1, 2]);
 });
 
 describe("waiting for the big blind", () => {
@@ -65,7 +68,7 @@ describe("waiting for the big blind", () => {
   it("deals the new player in when their seat is the big blind", () => {
     // the button moves to seat 2, the small blind is seat 3, and the next
     // seat, n's seat 5, is the big blind
-    expect(playersToDeal(table(0))).toEqual({
+    assert.deepEqual(playersToDeal(table(0)), {
       seats: [0, 1, 2, 4],
       button: 1,
       extraBigBlinds: [],
@@ -74,9 +77,9 @@ describe("waiting for the big blind", () => {
 
   it("waits while their seat would be the small blind or later", () => {
     // button to seat 3: n's seat 5 would be the small blind
-    expect(playersToDeal(table(1))?.seats).toEqual([0, 1, 2]);
+    assert.deepEqual(playersToDeal(table(1))?.seats, [0, 1, 2]);
     // button to seat 1: the blinds are seats 2 and 3, before n
-    expect(playersToDeal(table(2))?.seats).toEqual([0, 1, 2]);
+    assert.deepEqual(playersToDeal(table(2))?.seats, [0, 1, 2]);
   });
 });
 
@@ -96,7 +99,7 @@ describe("posting a big blind", () => {
 
   it("deals the new player in with an extra big blind", () => {
     // button to seat 1: blinds seats 2 and 3, n in seat 4 posts a big blind too
-    expect(playersToDeal(table(2))).toEqual({
+    assert.deepEqual(playersToDeal(table(2)), {
       seats: [0, 1, 2, 3],
       button: 0,
       extraBigBlinds: [3],
@@ -105,7 +108,7 @@ describe("posting a big blind", () => {
 
   it("has a new player in the big blind's seat post just the big blind", () => {
     // button to seat 2: small blind seat 3, big blind n's seat 4
-    expect(playersToDeal(table(0))).toEqual({
+    assert.deepEqual(playersToDeal(table(0)), {
       seats: [0, 1, 2, 3],
       button: 1,
       extraBigBlinds: [],
@@ -114,7 +117,7 @@ describe("posting a big blind", () => {
 
   it("makes a new player in the small blind's seat wait a hand", () => {
     // button to seat 3: n's seat 4 would be the small blind
-    expect(playersToDeal(table(1))).toEqual({
+    assert.deepEqual(playersToDeal(table(1)), {
       seats: [0, 1, 2],
       button: 2,
       extraBigBlinds: [],

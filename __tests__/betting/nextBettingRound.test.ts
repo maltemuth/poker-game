@@ -3,6 +3,8 @@
  * committed, who acts first, and rounds without betting.
  */
 
+import assert from "node:assert/strict";
+import { it } from "node:test";
 import { nextBettingRound } from "../../src/betting/nextBettingRound.js";
 import { chips, round } from "../helpers/betting.js";
 
@@ -19,23 +21,30 @@ const preFlopOver = round(
 
 it("clears the bets but keeps what each seat committed", () => {
   const flop = nextBettingRound(preFlopOver);
-  expect(flop.seats.map((seat) => seat.bet)).toEqual([0, 0, 0, 0]);
-  expect(flop.seats.map((seat) => seat.committed)).toEqual([
-    300, 100, 300, 300,
-  ]);
-  expect(flop.seats.every((seat) => seat.actedAt === null)).toBe(true);
-  expect(chips(flop)).toBe(chips(preFlopOver));
+  assert.deepEqual(
+    flop.seats.map((seat) => seat.bet),
+    [0, 0, 0, 0]
+  );
+  assert.deepEqual(
+    flop.seats.map((seat) => seat.committed),
+    [300, 100, 300, 300]
+  );
+  assert.equal(
+    flop.seats.every((seat) => seat.actedAt === null),
+    true
+  );
+  assert.equal(chips(flop), chips(preFlopOver));
 });
 
 it("starts with no bet and a minimum bet of the big blind", () => {
   const flop = nextBettingRound(preFlopOver);
-  expect(flop.currentBet).toBe(0);
-  expect(flop.minRaise).toBe(100);
+  assert.equal(flop.currentBet, 0);
+  assert.equal(flop.minRaise, 100);
 });
 
 it("has the first player left of the button act, skipping folded seats", () => {
-  expect(nextBettingRound(preFlopOver).toAct).toBe(0);
-  expect(nextBettingRound({ ...preFlopOver, button: 0 }).toAct).toBe(2);
+  assert.equal(nextBettingRound(preFlopOver).toAct, 0);
+  assert.equal(nextBettingRound({ ...preFlopOver, button: 0 }).toAct, 2);
 });
 
 it("has the big blind act first heads-up", () => {
@@ -47,7 +56,7 @@ it("has the big blind act first heads-up", () => {
     ],
     { button: 0, toAct: null, currentBet: 100 }
   );
-  expect(nextBettingRound(headsUp).toAct).toBe(1);
+  assert.equal(nextBettingRound(headsUp).toAct, 1);
 });
 
 it("has no one act when at most one player can", () => {
@@ -58,15 +67,15 @@ it("has no one act when at most one player can", () => {
     ],
     { toAct: null, currentBet: 1000 }
   );
-  expect(nextBettingRound(allIn).toAct).toBeNull();
+  assert.equal(nextBettingRound(allIn).toAct, null);
 });
 
 it("refuses while the round is still on, or the hand is over", () => {
-  expect(() => nextBettingRound({ ...preFlopOver, toAct: 0 })).toThrow(
-    "The betting round isn't over"
-  );
+  assert.throws(() => nextBettingRound({ ...preFlopOver, toAct: 0 }), {
+    message: "The betting round isn't over",
+  });
   const foldedToOne = round([{}, { folded: true }], { toAct: null });
-  expect(() => nextBettingRound(foldedToOne)).toThrow(
-    "Only one player is left in the hand"
-  );
+  assert.throws(() => nextBettingRound(foldedToOne), {
+    message: "Only one player is left in the hand",
+  });
 });

@@ -3,6 +3,9 @@
  * next betting round collecting them itself.
  */
 
+import assert from "node:assert/strict";
+import { it } from "node:test";
+import { assertMatchObject } from "../helpers/assert.js";
 import { nextBettingRound } from "../../src/betting/nextBettingRound.js";
 import { collectBets } from "../../src/pots/collectBets.js";
 import { chips, round } from "../helpers/betting.js";
@@ -19,9 +22,12 @@ const allInCalled = round(
 
 it("moves the bets into the pots, with a side pot above the all-in", () => {
   const collected = collectBets(allInCalled);
-  expect(collected.seats.map((seat) => seat.bet)).toEqual([0, 0, 0]);
-  expect(collected.currentBet).toBe(0);
-  expect(collected.pots).toEqual([
+  assert.deepEqual(
+    collected.seats.map((seat) => seat.bet),
+    [0, 0, 0]
+  );
+  assert.equal(collected.currentBet, 0);
+  assert.deepEqual(collected.pots, [
     { amount: 600, seats: [1, 2, 3] },
     { amount: 800, seats: [2, 3] },
   ]);
@@ -38,30 +44,33 @@ it("returns the uncalled bet before computing the pots", () => {
     { toAct: null, currentBet: 600 }
   );
   const collected = collectBets(shortCall);
-  expect(collected.seats[1]).toMatchObject({ stack: 800, committed: 200 });
-  expect(collected.pots).toEqual([{ amount: 500, seats: [1, 2] }]);
+  assertMatchObject(collected.seats[1], { stack: 800, committed: 200 });
+  assert.deepEqual(collected.pots, [{ amount: 500, seats: [1, 2] }]);
 });
 
 it("computes the pots from the whole hand, so collecting twice changes nothing", () => {
   const once = collectBets(allInCalled);
-  expect(collectBets(once)).toEqual(once);
+  assert.deepEqual(collectBets(once), once);
 });
 
 it("keeps the chips: stacks plus pots add up to what there was", () => {
   const collected = collectBets(allInCalled);
   const inPots = collected.pots.reduce((sum, pot) => sum + pot.amount, 0);
   const inStacks = collected.seats.reduce((sum, seat) => sum + seat.stack, 0);
-  expect(inPots + inStacks).toBe(chips(allInCalled));
+  assert.equal(inPots + inStacks, chips(allInCalled));
 });
 
 it("refuses while the round is still on", () => {
-  expect(() => collectBets({ ...allInCalled, toAct: 2 })).toThrow(
-    "The betting round isn't over"
-  );
+  assert.throws(() => collectBets({ ...allInCalled, toAct: 2 }), {
+    message: "The betting round isn't over",
+  });
 });
 
 it("is done by the next betting round", () => {
   const flop = nextBettingRound(allInCalled);
-  expect(flop.pots).toEqual(collectBets(allInCalled).pots);
-  expect(flop.seats.map((seat) => seat.bet)).toEqual([0, 0, 0]);
+  assert.deepEqual(flop.pots, collectBets(allInCalled).pots);
+  assert.deepEqual(
+    flop.seats.map((seat) => seat.bet),
+    [0, 0, 0]
+  );
 });

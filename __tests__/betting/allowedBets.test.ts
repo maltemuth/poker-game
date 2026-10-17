@@ -3,11 +3,14 @@
  * minimum raise, short stacks, and raises that don't reopen the betting.
  */
 
+import assert from "node:assert/strict";
+import { describe, it } from "node:test";
+import { assertMatchObject } from "../helpers/assert.js";
 import { allowedBets } from "../../src/betting/allowedBets.js";
 import { round } from "../helpers/betting.js";
 
 it("allows a check and a bet of at least the big blind when nothing is bet", () => {
-  expect(allowedBets(round([{}, {}]))).toEqual({
+  assert.deepEqual(allowedBets(round([{}, {}])), {
     index: 1,
     call: 0,
     raise: { min: 100, max: 1000 },
@@ -24,7 +27,7 @@ it("allows a call and a raise by at least the last full raise", () => {
     ],
     { toAct: 1, currentBet: 300, minRaise: 200 }
   );
-  expect(allowedBets(raised)).toMatchObject({
+  assertMatchObject(allowedBets(raised), {
     call: 300,
     raise: { min: 500, max: 1000 },
   });
@@ -35,7 +38,7 @@ it("caps the call at everything the player has", () => {
     [{ bet: 2000, stack: 0, actedAt: 2000 }, { stack: 600 }, {}],
     { currentBet: 2000, minRaise: 2000 }
   );
-  expect(allowedBets(facingBigBet)).toMatchObject({
+  assertMatchObject(allowedBets(facingBigBet), {
     call: 600,
     raise: null,
     noRaise: "You don't have enough chips to raise",
@@ -47,14 +50,14 @@ it("allows an all-in for less than a minimum raise", () => {
     [{ bet: 300, actedAt: 300 }, { bet: 100, stack: 300 }, {}],
     { currentBet: 300, minRaise: 200 }
   );
-  expect(allowedBets(short)?.raise).toEqual({ min: 400, max: 400 });
+  assert.deepEqual(allowedBets(short)?.raise, { min: 400, max: 400 });
 });
 
 it("doesn't allow raising when everyone else is all-in", () => {
   const againstAllIn = round([{ bet: 500, stack: 0 }, { bet: 100 }], {
     currentBet: 500,
   });
-  expect(allowedBets(againstAllIn)).toMatchObject({
+  assertMatchObject(allowedBets(againstAllIn), {
     call: 500,
     raise: null,
     noRaise: "Everyone else is all-in",
@@ -77,7 +80,7 @@ describe("an all-in for less than a full raise", () => {
       ...shortAllIn.fields,
       toAct: 0,
     });
-    expect(allowedBets(backToSeat0)).toMatchObject({
+    assertMatchObject(allowedBets(backToSeat0), {
       call: 150,
       raise: null,
       noRaise:
@@ -86,9 +89,10 @@ describe("an all-in for less than a full raise", () => {
   });
 
   it("lets a player who hasn't acted raise", () => {
-    expect(
-      allowedBets(round(shortAllIn.seats, shortAllIn.fields))?.raise
-    ).toEqual({ min: 250, max: 1000 });
+    assert.deepEqual(
+      allowedBets(round(shortAllIn.seats, shortAllIn.fields))?.raise,
+      { min: 250, max: 1000 }
+    );
   });
 
   it("reopens the betting once the short all-ins add up to a full raise", () => {
@@ -103,7 +107,7 @@ describe("an all-in for less than a full raise", () => {
       ],
       { toAct: 0, currentBet: 200, minRaise: 100 }
     );
-    expect(allowedBets(twoShortAllIns)?.raise).toEqual({
+    assert.deepEqual(allowedBets(twoShortAllIns)?.raise, {
       min: 300,
       max: 1000,
     });
@@ -115,7 +119,7 @@ it("gives the big blind the option to raise before the flop", () => {
     [{ bet: 100, actedAt: 100 }, { bet: 100, actedAt: 100 }, { bet: 100 }],
     { toAct: 2, currentBet: 100 }
   );
-  expect(allowedBets(limped)).toMatchObject({
+  assertMatchObject(allowedBets(limped), {
     call: 100,
     raise: { min: 200, max: 1100 },
   });
@@ -127,9 +131,9 @@ it("asks the last player only to call what the all-in players bet", () => {
     [{ folded: true }, { bet: 50, stack: 950 }, { bet: 60, stack: 0 }],
     { currentBet: 100 }
   );
-  expect(allowedBets(shortBigBlind)).toMatchObject({ call: 60, raise: null });
+  assertMatchObject(allowedBets(shortBigBlind), { call: 60, raise: null });
 });
 
 it("has nothing to allow when the round is over", () => {
-  expect(allowedBets(round([{}, {}], { toAct: null }))).toBeNull();
+  assert.equal(allowedBets(round([{}, {}], { toAct: null })), null);
 });

@@ -3,6 +3,8 @@
  * hand moving on after them, and nothing accepted once it's over.
  */
 
+import assert from "node:assert/strict";
+import { it } from "node:test";
 import { applyHandAction } from "../../src/hand/applyHandAction.js";
 import { checkHandAction } from "../../src/hand/checkHandAction.js";
 import { startHand } from "../../src/hand/startHand.js";
@@ -20,8 +22,8 @@ it("deals the flop once the last player in the betting round acts", () => {
     (current, action) => applyHandAction(current, action, draw),
     hand
   );
-  expect(flop.bettingRound).toBe("flop");
-  expect(flop.board).toEqual(["2c", "7d", "9h"]);
+  assert.equal(flop.bettingRound, "flop");
+  assert.deepEqual(flop.board, ["2c", "7d", "9h"]);
 });
 
 it("passes rejections on from the betting rules", () => {
@@ -31,29 +33,31 @@ it("passes rejections on from the betting rules", () => {
     blinds,
     deck(["AhAs", "KdKc"], 1)
   );
-  expect(checkHandAction(hand, { type: "bet", to: 150 })).toBe(
+  assert.equal(
+    checkHandAction(hand, { type: "bet", to: 150 }),
     "A raise must be to at least 200"
   );
-  expect(() =>
-    applyHandAction(hand, { type: "bet", to: 150 }, deck([], 0))
-  ).toThrow("Invalid action: A raise must be to at least 200");
+  assert.throws(
+    () => applyHandAction(hand, { type: "bet", to: 150 }, deck([], 0)),
+    { message: "Invalid action: A raise must be to at least 200" }
+  );
 });
 
 it("accepts nothing once the hand is over", () => {
   const draw = deck(["AhAs", "KdKc"], 1);
   const hand = startHand(players(1000, 1000), 1, blinds, draw);
   const over = applyHandAction(hand, { type: "fold" }, draw);
-  expect(over.result).not.toBeNull();
-  expect(checkHandAction(over, { type: "fold" })).toBe("The hand is over");
+  assert.notEqual(over.result, null);
+  assert.equal(checkHandAction(over, { type: "fold" }), "The hand is over");
 });
 
 it("counts a turn for every action in turn", () => {
   const draw = deck(["AhAs", "KdKc"], 1, "2c7d9h");
   const hand = startHand(players(1000, 1000), 1, blinds, draw);
-  expect(hand.turn).toBe(0);
+  assert.equal(hand.turn, 0);
   const flop = [call, check].reduce(
     (current, action) => applyHandAction(current, action, draw),
     hand
   );
-  expect(flop.turn).toBe(2);
+  assert.equal(flop.turn, 2);
 });

@@ -3,6 +3,8 @@
  * rounds end, passing through rounds without betting, and ending the hand.
  */
 
+import assert from "node:assert/strict";
+import { it } from "node:test";
 import { applyAction } from "../../src/betting/applyAction.js";
 import { continueHand } from "../../src/hand/continueHand.js";
 import type { Hand } from "../../src/hand/Hand.js";
@@ -33,10 +35,10 @@ const preFlopOver: Hand = {
 
 it("deals the flop and starts its betting round", () => {
   const flop = continueHand(preFlopOver, fixedDraw(["2c", "7d", "9h"]));
-  expect(flop.board).toEqual(["2c", "7d", "9h"]);
-  expect(flop.bettingRound).toBe("flop");
-  expect(flop.betting.toAct).toBe(1);
-  expect(flop.betting.pots).toEqual([{ amount: 200, seats: [1, 2] }]);
+  assert.deepEqual(flop.board, ["2c", "7d", "9h"]);
+  assert.equal(flop.bettingRound, "flop");
+  assert.equal(flop.betting.toAct, 1);
+  assert.deepEqual(flop.betting.pots, [{ amount: 200, seats: [1, 2] }]);
 });
 
 it("does nothing while someone is to act", () => {
@@ -44,7 +46,7 @@ it("does nothing while someone is to act", () => {
     ...preFlopOver,
     betting: { ...preFlopOver.betting, toAct: 0 },
   };
-  expect(continueHand(playing, fixedDraw([]))).toBe(playing);
+  assert.equal(continueHand(playing, fixedDraw([])), playing);
 });
 
 it("deals the turn and the river one card each", () => {
@@ -60,9 +62,9 @@ it("deals the turn and the river one card each", () => {
       ),
     };
     hand = continueHand(hand, draw);
-    expect(hand.bettingRound).toBe(name);
+    assert.equal(hand.bettingRound, name);
   }
-  expect(hand.board).toEqual(["2c", "7d", "9h", "Js", "3c"]);
+  assert.deepEqual(hand.board, ["2c", "7d", "9h", "Js", "3c"]);
 });
 
 it("deals out the board and ends the hand when everyone is all-in", () => {
@@ -77,9 +79,9 @@ it("deals out the board and ends the hand when everyone is all-in", () => {
     ),
   };
   const done = continueHand(allIn, fixedDraw(["2c", "7d", "9h", "Js", "3c"]));
-  expect(done.board).toHaveLength(5);
-  expect(done.bettingRound).toBe("river");
-  expect(done.result?.awards).toEqual([[{ seat: 1, amount: 2000 }]]);
+  assert.equal(done.board.length, 5);
+  assert.equal(done.bettingRound, "river");
+  assert.deepEqual(done.result?.awards, [[{ seat: 1, amount: 2000 }]]);
 });
 
 it("ends the hand without dealing when only one player is left", () => {
@@ -94,6 +96,6 @@ it("ends the hand without dealing when only one player is left", () => {
     ),
   };
   const done = continueHand(folded, fixedDraw([]));
-  expect(done.board).toEqual([]);
-  expect(done.result?.shown).toEqual([]);
+  assert.deepEqual(done.board, []);
+  assert.deepEqual(done.result?.shown, []);
 });

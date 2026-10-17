@@ -4,6 +4,9 @@
  * starting a hand, betting, and each audience's view of the cards.
  */
 
+import assert from "node:assert/strict";
+import { it, before, after } from "node:test";
+import { assertMatchObject } from "../helpers/assert.js";
 import {
   createRemoteStateServer,
   type RemoteStateServer,
@@ -20,7 +23,7 @@ import { options } from "../helpers/table.js";
 
 let server: RemoteStateServer<Table>;
 
-beforeAll(async () => {
+before(async () => {
   // seat 1 has the button: seat 2 gets the first card
   const draw = deck(["AhAs", "KdKc"], 0, "2c7d9hJs3c");
   server = await createRemoteStateServer(createHoldemPlugin({ draw }), {
@@ -28,7 +31,7 @@ beforeAll(async () => {
   });
 });
 
-afterAll(() => server.close());
+after(() => server.close());
 
 /** Admits someone and redeems the code, as a host and its client do */
 const join = async (gameId: string, name: string) => {
@@ -61,7 +64,8 @@ it("plays a hand: seats, the host's start, bets, and views", async () => {
   const sue = await join(gameId, "Sue");
 
   // everyone starts as a spectator
-  expect((await view(gameId, ann.token)).spectators.map((p) => p.name)).toEqual(
+  assert.deepEqual(
+    (await view(gameId, ann.token)).spectators.map((p) => p.name),
     ["Ann", "Bob", "Sue"]
   );
 
@@ -80,43 +84,48 @@ it("plays a hand: seats, the host's start, bets, and views", async () => {
   const refused = await send(gameId, ann.token, { type: "startHand" }).expect(
     400
   );
-  expect(refused.text).toContain("Only the host can do that");
-  expect(await server.act(gameId, { type: "startHand" })).toHaveProperty(
-    "sequence"
-  );
+  assert.ok(refused.text.includes("Only the host can do that"));
+  assert.ok("sequence" in (await server.act(gameId, { type: "startHand" })));
 
   // each player sees their own cards; the spectator sees none
   const annView = await view(gameId, ann.token);
-  expect(annView.you).toMatchObject({ seat: 1 });
-  expect(annView.hand?.players.map((p) => p.cards)).toEqual([
-    ["Ah", "As"],
-    null,
-  ]);
-  expect(
-    (await view(gameId, bob.token)).hand?.players.map((p) => p.cards)
-  ).toEqual([null, ["Kd", "Kc"]]);
+  assertMatchObject(annView.you, { seat: 1 });
+  assert.deepEqual(
+    annView.hand?.players.map((p) => p.cards),
+    [["Ah", "As"], null]
+  );
+  assert.deepEqual(
+    (await view(gameId, bob.token)).hand?.players.map((p) => p.cards),
+    [null, ["Kd", "Kc"]]
+  );
   const sueView = await view(gameId, sue.token);
-  expect(sueView.you).toBeNull();
-  expect(sueView.hand?.players.every((p) => p.cards === null)).toBe(true);
+  assert.equal(sueView.you, null);
+  assert.equal(
+    sueView.hand?.players.every((p) => p.cards === null),
+    true
+  );
 
   // heads-up, Ann (button) acts first; Bob can't act out of turn
-  expect(annView.you?.buttons.map((b) => b.type)).toContain("call");
+  assert.ok(annView.you?.buttons.map((b) => b.type).includes("call"));
   const early = await send(gameId, bob.token, { type: "check" }).expect(400);
-  expect(early.text).toContain("It's not your turn");
+  assert.ok(early.text.includes("It's not your turn"));
 
   await send(gameId, ann.token, { type: "allIn" }).expect(201);
   await send(gameId, bob.token, { type: "call" }).expect(201);
 
   // showdown: everyone sees both hands; Bob is out of chips and watches now
   const after = await view(gameId, sue.token);
-  expect(after.hand?.board).toEqual(["2c", "7d", "9h", "Js", "3c"]);
-  expect(after.hand?.players.map((p) => p.cards)).toEqual([
-    ["Ah", "As"],
-    ["Kd", "Kc"],
-  ]);
-  expect(after.seats[0]?.stack).toBe(4000);
-  expect(after.seats[1]).toBeNull();
-  expect((await view(gameId, bob.token)).you).toBeNull();
+  assert.deepEqual(after.hand?.board, ["2c", "7d", "9h", "Js", "3c"]);
+  assert.deepEqual(
+    after.hand?.players.map((p) => p.cards),
+    [
+      ["Ah", "As"],
+      ["Kd", "Kc"],
+    ]
+  );
+  assert.equal(after.seats[0]?.stack, 4000);
+  assert.equal(after.seats[1], null);
+  assert.equal((await view(gameId, bob.token)).you, null);
 });
 
 it("rejects actions the rules refuse, with their reason", async () => {
@@ -127,10 +136,12 @@ it("rejects actions the rules refuse, with their reason", async () => {
     seat: 1,
     buyIn: 10,
   }).expect(400);
-  expect(tooSmall.text).toContain(
-    "The buy-in must be a whole number of chips from 1000 to 5000"
+  assert.ok(
+    tooSmall.text.includes(
+      "The buy-in must be a whole number of chips from 1000 to 5000"
+    )
   );
-  expect(await server.act(gameId, { type: "startHand" })).toEqual({
+  assert.deepEqual(await server.act(gameId, { type: "startHand" }), {
     rejected: "Waiting for players",
   });
 });

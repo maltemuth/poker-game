@@ -4,6 +4,8 @@
  * every hand ends, no card is dealt twice, and the chips are conserved.
  */
 
+import assert from "node:assert/strict";
+import { it } from "node:test";
 import { isInHand } from "../../src/betting/seatStatus.js";
 import { applyHandAction } from "../../src/hand/applyHandAction.js";
 import type { Draw } from "../../src/hand/Draw.js";
@@ -38,29 +40,33 @@ it("plays a three-way hand with a side pot to showdown", () => {
 
   // pre-flop: seat 1 raises, seat 2 goes all-in for 600, seat 3 folds, seat 1 calls
   hand = click(hand, draw, raise(300), allIn, fold, call);
-  expect(hand.board).toEqual(["Kh", "9s", "4d", "Qc", "3h"]);
+  assert.deepEqual(hand.board, ["Kh", "9s", "4d", "Qc", "3h"]);
 
   // no one left could bet against each other, so the board was dealt out
-  expect(hand.result?.shown.map((shown) => [shown.seat, shown.type])).toEqual([
-    [1, "pair"],
-    [2, "threeOfAKind"],
-  ]);
+  assert.deepEqual(
+    hand.result?.shown.map((shown) => [shown.seat, shown.type]),
+    [
+      [1, "pair"],
+      [2, "threeOfAKind"],
+    ]
+  );
   // seat 2's kings win the main pot: 600 each from seats 1 and 2, 100 from seat 3
-  expect(hand.result?.awards).toEqual([[{ seat: 2, amount: 1300 }]]);
-  expect(hand.betting.seats.map((seat) => seat.stack)).toEqual([
-    1400, 1300, 1900,
-  ]);
+  assert.deepEqual(hand.result?.awards, [[{ seat: 2, amount: 1300 }]]);
+  assert.deepEqual(
+    hand.betting.seats.map((seat) => seat.stack),
+    [1400, 1300, 1900]
+  );
 });
 
 it("ends with the last player when everyone else folds on the flop", () => {
   const draw = deck(["AhAs", "KdKc", "7c2d"], 0, "Kh9s4d");
   let hand = startHand(players(1000, 1000, 1000), 0, blinds, draw);
   hand = click(hand, draw, call, call, check);
-  expect(hand.bettingRound).toBe("flop");
+  assert.equal(hand.bettingRound, "flop");
   hand = click(hand, draw, raise(200), fold, fold);
-  expect(hand.result?.shown).toEqual([]);
+  assert.deepEqual(hand.result?.shown, []);
   // 300 from before the flop; the bet of 200 came back uncalled
-  expect(hand.result?.awards).toEqual([[{ seat: 2, amount: 300 }]]);
+  assert.deepEqual(hand.result?.awards, [[{ seat: 2, amount: 300 }]]);
 });
 
 /** Draws from the cards still out with the seeded generator */
@@ -82,7 +88,7 @@ it("ends every random hand, with each card dealt once and the chips conserved", 
     let hand = startHand(players(...stacks), game % count, blinds, draw);
 
     for (let step = 0; hand.result === null; step++) {
-      expect(step).toBeLessThan(count * 200);
+      assert.ok(step < count * 200);
       const options = availableUiActions(hand.betting);
       const option = options[Math.floor(next() * options.length)];
       const button: UiAction =
@@ -97,11 +103,14 @@ it("ends every random hand, with each card dealt once and the chips conserved", 
     }
 
     const dealt = [...hand.holeCards.flat(), ...hand.board];
-    expect(new Set(dealt).size).toBe(dealt.length);
-    expect(hand.betting.seats.reduce((sum, s) => sum + s.stack, 0)).toBe(total);
+    assert.equal(new Set(dealt).size, dealt.length);
+    assert.equal(
+      hand.betting.seats.reduce((sum, s) => sum + s.stack, 0),
+      total
+    );
     // a showdown has the whole board, and shows the hands still in
     const showdown = hand.betting.seats.filter(isInHand).length > 1;
-    if (showdown) expect(hand.board).toHaveLength(5);
-    expect((hand.result?.shown.length ?? 0) > 0).toBe(showdown);
+    if (showdown) assert.equal(hand.board.length, 5);
+    assert.equal((hand.result?.shown.length ?? 0) > 0, showdown);
   }
 });

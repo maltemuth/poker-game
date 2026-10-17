@@ -1,6 +1,6 @@
 # 0011. Tests load ES modules natively
 
-Status: Accepted
+Status: Superseded by [0017](0017-tests-on-nodes-test-runner.md)
 Date: 2026-10-04
 
 ## Context

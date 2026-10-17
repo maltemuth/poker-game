@@ -6,6 +6,8 @@
  * every hole card for spectators at a table that allows it.
  */
 
+import assert from "node:assert/strict";
+import { it } from "node:test";
 import type { Draw } from "../../src/hand/Draw.js";
 import { addSpectator } from "../../src/table/addSpectator.js";
 import { applyTableAction } from "../../src/table/applyTableAction.js";
@@ -47,9 +49,8 @@ const allowedFor = (table: Table, audience: string): Set<string> => {
   return new Set([...hand.board, ...own, ...tabled, ...shown]);
 };
 
-it.each([false, true])(
-  "shows no audience a card it mustn't see, spectators seeing hole cards: %s",
-  (spectatorsSeeHoleCards) => {
+for (const spectatorsSeeHoleCards of [false, true])
+  it(`shows no audience a card it mustn't see, spectators seeing hole cards: ${spectatorsSeeHoleCards}`, () => {
     for (let game = 0; game < 200; game++) {
       const next = random(game);
       const pick = <T>(items: T[]): T =>
@@ -82,11 +83,10 @@ it.each([false, true])(
         for (const audience of audiences) {
           const allowed = allowedFor(table, audience);
           for (const card of cardsIn(viewTable(table, audience))) {
-            expect([audience, card, allowed.has(card)]).toEqual([
-              audience,
-              card,
-              true,
-            ]);
+            assert.deepEqual(
+              [audience, card, allowed.has(card)],
+              [audience, card, true]
+            );
           }
         }
       };
@@ -112,5 +112,4 @@ it.each([false, true])(
         check();
       }
     }
-  }
-);
+  });

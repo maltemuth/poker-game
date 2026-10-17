@@ -4,6 +4,9 @@
  * hand, with the button moving; a turn that runs out folds.
  */
 
+import assert from "node:assert/strict";
+import { it, before, after } from "node:test";
+import { assertMatchObject } from "../helpers/assert.js";
 import {
   createRemoteStateServer,
   type RemoteStateServer,
@@ -19,13 +22,13 @@ import { options } from "../helpers/table.js";
 
 let server: RemoteStateServer<Table>;
 
-beforeAll(async () => {
+before(async () => {
   server = await createRemoteStateServer(createHoldemPlugin(), {
     logger: silentLogger,
   });
 });
 
-afterAll(() => server.close());
+after(() => server.close());
 
 const join = async (gameId: string, name: string) => {
   const code = await server.admit({ gameId, identity: { id: name, name } });
@@ -69,7 +72,7 @@ it("starts hands by themselves, after each hand too", async () => {
   const ann = await join(gameId, "Ann");
   const bob = await join(gameId, "Bob");
   await send(gameId, ann.token, { type: "sitDown", seat: 1, buyIn: 1000 });
-  expect((await view(gameId, ann.token)).hand).toBeNull();
+  assert.equal((await view(gameId, ann.token)).hand, null);
   await send(gameId, bob.token, { type: "sitDown", seat: 2, buyIn: 1000 });
 
   // the second player sat down: a hand starts by itself, Ann on the button
@@ -77,7 +80,7 @@ it("starts hands by themselves, after each hand too", async () => {
     () => view(gameId, ann.token),
     (v) => v.hand !== null && v.hand.result === null
   );
-  expect(first.hand?.button).toBe(1);
+  assert.equal(first.hand?.button, 1);
 
   // Ann folds; the next hand starts by itself, with the button moved
   await send(gameId, ann.token, { type: "fold" });
@@ -87,9 +90,10 @@ it("starts hands by themselves, after each hand too", async () => {
   );
   // after the first hand, Ann has 950 and Bob 1,050; now Bob (button) has
   // posted the small blind and Ann the big blind
-  expect(second.seats.map((seat) => seat?.stack).slice(0, 2)).toEqual([
-    850, 1000,
-  ]);
+  assert.deepEqual(
+    second.seats.map((seat) => seat?.stack).slice(0, 2),
+    [850, 1000]
+  );
 });
 
 it("starts no hands while paused, and again on resume", async () => {
@@ -102,7 +106,7 @@ it("starts no hands while paused, and again on resume", async () => {
   await send(gameId, ann.token, { type: "sitDown", seat: 1, buyIn: 1000 });
   await send(gameId, bob.token, { type: "sitDown", seat: 2, buyIn: 1000 });
   await new Promise((resolve) => setTimeout(resolve, 150));
-  expect((await view(gameId, ann.token)).hand).toBeNull();
+  assert.equal((await view(gameId, ann.token)).hand, null);
 
   await server.act(gameId, { type: "resume" });
   await eventually(
@@ -120,7 +124,7 @@ it("leaves starting hands to the host without a delay", async () => {
   await send(gameId, ann.token, { type: "sitDown", seat: 1, buyIn: 1000 });
   await send(gameId, bob.token, { type: "sitDown", seat: 2, buyIn: 1000 });
   await new Promise((resolve) => setTimeout(resolve, 150));
-  expect((await view(gameId, ann.token)).hand).toBeNull();
+  assert.equal((await view(gameId, ann.token)).hand, null);
 });
 
 it("folds a player whose turn runs out, after a player who acted in time", async () => {
@@ -139,10 +143,11 @@ it("folds a player whose turn runs out, after a player who acted in time", async
     () => view(gameId, ann.token),
     (v) => v.hand?.result !== null
   );
-  expect(over.hand?.players[1].folded).toBe(true);
-  expect(over.seats.map((seat) => seat?.stack).slice(0, 2)).toEqual([
-    1100, 900,
-  ]);
+  assert.equal(over.hand?.players[1].folded, true);
+  assert.deepEqual(
+    over.seats.map((seat) => seat?.stack).slice(0, 2),
+    [1100, 900]
+  );
 });
 
 it("deals an all-in runout one betting round at a time, with the hands tabled", async () => {
@@ -160,8 +165,11 @@ it("deals an all-in runout one betting round at a time, with the hands tabled", 
 
   // at once: both hands face up for the spectator, no board yet
   const tabled = await view(gameId, sue.token);
-  expect(tabled.hand).toMatchObject({ tabled: true, board: [], result: null });
-  expect(tabled.hand?.players.every((p) => p.cards !== null)).toBe(true);
+  assertMatchObject(tabled.hand, { tabled: true, board: [], result: null });
+  assert.equal(
+    tabled.hand?.players.every((p) => p.cards !== null),
+    true
+  );
 
   // then the flop, the turn, and the river with the showdown
   await eventually(
@@ -176,5 +184,5 @@ it("deals an all-in runout one betting round at a time, with the hands tabled", 
     () => view(gameId, sue.token),
     (v) => v.hand?.result !== null
   );
-  expect(done.hand?.board).toHaveLength(5);
+  assert.equal(done.hand?.board.length, 5);
 });

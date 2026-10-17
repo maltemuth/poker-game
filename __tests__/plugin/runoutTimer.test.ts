@@ -3,6 +3,8 @@
  * runout, cancelled when the hand stops waiting.
  */
 
+import assert from "node:assert/strict";
+import { it } from "node:test";
 import { applySystemAction } from "../../src/plugin/systemActions.js";
 import { RUNOUT, runoutTimer } from "../../src/plugin/runoutTimer.js";
 import { applyTableAction } from "../../src/table/applyTableAction.js";
@@ -29,13 +31,13 @@ const allIn = (runoutDelay: number | null) => {
 
 it("schedules each step of the runout, and cancels it at the end", () => {
   const { playing, called, draw } = allIn(500);
-  expect(runoutTimer(playing, called)).toEqual(step(0));
+  assert.deepEqual(runoutTimer(playing, called), step(0));
   const flop = applySystemAction(
     called,
     { type: "runout", hand: 1, board: 0 },
     draw
   );
-  expect(runoutTimer(called, flop)).toEqual(step(3));
+  assert.deepEqual(runoutTimer(called, flop), step(3));
   const turn = applySystemAction(
     flop,
     { type: "runout", hand: 1, board: 3 },
@@ -46,12 +48,12 @@ it("schedules each step of the runout, and cancels it at the end", () => {
     { type: "runout", hand: 1, board: 4 },
     draw
   );
-  expect(river.hand?.result).not.toBeNull();
-  expect(runoutTimer(turn, river)).toEqual({ cancel: [RUNOUT] });
+  assert.notEqual(river.hand?.result, null);
+  assert.deepEqual(runoutTimer(turn, river), { cancel: [RUNOUT] });
 });
 
 it("schedules nothing when the runout is dealt at once", () => {
   const { playing, called } = allIn(null);
-  expect(called.hand?.result).not.toBeNull();
-  expect(runoutTimer(playing, called)).toEqual({});
+  assert.notEqual(called.hand?.result, null);
+  assert.deepEqual(runoutTimer(playing, called), {});
 });

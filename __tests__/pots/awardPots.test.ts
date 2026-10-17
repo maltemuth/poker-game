@@ -4,6 +4,8 @@
  * everyone else folded.
  */
 
+import assert from "node:assert/strict";
+import { it } from "node:test";
 import { awardPots } from "../../src/pots/awardPots.js";
 import { chips, round } from "../helpers/betting.js";
 
@@ -27,19 +29,20 @@ it("pays every pot to its best rank", () => {
     3: 5,
     4: 3,
   });
-  expect(awards).toEqual([
+  assert.deepEqual(awards, [
     [{ seat: 1, amount: 900 }], // 200 from four seats, 100 from seat 5
     [{ seat: 2, amount: 900 }], // 300 from seats 2, 3, 4
     [{ seat: 3, amount: 600 }], // 300 from seats 3, 4
   ]);
-  expect(after.seats.map((seat) => seat.stack)).toEqual([
-    900, 900, 800, 200, 900,
-  ]);
+  assert.deepEqual(
+    after.seats.map((seat) => seat.stack),
+    [900, 900, 800, 200, 900]
+  );
 });
 
 it("splits a side pot on a tie while the main pot has one winner", () => {
   const { awards } = awardPots(showdown, { 1: 9, 2: 5, 3: 7, 4: 7 });
-  expect(awards).toEqual([
+  assert.deepEqual(awards, [
     [{ seat: 1, amount: 900 }],
     [
       { seat: 3, amount: 450 },
@@ -54,10 +57,16 @@ it("splits a side pot on a tie while the main pot has one winner", () => {
 
 it("leaves nothing in the middle, and conserves chips", () => {
   const { round: after } = awardPots(showdown, { 1: 1, 2: 2, 3: 3, 4: 4 });
-  expect(after.pots).toEqual([]);
-  expect(after.seats.every((seat) => seat.committed === 0)).toBe(true);
-  expect(after.seats.every((seat) => seat.bet === 0)).toBe(true);
-  expect(chips(after)).toBe(chips(showdown));
+  assert.deepEqual(after.pots, []);
+  assert.equal(
+    after.seats.every((seat) => seat.committed === 0),
+    true
+  );
+  assert.equal(
+    after.seats.every((seat) => seat.bet === 0),
+    true
+  );
+  assert.equal(chips(after), chips(showdown));
 });
 
 it("gives everything to the last player when the others fold, without ranks", () => {
@@ -71,13 +80,13 @@ it("gives everything to the last player when the others fold, without ranks", ()
     { toAct: null }
   );
   const { round: after, awards } = awardPots(foldedToRaise, {});
-  expect(awards).toEqual([[{ seat: 3, amount: 250 }]]);
+  assert.deepEqual(awards, [[{ seat: 3, amount: 250 }]]);
   // 200 of the raise came back uncalled
-  expect(after.seats[2].stack).toBe(1150);
+  assert.equal(after.seats[2].stack, 1150);
 });
 
 it("refuses while the betting is still on", () => {
-  expect(() => awardPots({ ...showdown, toAct: 2 }, {})).toThrow(
-    "The betting round isn't over"
-  );
+  assert.throws(() => awardPots({ ...showdown, toAct: 2 }, {}), {
+    message: "The betting round isn't over",
+  });
 });

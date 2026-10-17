@@ -5,6 +5,8 @@
  * doesn't include it.
  */
 
+import assert from "node:assert/strict";
+import { it } from "node:test";
 import { existsSync } from "node:fs";
 import { handHistoryFolder, readHands } from "./phh/readHands.js";
 import { type Disagreement, replayBetting } from "./phh/replayBetting.js";
@@ -62,5 +64,5 @@ it("agrees with every recorded hand it covers", () => {
       : []),
   ].join("\n");
   console.log(report);
-  expect(disagreements).toEqual([]);
+  assert.deepEqual(disagreements, []);
 });

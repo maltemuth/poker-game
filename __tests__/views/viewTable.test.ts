@@ -4,6 +4,9 @@
  * stacks during a hand.
  */
 
+import assert from "node:assert/strict";
+import { it } from "node:test";
+import { assertMatchObject } from "../helpers/assert.js";
 import { addSpectator } from "../../src/table/addSpectator.js";
 import { applyTableAction } from "../../src/table/applyTableAction.js";
 import { startNextHand } from "../../src/table/startNextHand.js";
@@ -22,40 +25,42 @@ const playing = () =>
 
 it("shows a seated player their own hole cards only", () => {
   const view = viewTable(playing(), "b");
-  expect(view.hand?.players.map((player) => player.cards)).toEqual([
-    null,
-    ["Kd", "Kc"],
-    null,
-  ]);
-  expect(view.you).toMatchObject({ playerId: "b", seat: 2, buttons: [] });
+  assert.deepEqual(
+    view.hand?.players.map((player) => player.cards),
+    [null, ["Kd", "Kc"], null]
+  );
+  assertMatchObject(view.you, { playerId: "b", seat: 2, buttons: [] });
 });
 
 it("shows spectators no hole cards", () => {
   const view = viewTable(playing(), SPECTATORS);
-  expect(view.hand?.players.every((player) => player.cards === null)).toBe(
+  assert.equal(
+    view.hand?.players.every((player) => player.cards === null),
     true
   );
-  expect(view.you).toBeNull();
-  expect(view.spectators).toEqual([{ playerId: "s", name: "Sue" }]);
+  assert.equal(view.you, null);
+  assert.deepEqual(view.spectators, [{ playerId: "s", name: "Sue" }]);
 });
 
 it("gives the player to act their buttons", () => {
   const view = viewTable(playing(), "a");
-  expect(view.hand?.toAct).toBe(1);
-  expect(view.you?.buttons.map((button) => button.type)).toEqual([
-    "fold",
-    "call",
-    "raise",
-    "allIn",
-  ]);
+  assert.equal(view.hand?.toAct, 1);
+  assert.deepEqual(
+    view.you?.buttons.map((button) => button.type),
+    ["fold", "call", "raise", "allIn"]
+  );
 });
 
 it("shows stacks without the chips in the middle during a hand", () => {
   const view = viewTable(playing(), SPECTATORS);
-  expect(view.seats.slice(0, 3).map((seat) => seat?.stack)).toEqual([
-    1000, 950, 900,
-  ]);
-  expect(view.hand?.players.map((player) => player.bet)).toEqual([0, 50, 100]);
+  assert.deepEqual(
+    view.seats.slice(0, 3).map((seat) => seat?.stack),
+    [1000, 950, 900]
+  );
+  assert.deepEqual(
+    view.hand?.players.map((player) => player.bet),
+    [0, 50, 100]
+  );
 });
 
 it("keeps a folded player's cards visible to them", () => {
@@ -66,8 +71,8 @@ it("keeps a folded player's cards visible to them", () => {
     { type: "fold" },
     d
   );
-  expect(viewTable(table, "a").hand?.players[0].cards).toEqual(["Ah", "As"]);
-  expect(viewTable(table, "b").hand?.players[0].cards).toBeNull();
+  assert.deepEqual(viewTable(table, "a").hand?.players[0].cards, ["Ah", "As"]);
+  assert.equal(viewTable(table, "b").hand?.players[0].cards, null);
 });
 
 it("shows every hand at showdown, to everyone", () => {
@@ -80,31 +85,30 @@ it("shows every hand at showdown, to everyone", () => {
   table = applyTableAction(table, "b", { type: "call" }, d);
   table = applyTableAction(table, "c", { type: "fold" }, d);
   const view = viewTable(table, SPECTATORS);
-  expect(view.hand?.board).toHaveLength(5);
-  expect(view.hand?.players.map((player) => player.cards)).toEqual([
-    ["Ah", "As"],
-    ["Kd", "Kc"],
-    null,
-  ]);
-  expect(view.hand?.result?.shown.map((shown) => shown.type)).toEqual([
-    "pair",
-    "pair",
-  ]);
+  assert.equal(view.hand?.board.length, 5);
+  assert.deepEqual(
+    view.hand?.players.map((player) => player.cards),
+    [["Ah", "As"], ["Kd", "Kc"], null]
+  );
+  assert.deepEqual(
+    view.hand?.result?.shown.map((shown) => shown.type),
+    ["pair", "pair"]
+  );
 });
 
 it("gives seated players their own audience, and everyone else the spectators'", () => {
   const table = playing();
-  expect(audienceOf(table, "a")).toBe("a");
-  expect(audienceOf(table, "s")).toBe(SPECTATORS);
-  expect(audienceOf(table, "nobody")).toBe(SPECTATORS);
-  expect(viewTable(table, "nobody")).toEqual(viewTable(table, SPECTATORS));
+  assert.equal(audienceOf(table, "a"), "a");
+  assert.equal(audienceOf(table, "s"), SPECTATORS);
+  assert.equal(audienceOf(table, "nobody"), SPECTATORS);
+  assert.deepEqual(viewTable(table, "nobody"), viewTable(table, SPECTATORS));
 });
 
 it("is plain JSON, and the same every time", () => {
   const table = playing();
   const view = viewTable(table, "b");
-  expect(JSON.parse(JSON.stringify(view))).toEqual(view);
-  expect(viewTable(table, "b")).toEqual(view);
+  assert.deepEqual(JSON.parse(JSON.stringify(view)), view);
+  assert.deepEqual(viewTable(table, "b"), view);
 });
 
 it("shows the tabled hands to everyone once no more betting is possible", () => {
@@ -119,12 +123,11 @@ it("shows the tabled hands to everyone once no more betting is possible", () => 
   table = applyTableAction(table, "b", { type: "call" }, d);
   table = applyTableAction(table, "c", { type: "fold" }, d);
   const view = viewTable(table, SPECTATORS);
-  expect(view.hand).toMatchObject({ tabled: true, board: [], result: null });
-  expect(view.hand?.players.map((player) => player.cards)).toEqual([
-    ["Ah", "As"],
-    ["Kd", "Kc"],
-    null,
-  ]);
+  assertMatchObject(view.hand, { tabled: true, board: [], result: null });
+  assert.deepEqual(
+    view.hand?.players.map((player) => player.cards),
+    [["Ah", "As"], ["Kd", "Kc"], null]
+  );
 });
 
 it("shows spectators every hole card at a table that allows it, and players still only theirs", () => {
@@ -134,16 +137,16 @@ it("shows spectators every hole card at a table that allows it, and players stil
     }),
     draw()
   );
-  expect(
-    viewTable(table, SPECTATORS).hand?.players.map((p) => p.cards)
-  ).toEqual([
-    ["Ah", "As"],
-    ["Kd", "Kc"],
-    ["Qh", "Qs"],
-  ]);
-  expect(viewTable(table, "b").hand?.players.map((p) => p.cards)).toEqual([
-    null,
-    ["Kd", "Kc"],
-    null,
-  ]);
+  assert.deepEqual(
+    viewTable(table, SPECTATORS).hand?.players.map((p) => p.cards),
+    [
+      ["Ah", "As"],
+      ["Kd", "Kc"],
+      ["Qh", "Qs"],
+    ]
+  );
+  assert.deepEqual(
+    viewTable(table, "b").hand?.players.map((p) => p.cards),
+    [null, ["Kd", "Kc"], null]
+  );
 });

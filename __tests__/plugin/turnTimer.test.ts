@@ -3,6 +3,8 @@
  * actions that don't begin one, cancelled when no one is to act.
  */
 
+import assert from "node:assert/strict";
+import { it } from "node:test";
 import { applySystemAction } from "../../src/plugin/systemActions.js";
 import { TURN, turnTimer } from "../../src/plugin/turnTimer.js";
 import { applyTableAction } from "../../src/table/applyTableAction.js";
@@ -22,9 +24,9 @@ const three = tableWith([seated("a"), seated("b"), seated("c")]);
 it("schedules a timeout when a hand is dealt, and for every new turn", () => {
   const d = draw();
   const dealt = applySystemAction(three, { type: "startHand" }, d);
-  expect(turnTimer(three, dealt)).toEqual(timeoutFor(1, 0));
+  assert.deepEqual(turnTimer(three, dealt), timeoutFor(1, 0));
   const called = applyTableAction(dealt, "a", { type: "call" }, d);
-  expect(turnTimer(dealt, called)).toEqual(timeoutFor(1, 1));
+  assert.deepEqual(turnTimer(dealt, called), timeoutFor(1, 1));
 });
 
 it("leaves the timer alone for a fold out of turn, or someone sitting down", () => {
@@ -34,15 +36,15 @@ it("leaves the timer alone for a fold out of turn, or someone sitting down", () 
     spectators: [{ playerId: "e", name: "e" }],
   };
   const onBreak = applyTableAction(dealt, "c", { type: "standUp" }, d);
-  expect(onBreak.hand?.betting.seats[2].folded).toBe(true);
-  expect(turnTimer(dealt, onBreak)).toEqual({});
+  assert.equal(onBreak.hand?.betting.seats[2].folded, true);
+  assert.deepEqual(turnTimer(dealt, onBreak), {});
   const sat = applyTableAction(
     dealt,
     "e",
     { type: "sitDown", seat: 5, buyIn: 1000 },
     d
   );
-  expect(turnTimer(dealt, sat)).toEqual({});
+  assert.deepEqual(turnTimer(dealt, sat), {});
 });
 
 it("cancels it when no one is to act any more", () => {
@@ -53,7 +55,7 @@ it("cancels it when no one is to act any more", () => {
     d
   );
   const over = applyTableAction(dealt, "a", { type: "fold" }, d);
-  expect(turnTimer(dealt, over)).toEqual({ cancel: [TURN] });
+  assert.deepEqual(turnTimer(dealt, over), { cancel: [TURN] });
 });
 
 it("uses the table's timeout, and never schedules without one", () => {
@@ -62,11 +64,13 @@ it("uses the table's timeout, and never schedules without one", () => {
     options: { ...emptyTable().options, turnTimeout },
   });
   const short = withTimeout(250);
-  expect(
-    turnTimer(short, applySystemAction(short, { type: "startHand" }, draw()))
-  ).toEqual(timeoutFor(1, 0, 250));
+  assert.deepEqual(
+    turnTimer(short, applySystemAction(short, { type: "startHand" }, draw())),
+    timeoutFor(1, 0, 250)
+  );
   const none = withTimeout(null);
-  expect(
-    turnTimer(none, applySystemAction(none, { type: "startHand" }, draw()))
-  ).toEqual({});
+  assert.deepEqual(
+    turnTimer(none, applySystemAction(none, { type: "startHand" }, draw())),
+    {}
+  );
 });

@@ -3,6 +3,8 @@
  * a hand that moves on at once when the blinds leave no one to act.
  */
 
+import assert from "node:assert/strict";
+import { it } from "node:test";
 import { startHand } from "../../src/hand/startHand.js";
 import { fixedDraw } from "../../src/hand/fixedDraw.js";
 import { deck, players } from "../helpers/hand.js";
@@ -16,15 +18,18 @@ it("posts the blinds and deals two hole cards to everyone", () => {
     blinds,
     deck(["AhAs", "KdKc", "QhQs"], 0)
   );
-  expect(hand.holeCards).toEqual([
+  assert.deepEqual(hand.holeCards, [
     ["Ah", "As"],
     ["Kd", "Kc"],
     ["Qh", "Qs"],
   ]);
-  expect(hand.betting.seats.map((seat) => seat.bet)).toEqual([0, 50, 100]);
-  expect(hand.board).toEqual([]);
-  expect(hand.bettingRound).toBe("preFlop");
-  expect(hand.result).toBeNull();
+  assert.deepEqual(
+    hand.betting.seats.map((seat) => seat.bet),
+    [0, 50, 100]
+  );
+  assert.deepEqual(hand.board, []);
+  assert.equal(hand.bettingRound, "preFlop");
+  assert.equal(hand.result, null);
 });
 
 it("deals one card at a time, starting left of the button", () => {
@@ -35,7 +40,7 @@ it("deals one card at a time, starting left of the button", () => {
     blinds,
     fixedDraw(["2c", "3c", "4c", "5c", "6c", "7c"])
   );
-  expect(hand.holeCards).toEqual([
+  assert.deepEqual(hand.holeCards, [
     ["3c", "6c"],
     ["4c", "7c"],
     ["2c", "5c"],
@@ -49,8 +54,8 @@ it("deals the whole board at once when the blinds put everyone all-in", () => {
     blinds,
     deck(["AhAs", "KdKc"], 1, "2c7d9hJsQc")
   );
-  expect(hand.board).toEqual(["2c", "7d", "9h", "Js", "Qc"]);
-  expect(hand.result).not.toBeNull();
+  assert.deepEqual(hand.board, ["2c", "7d", "9h", "Js", "Qc"]);
+  assert.notEqual(hand.result, null);
 });
 
 it("passes extra big blinds on to the betting", () => {
@@ -61,5 +66,8 @@ it("passes extra big blinds on to the betting", () => {
     deck(["AhAs", "KdKc", "QhQs", "JdJc"], 0),
     { extraBigBlinds: [3] }
   );
-  expect(hand.betting.seats.map((seat) => seat.bet)).toEqual([0, 50, 100, 100]);
+  assert.deepEqual(
+    hand.betting.seats.map((seat) => seat.bet),
+    [0, 50, 100, 100]
+  );
 });

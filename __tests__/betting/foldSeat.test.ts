@@ -3,6 +3,9 @@
  * the round ends when the fold leaves no one to bet against.
  */
 
+import assert from "node:assert/strict";
+import { it } from "node:test";
+import { assertMatchObject } from "../helpers/assert.js";
 import { foldSeat } from "../../src/betting/foldSeat.js";
 import { chips, round } from "../helpers/betting.js";
 
@@ -14,15 +17,15 @@ const blinds = round(
 
 it("folds out of turn, and the player to act stays", () => {
   const folded = foldSeat(blinds, 0);
-  expect(folded.seats[0].folded).toBe(true);
-  expect(folded.toAct).toBe(3);
-  expect(chips(folded)).toBe(chips(blinds));
+  assert.equal(folded.seats[0].folded, true);
+  assert.equal(folded.toAct, 3);
+  assert.equal(chips(folded), chips(blinds));
 });
 
 it("folds in turn like an ordinary fold", () => {
   const folded = foldSeat(blinds, 3);
-  expect(folded.seats[3]).toMatchObject({ folded: true, actedAt: 100 });
-  expect(folded.toAct).toBe(0);
+  assertMatchObject(folded.seats[3], { folded: true, actedAt: 100 });
+  assert.equal(folded.toAct, 0);
 });
 
 it("ends the round when only one player is left", () => {
@@ -36,7 +39,7 @@ it("ends the round when only one player is left", () => {
       currentBet: 100,
     }
   );
-  expect(foldSeat(headsUp, 1).toAct).toBeNull();
+  assert.equal(foldSeat(headsUp, 1).toAct, null);
 });
 
 it("moves on when the player to act no longer must", () => {
@@ -44,11 +47,11 @@ it("moves on when the player to act no longer must", () => {
   const lastOpponent = round([{ bet: 0 }, { bet: 0 }, { stack: 0, bet: 0 }], {
     toAct: 0,
   });
-  expect(foldSeat(lastOpponent, 1).toAct).toBeNull();
+  assert.equal(foldSeat(lastOpponent, 1).toAct, null);
 });
 
 it("refuses a seat that isn't in the hand", () => {
-  expect(() => foldSeat(foldSeat(blinds, 0), 0)).toThrow(
-    "The seat isn't in the hand"
-  );
+  assert.throws(() => foldSeat(foldSeat(blinds, 0), 0), {
+    message: "The seat isn't in the hand",
+  });
 });

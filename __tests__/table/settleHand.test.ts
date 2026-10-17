@@ -4,6 +4,8 @@
  * during the hand going.
  */
 
+import assert from "node:assert/strict";
+import { it } from "node:test";
 import { settleHand } from "../../src/table/settleHand.js";
 import { leave } from "../../src/table/leave.js";
 import { startNextHand } from "../../src/table/startNextHand.js";
@@ -34,14 +36,10 @@ it("gives every player their stack from the hand", () => {
   let table = startNextHand(tableWith([seated("a"), seated("b")]), draw);
   // heads-up: a (button, small blind) folds
   table = settleHand(play(table, draw, -1));
-  expect(table.seats.map((seat) => seat?.stack)).toEqual([
-    950,
-    1050,
-    undefined,
-    undefined,
-    undefined,
-    undefined,
-  ]);
+  assert.deepEqual(
+    table.seats.map((seat) => seat?.stack),
+    [950, 1050, undefined, undefined, undefined, undefined]
+  );
 });
 
 it("makes a player without chips a spectator", () => {
@@ -49,9 +47,9 @@ it("makes a player without chips a spectator", () => {
   let table = startNextHand(tableWith([seated("a"), seated("b")]), draw);
   // all-in and call: a's aces beat b's kings
   table = settleHand(play(table, draw, 1000, 1000));
-  expect(table.seats[0]?.stack).toBe(2000);
-  expect(table.seats[1]).toBeNull();
-  expect(table.spectators).toEqual([{ playerId: "b", name: "b" }]);
+  assert.equal(table.seats[0]?.stack, 2000);
+  assert.equal(table.seats[1], null);
+  assert.deepEqual(table.spectators, [{ playerId: "b", name: "b" }]);
 });
 
 it("lets a player who left during the hand go with their chips", () => {
@@ -62,15 +60,17 @@ it("lets a player who left during the hand go with their chips", () => {
   );
   // a, the button and first to act, leaves, which folds
   table = leave(table, "a", draw);
-  expect(table.seats[0]?.leaving).toBe(true);
-  expect(table.hand?.betting.seats[0].folded).toBe(true);
+  assert.equal(table.seats[0]?.leaving, true);
+  assert.equal(table.hand?.betting.seats[0].folded, true);
   // b (small blind) folds: c wins the blinds, and a leaves
   table = settleHand(play(table, draw, -1));
-  expect(table.seats[0]).toBeNull();
-  expect(table.spectators).toEqual([{ playerId: "a", name: "a" }]);
-  expect(table.seats[2]?.stack).toBe(1050);
+  assert.equal(table.seats[0], null);
+  assert.deepEqual(table.spectators, [{ playerId: "a", name: "a" }]);
+  assert.equal(table.seats[2]?.stack, 1050);
 });
 
 it("refuses while no hand is over", () => {
-  expect(() => settleHand(tableWith([seated("a")]))).toThrow("No hand is over");
+  assert.throws(() => settleHand(tableWith([seated("a")])), {
+    message: "No hand is over",
+  });
 });
