@@ -1,6 +1,6 @@
 # Timers
 
-The Remote State timers the plugin schedules. A due timer runs its action as the system, through the same checks as any action ([Remote State: Timers](../../../remote-state/docs/reference/game-plugin.md#timers)). Timers are kept in memory: a server restart loses them.
+The Remote State timers the plugin schedules. A due timer runs its action as the system, through the same checks as any action ([Remote State: Timers](../../../remote-state/docs/reference/game-plugin.md#timers)). Timers are kept in memory: a server restart loses them, and interrupts a table that had one running until the host resumes it, which schedules them again ([After a restart](#after-a-restart)).
 
 | Name       | Action                                                                                | Scheduled                                                                                              | Cancelled                                                                                            | Delay                                                           |
 | ---------- | ------------------------------------------------------------------------------------- | ------------------------------------------------------------------------------------------------------ | ---------------------------------------------------------------------------------------------------- | --------------------------------------------------------------- |
@@ -8,7 +8,7 @@ The Remote State timers the plugin schedules. A due timer runs its action as the
 | `turn`     | `{ type: "timeout", hand, turn }`: the player to act folds                            | Whenever a new turn begins: a hand is dealt, or a player acts and someone else is to act               | When no one is to act any more                                                                       | The table's `turnTimeout`                                       |
 | `runout`   | `{ type: "runout", hand, board }`: the next betting round's cards of an all-in runout | When a hand waits for the next runout cards: the hands are tabled, and after each step but the last    | When the hand stops waiting, such as when it ends                                                    | The table's `runoutDelay`                                       |
 
-A hand is startable when no hand is being played, the table isn't paused, and at least two players can be dealt in ([Actions: System actions](actions.md#system-actions)).
+A hand is startable when no hand is being played, the table isn't paused or interrupted, and at least two players can be dealt in ([Actions: System actions](actions.md#system-actions)).
 
 - **Actions that change neither leave a pending timer alone:** people sitting down during the delay don't push the next hand back.
 - **A hand the blinds play out at once,** when everyone is all-in from the blinds, schedules the timer again.
@@ -31,3 +31,7 @@ Once no more betting is possible, the hands still in are tabled, and the rest of
 - **The river comes with the showdown,** in the last step.
 - **While the hand waits,** no one is to act: the turn timer isn't running, and no hand can start.
 - **With `runoutDelay` set to `null`,** the rest of the board is dealt at once, and the hands are still tabled.
+
+## After a restart
+
+When Remote State starts on a database that already has tables, it offers each to the plugin ([0018](../explanation/decisions/0018-tables-are-interrupted-by-a-restart.md)). A table that calls for a timer, by the conditions above, is interrupted: no timer runs and no one acts until the host sends `resume`. Resuming schedules every timer the table calls for, each with its full delay: the current turn starts over. A table that calls for none is left as it was.

@@ -9,22 +9,30 @@
 
 import { currentTurn } from "../table/timeOut.js";
 import type { Table } from "../table/Table.js";
+import type { TimerRequest } from "@malte.muth/remote-state";
+import type { SystemAction } from "./HoldemAction.js";
 import type { TimerChanges } from "./nextHandTimer.js";
 
 export const TURN = "turn";
 
+/** The timer the table calls for as it stands, with its full time; null if none */
+export const turnRequest = (
+  table: Table
+): TimerRequest<SystemAction> | null => {
+  const timeout = table.options.turnTimeout;
+  const is = currentTurn(table);
+  return timeout !== null && is
+    ? { name: TURN, in: timeout, action: { type: "timeout", ...is } }
+    : null;
+};
+
 /** The timer changes for a table going from `before` to `after`; empty if none */
 export const turnTimer = (before: Table, after: Table): TimerChanges => {
-  const timeout = after.options.turnTimeout;
-  if (timeout === null) return {};
+  if (after.options.turnTimeout === null) return {};
   const was = currentTurn(before);
   const is = currentTurn(after);
   if (is && (!was || was.hand !== is.hand || was.turn !== is.turn)) {
-    return {
-      schedule: [
-        { name: TURN, in: timeout, action: { type: "timeout", ...is } },
-      ],
-    };
+    return { schedule: [turnRequest(after)!] };
   }
   if (was && !is) return { cancel: [TURN] };
   return {};

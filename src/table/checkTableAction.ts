@@ -1,11 +1,13 @@
 /**
  * Accepts a player's action at the table, or says why not, by the rule for
  * its type. Actions come from clients, so an unknown or missing type is
- * rejected rather than trusted.
+ * rejected rather than trusted. At an interrupted table, no one may act
+ * (decision 0018).
  */
 
 import { checkBet } from "./bet.js";
 import { checkLeave } from "./leave.js";
+import { INTERRUPTED } from "./pause.js";
 import { checkSitDown } from "./sitDown.js";
 import { checkSitIn } from "./sitIn.js";
 import { checkStandUp } from "./standUp.js";
@@ -17,6 +19,7 @@ export const checkTableAction = (
   playerId: string,
   action: TableAction
 ): true | string => {
+  if (table.interrupted) return INTERRUPTED;
   switch (action?.type) {
     case "sitDown":
       return checkSitDown(table, playerId, action);

@@ -21,6 +21,16 @@ export interface TimerChanges {
 
 const startable = (table: Table) => checkStartHand(table) === true;
 
+/** The timer the table calls for as it stands, with its full time; null if none */
+export const nextHandRequest = (
+  table: Table
+): TimerRequest<SystemAction> | null => {
+  const delay = table.options.nextHandDelay;
+  return delay !== null && startable(table)
+    ? { name: NEXT_HAND, in: delay, action: { type: "startHand" } }
+    : null;
+};
+
 /**
  * The timer changes for a table going from `before` to `after`; empty if none
  *
@@ -32,15 +42,10 @@ export const nextHandTimer = (
   after: Table,
   dealt: boolean
 ): TimerChanges => {
-  const delay = after.options.nextHandDelay;
-  if (delay === null) return {};
+  if (after.options.nextHandDelay === null) return {};
   const was = startable(before);
   const is = startable(after);
-  if (is && (!was || dealt)) {
-    return {
-      schedule: [{ name: NEXT_HAND, in: delay, action: { type: "startHand" } }],
-    };
-  }
+  if (is && (!was || dealt)) return { schedule: [nextHandRequest(after)!] };
   if (was && !is) return { cancel: [NEXT_HAND] };
   return {};
 };

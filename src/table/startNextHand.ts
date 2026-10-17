@@ -5,17 +5,20 @@
  * leave no one to act, the hand is played out and settled at once.
  *
  * Nothing starts hands by itself yet: the host does, through Remote State's
- * `act` (decision 0012), and later a timer. A paused table deals none.
+ * `act` (decision 0012), and later a timer. A paused or interrupted
+ * table deals none.
  */
 
 import type { Draw } from "../hand/Draw.js";
 import { startHand } from "../hand/startHand.js";
 import { handIsRunning } from "./lookups.js";
+import { INTERRUPTED } from "./pause.js";
 import { playersToDeal } from "./playersToDeal.js";
 import { settleHand } from "./settleHand.js";
 import type { Table } from "./Table.js";
 
 export const checkStartHand = (table: Table): true | string => {
+  if (table.interrupted) return INTERRUPTED;
   if (handIsRunning(table)) return "A hand is being played";
   if (table.paused) return "The table is paused";
   if (!playersToDeal(table)) return "Waiting for players";

@@ -94,6 +94,7 @@ export const newTable = (input: TableOptionsInput): Table => {
     button: null,
     hand: null,
     paused: false,
+    interrupted: false,
     handNumber: 0,
   };
 };

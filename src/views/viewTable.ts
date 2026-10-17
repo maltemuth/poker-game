@@ -48,6 +48,7 @@ export const viewTable = (table: Table, audience: string): TableView => {
     spectators: table.spectators,
     hand,
     paused: table.paused,
+    interrupted: table.interrupted,
     handNumber: table.handNumber,
     you:
       viewerSeat === null
@@ -56,7 +57,7 @@ export const viewTable = (table: Table, audience: string): TableView => {
             playerId: audience,
             seat: viewerSeat,
             buttons:
-              yourTurn && table.hand
+              yourTurn && table.hand && !table.interrupted
                 ? availableUiActions(table.hand.betting)
                 : [],
           },

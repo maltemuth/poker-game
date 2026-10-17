@@ -8,6 +8,7 @@
 import type { Draw } from "../hand/Draw.js";
 import { dealRunout, waitsForRunout } from "../hand/dealRunout.js";
 import { handIsRunning } from "./lookups.js";
+import { INTERRUPTED } from "./pause.js";
 import { settleHand } from "./settleHand.js";
 import type { Table } from "./Table.js";
 
@@ -24,6 +25,7 @@ export const currentRunout = (table: Table): RunoutStep | null =>
     : null;
 
 export const checkRunout = (table: Table, step: RunoutStep): true | string => {
+  if (table.interrupted) return INTERRUPTED;
   const current = currentRunout(table);
   return current && current.hand === step.hand && current.board === step.board
     ? true

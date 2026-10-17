@@ -7,6 +7,7 @@
 import { foldInHand } from "../hand/foldInHand.js";
 import type { Draw } from "../hand/Draw.js";
 import { handIsRunning } from "./lookups.js";
+import { INTERRUPTED } from "./pause.js";
 import { settleHand } from "./settleHand.js";
 import type { Table } from "./Table.js";
 
@@ -23,6 +24,7 @@ export const currentTurn = (table: Table): Turn | null =>
     : null;
 
 export const checkTimeOut = (table: Table, turn: Turn): true | string => {
+  if (table.interrupted) return INTERRUPTED;
   const current = currentTurn(table);
   return current && current.hand === turn.hand && current.turn === turn.turn
     ? true

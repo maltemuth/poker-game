@@ -58,11 +58,13 @@ if ("rejected" in result) console.log(result.rejected); // e.g. "Waiting for pla
 
 ## After a restart
 
-Timers are lost when the server restarts. A table whose next hand was waiting doesn't start it until an action makes a hand startable again; a turn that was running has no time limit until the next action. For every open table, start the next hand yourself:
+Timers are lost when the server restarts. When it starts again, every table that had one running is interrupted: no one can act, and its clocks stand still ([0018](../explanation/decisions/0018-tables-are-interrupted-by-a-restart.md)). Players see `interrupted` in their view. Once everyone is back, resume the table:
 
 ```ts
-await server.act(gameId, { type: "startHand" }); // rejected, harmlessly, where a hand is running
+await server.act(gameId, { type: "resume" }); // the current turn starts over, with its full time
 ```
+
+Tables that had nothing running, such as one waiting for players or one you paused between hands, aren't interrupted.
 
 ## Pause and resume
 

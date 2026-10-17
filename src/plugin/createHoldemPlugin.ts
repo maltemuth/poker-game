@@ -11,6 +11,8 @@
  *   a turn that runs out folds, by the `turn` timer (decision 0014).
  * - An all-in runout is dealt one betting round at a time, by the `runout`
  *   timer (decision 0015).
+ * - After a server restart, a table that had a timer running is interrupted
+ *   until the host resumes it, which schedules its timers again (decision 0018).
  *
  * Cards are drawn with `draw`, at random by default; tests pass a fixed deck.
  */
@@ -27,6 +29,7 @@ import type { TableView } from "../views/TableView.js";
 import { viewTable } from "../views/viewTable.js";
 import { audienceChanges } from "./audienceChanges.js";
 import { nextHandTimer } from "./nextHandTimer.js";
+import { onRestart, timersFor } from "./restart.js";
 import { runoutTimer } from "./runoutTimer.js";
 import { turnTimer } from "./turnTimer.js";
 import { type HoldemAction, isSystemAction } from "./HoldemAction.js";
@@ -62,11 +65,17 @@ export const createHoldemPlugin = ({
     return checkTableAction(table, playerId, action);
   },
 
+  onRestart,
+
   executeAction: (table, action, playerId) => {
     // validateAction let system actions through only from the system
     const after = isSystemAction(action)
       ? applySystemAction(table, action, draw)
       : applyTableAction(table, playerId, action, draw);
+    // No timer survived the restart, so every one the table calls for starts over
+    if (table.interrupted && !after.interrupted) {
+      return transition(after, { schedule: timersFor(after) });
+    }
     const audiences = audienceChanges(table, after);
     const dealt = isSystemAction(action) && action.type === "startHand";
     const timers = [

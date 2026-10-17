@@ -62,7 +62,7 @@ export interface ViewerView {
   playerId: string;
   /** Their seat number */
   seat: number;
-  /** The buttons they may click now; empty when it isn't their turn */
+  /** The buttons they may click now; empty when it isn't their turn, or the table is interrupted */
   buttons: UiOption[];
 }
 
@@ -77,6 +77,8 @@ export interface TableView {
   you: ViewerView | null;
   /** No new hands are dealt while it's paused */
   paused: boolean;
+  /** Nothing happens until the host resumes the table, after a server restart */
+  interrupted: boolean;
   /** The number of the current or last hand; 0 before the first */
   handNumber: number;
 }

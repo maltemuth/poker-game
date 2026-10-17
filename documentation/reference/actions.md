@@ -46,13 +46,15 @@ type SystemAction =
   { type: "startHand" } | { type: "pause" } | { type: "resume" };
 ```
 
-| Action      | What it does                                                                                    | Reasons it's rejected                                                  |
-| ----------- | ----------------------------------------------------------------------------------------------- | ---------------------------------------------------------------------- |
-| `startHand` | Deals the next hand ([Rules](rules.md#between-hands))                                           | `A hand is being played`, `The table is paused`, `Waiting for players` |
-| `pause`     | No new hands are dealt; a hand being played goes on                                             | `The table is already paused`                                          |
-| `resume`    | Hands can be dealt again                                                                        | `The table isn't paused`                                               |
-| `timeout`   | The player to act folds: their turn ran out ([Timers](timers.md#the-turn-timer))                | `That turn is over`                                                    |
-| `runout`    | Deals the next betting round's cards of an all-in runout ([Timers](timers.md#the-runout-timer)) | `That runout step is over`                                             |
+| Action      | What it does                                                                                    | Reasons it's rejected                                                                        |
+| ----------- | ----------------------------------------------------------------------------------------------- | -------------------------------------------------------------------------------------------- |
+| `startHand` | Deals the next hand ([Rules](rules.md#between-hands))                                           | `A hand is being played`, `The table is paused`, `Waiting for players`, an interrupted table |
+| `pause`     | No new hands are dealt; a hand being played goes on                                             | `The table is already paused`                                                                |
+| `resume`    | Ends an interruption, scheduling the table's timers again; otherwise, hands can be dealt again  | `The table isn't paused`                                                                     |
+| `timeout`   | The player to act folds: their turn ran out ([Timers](timers.md#the-turn-timer))                | `That turn is over`                                                                          |
+| `runout`    | Deals the next betting round's cards of an all-in runout ([Timers](timers.md#the-runout-timer)) | `That runout step is over`                                                                   |
+
+After a server restart, a table that had a timer running is interrupted: every player action, `startHand`, `timeout` and `runout` is rejected with `The table is waiting for the host to resume it`, until the host sends `resume` ([0018](../explanation/decisions/0018-tables-are-interrupted-by-a-restart.md)). If the table was also paused, a second `resume` ends the pause.
 
 A player who sends a system action gets `Only the host can do that`; the system sending a player's action gets `The system can't act for a player`.
 

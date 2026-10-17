@@ -132,7 +132,7 @@ Restarts drop timers ([0042](../../../../remote-state/docs/explanation/decisions
 - **A. The host acts after a restart.** For every open table, the host calls `act(gameId, { type: "resume" })`. The action schedules the timers the state calls for again, with their full duration. The host created its tables, but it has to store their IDs to find them again, since Remote State can't list them.
 - **B. A player claims a timeout.** Any seated player may send `timeout` once the stored deadline has passed. That works without the host, but `validateAction` then depends on the clock.
 
-Recommended: A. For poker, starting a turn over with its full time after a restart is right, which is one data point for Remote State's open restart question.
+Recommended: A. For poker, starting a turn over with its full time after a restart is right, which is one data point for Remote State's open restart question. Decided in [0018](../decisions/0018-tables-are-interrupted-by-a-restart.md), close to A: Remote State offers every game to the plugin on a restart, so the tables interrupt themselves, and the host resumes each.
 
 ### Who controls the table
 

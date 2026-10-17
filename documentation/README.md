@@ -12,7 +12,6 @@ Most pages don't exist yet. Pages marked _(planned)_ are written in the same cha
 
 - [Host a table](how-to/host-a-table.md): create a table, admit people, how hands start, pause, after a restart
 - _(planned)_ Set the time limits: turn timeout, delay before the next hand
-- _(planned)_ Resume tables after a restart
 - _(planned)_ Build a client: actions to send, views to render
 - [Test the rules with a fixed deck](how-to/test-with-a-fixed-deck.md)
 
