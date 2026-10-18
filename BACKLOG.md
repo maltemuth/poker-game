@@ -6,11 +6,11 @@ The betting core came first, as plain functions with unit tests; the betting, th
 
 Each milestone lists the pages it writes or updates ([Writing documentation](documentation/README.md#writing-documentation)). A milestone is done when its tests pass and its pages describe what was built. Remove a milestone when it's done.
 
-## 1. A table to play at
+A table to play at, the host server and its client, moved to [friday-nights](../friday-nights/BACKLOG.md), with the components in [poker-ui](../poker-ui).
 
-- [ ] A host server: create a table, admit people, serve a minimal web client.
-- [ ] The client: seats, cards, pots, the actions allowed for the viewer, the turn countdown.
-- Pages: tutorial _Play your first hand_, how-to _Build a client_.
+## 1. For the client
+
+- [ ] How-to _Build a client_: the actions to send, and the views to render, for poker-ui and friday-nights.
 
 ## Later
 
@@ -18,4 +18,3 @@ Each milestone lists the pages it writes or updates ([Writing documentation](doc
 - [Tri-Coin Hold'em](documentation/explanation/designs/tri-coin.md), on the same dealing, seating and showdown.
 - Odds for the viewer's own cards against unknown hands, in the client. The odds of known hands, in all-in runouts and for spectators who see the hole cards, are done ([Odds](documentation/reference/odds.md)).
 - Mucking at showdown, run-it-twice, antes and straddles.
-- Replacing `poker-ui` (React 16, Create React App, poker-hands 0.3), or reusing parts of it for the client.

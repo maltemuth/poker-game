@@ -6,7 +6,7 @@ Most pages don't exist yet. Pages marked _(planned)_ are written in the same cha
 
 ## Tutorials: learn by building
 
-- _(planned)_ Play your first hand: start a local table, seat two browsers, play a hand to showdown
+- Playing a hand in the browser is [friday-nights](../../friday-nights/documentation/README.md)'s tutorial, _Play your first hand_ (planned)
 
 ## How-to guides: get a specific task done
 
