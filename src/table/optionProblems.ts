@@ -2,11 +2,27 @@
  * What's wrong with a table's options, as one message per problem; none when
  * they're valid: whole chips, a small blind no bigger than the big blind, a
  * buy-in of at least the big blind, 2 to 10 seats, a known rule for new
- * players, and delays Remote State's timers can take. Creating a table and
+ * players, delays Remote State's timers can take, and a blind progression
+ * with whole hands and percents. Creating a table and
  * changing its options both check them.
  */
 
 import { maxDelay, newPlayerRules, type TableOptions } from "./TableOptions.js";
+
+const progressionProblem = (
+  progression: TableOptions["blindProgression"]
+): string | null => {
+  if (progression === null) return null;
+  const { everyHands, raisePercent } = progression ?? {};
+  return typeof progression === "object" &&
+    Number.isInteger(everyHands) &&
+    everyHands >= 1 &&
+    Number.isInteger(raisePercent) &&
+    raisePercent >= 1 &&
+    raisePercent <= 1000
+    ? null
+    : "blindProgression must be null, or a whole number of hands from 1 and a whole percent from 1 to 1000";
+};
 
 /** @returns One message per problem, empty when the options are valid */
 export const optionProblems = (options: TableOptions): string[] => {
@@ -53,5 +69,6 @@ export const optionProblems = (options: TableOptions): string[] => {
     typeof options.spectatorsSeeHoleCards === "boolean"
       ? null
       : "spectatorsSeeHoleCards must be true or false",
+    progressionProblem(options.blindProgression),
   ].filter((problem) => problem !== null);
 };

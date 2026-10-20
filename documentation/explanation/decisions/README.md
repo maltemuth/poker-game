@@ -27,6 +27,7 @@ Records aren't edited after the fact, except to update their status. A decision 
 | [0019](0019-the-turns-deadline-is-in-the-state.md)  | The turn's deadline is in the state                                               | Accepted                                             |
 | [0020](0020-options-change-until-the-first-hand.md) | The host can change the options until the first hand                              | Accepted                                             |
 | [0021](0021-random-draws-with-web-crypto.md)        | Random draws use the Web Crypto API, so the package loads in browsers             | Accepted                                             |
+| [0022](0022-blinds-go-up-by-hands.md)               | Blinds can go up every so many hands, in generated levels                         | Accepted                                             |
 
 ## Writing a record
 

@@ -11,6 +11,7 @@ import type { Card } from "../hand/cards.js";
 import type { BettingRoundName, HandResult } from "../hand/Hand.js";
 import type { Person } from "../table/Table.js";
 import type { TableOptions } from "../table/TableOptions.js";
+import type { BlindLevel } from "../table/blindLevels.js";
 import type { UiOption } from "../ui/availableUiActions.js";
 
 export interface SeatView {
@@ -86,4 +87,9 @@ export interface TableView {
   turnDeadline: number | null;
   /** The number of the current or last hand; 0 before the first */
   handNumber: number;
+  /**
+   * The blind level of the hand being played, or of the next one to be dealt
+   * when none is, with the next level (decision 0022)
+   */
+  blindLevel: BlindLevel;
 }

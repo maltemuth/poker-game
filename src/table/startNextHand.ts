@@ -1,7 +1,8 @@
 /**
  * Deals the next hand at a table: the players to deal in, the button and the
  * new players' extra big blinds come from [playersToDeal](playersToDeal.ts).
- * New players who are dealt in are in the game from then on. If the blinds
+ * The blinds are the hand's level's (decision 0022). New players who are
+ * dealt in are in the game from then on. If the blinds
  * leave no one to act, the hand is played out and settled at once.
  *
  * Nothing starts hands by itself yet: the host does, through Remote State's
@@ -11,6 +12,7 @@
 
 import type { Draw } from "../hand/Draw.js";
 import { startHand } from "../hand/startHand.js";
+import { blindsAtLevel, levelOfHand } from "./blindLevels.js";
 import { handIsRunning } from "./lookups.js";
 import { INTERRUPTED } from "./pause.js";
 import { playersToDeal } from "./playersToDeal.js";
@@ -42,7 +44,10 @@ export const startNextHand = (table: Table, draw: Draw): Table => {
   const hand = startHand(
     players,
     deal.seats.indexOf(deal.button),
-    table.options.blinds,
+    blindsAtLevel(
+      table.options,
+      levelOfHand(table.options, table.handNumber + 1)
+    ),
     draw,
     {
       extraBigBlinds: deal.extraBigBlinds.map((index) =>

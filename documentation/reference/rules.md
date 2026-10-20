@@ -129,6 +129,8 @@ The hand goes to showdown when the betting on the river is over with at least tw
 
 ## Between hands
 
+- **Each hand is dealt at its blind level:** with a `blindProgression`, the blinds go up every so many hands ([Table options](table-options.md#blind-levels)).
+
 ### The end of a hand
 
 When a hand is over, every player dealt in gets their stack from it, winnings included. Then:

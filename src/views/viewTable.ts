@@ -6,6 +6,7 @@
  * spectators' view.
  */
 
+import { blindLevelOfHand } from "../table/blindLevels.js";
 import { handIsRunning, seatOf } from "../table/lookups.js";
 import type { Table } from "../table/Table.js";
 import { availableUiActions } from "../ui/availableUiActions.js";
@@ -51,6 +52,10 @@ export const viewTable = (table: Table, audience: string): TableView => {
     interrupted: table.interrupted,
     turnDeadline: table.turnDeadline,
     handNumber: table.handNumber,
+    blindLevel: blindLevelOfHand(
+      table.options,
+      handIsRunning(table) ? table.handNumber : table.handNumber + 1
+    ),
     you:
       viewerSeat === null
         ? null

@@ -5,7 +5,8 @@
  * the next hand (decision 0006), hands start 5 seconds after they can
  * (decision 0013), a player has 30 seconds to act (decision 0014), an
  * all-in runout deals a betting round's cards every 2 seconds (decision
- * 0015), and spectators see no hole cards (decision 0016).
+ * 0015), spectators see no hole cards (decision 0016), and the blinds stay
+ * as they are (decision 0022).
  */
 
 import type { Table } from "./Table.js";
@@ -17,7 +18,8 @@ type Defaulted =
   | "nextHandDelay"
   | "turnTimeout"
   | "runoutDelay"
-  | "spectatorsSeeHoleCards";
+  | "spectatorsSeeHoleCards"
+  | "blindProgression";
 
 export type TableOptionsInput = Omit<TableOptions, Defaulted> &
   Partial<Pick<TableOptions, Defaulted>>;
@@ -32,6 +34,7 @@ export const newTable = (input: TableOptionsInput): Table => {
     turnTimeout: 30000,
     runoutDelay: 2000,
     spectatorsSeeHoleCards: false,
+    blindProgression: null,
     // an option given as undefined keeps its default
     ...(Object.fromEntries(
       Object.entries(input).filter(([, value]) => value !== undefined)

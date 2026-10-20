@@ -45,6 +45,7 @@ A hand has the betting ([`BettingRound`](../../src/betting/BettingRound.ts)), ev
 | `paused`       | Whether the table is paused                                                                                             |
 | `interrupted`  | Whether the table waits for the host to resume it, after a server restart; `you.buttons` is empty then                  |
 | `turnDeadline` | When the turn being played runs out, in milliseconds since the epoch by the server's clock; null while no turn is timed |
+| `blindLevel`   | The blind level of the hand being played, or of the next one: `{ level, blinds, next: { blinds, fromHand }              | null }`; `next`is null without a`blindProgression` ([Table options](table-options.md#blind-levels)) |
 | `handNumber`   | The number of the current or last hand; 0 before the first                                                              |
 
 A seat's `stack` is what the player has outside the middle: during a hand, what they have left in it.

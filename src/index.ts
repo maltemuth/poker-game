@@ -49,7 +49,12 @@ export { returnUncalledBet } from "./pots/uncalledBet.js";
 
 export type { Person, SeatedPlayer, Table } from "./table/Table.js";
 export type { TableAction } from "./table/TableAction.js";
-export type { NewPlayerRule, TableOptions } from "./table/TableOptions.js";
+export type {
+  BlindProgression,
+  NewPlayerRule,
+  TableOptions,
+} from "./table/TableOptions.js";
+export type { BlindLevel } from "./table/blindLevels.js";
 export type { TableOptionsInput } from "./table/newTable.js";
 export type { OptionChanges, SetOptions } from "./table/setOptions.js";
 export type { Deal } from "./table/playersToDeal.js";
@@ -64,6 +69,11 @@ export {
   seatOf,
 } from "./table/lookups.js";
 export { newTable } from "./table/newTable.js";
+export {
+  blindLevelOfHand,
+  blindsAtLevel,
+  levelOfHand,
+} from "./table/blindLevels.js";
 export { optionProblems } from "./table/optionProblems.js";
 export { newPlayerRules } from "./table/TableOptions.js";
 export { playersToDeal } from "./table/playersToDeal.js";
