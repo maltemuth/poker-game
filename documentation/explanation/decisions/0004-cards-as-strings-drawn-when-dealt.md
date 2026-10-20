@@ -1,6 +1,6 @@
 # 0004. Cards are strings, drawn when they're dealt
 
-Status: Accepted
+Status: Accepted; random draws use the Web Crypto API since [0021](0021-random-draws-with-web-crypto.md)
 Date: 2026-10-04
 
 ## Context
