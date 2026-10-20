@@ -12,6 +12,7 @@ import type { BettingRoundName, HandResult } from "../hand/Hand.js";
 import type { Person } from "../table/Table.js";
 import type { TableOptions } from "../table/TableOptions.js";
 import type { BlindLevel } from "../table/blindLevels.js";
+import type { RankedHand } from "../hand/rankHand.js";
 import type { UiOption } from "../ui/availableUiActions.js";
 
 export interface SeatView {
@@ -65,6 +66,12 @@ export interface ViewerView {
   seat: number;
   /** The buttons they may click now; empty when it isn't their turn, or the table is interrupted */
   buttons: UiOption[];
+  /**
+   * Their best hand from their hole cards and the board so far, ranked as at
+   * showdown; null when they weren't dealt into the hand being played or the
+   * last. From two cards before the flop, such as a pair or a high card
+   */
+  bestHand: RankedHand | null;
 }
 
 export interface TableView {

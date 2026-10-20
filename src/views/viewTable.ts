@@ -7,6 +7,7 @@
  */
 
 import { blindLevelOfHand } from "../table/blindLevels.js";
+import { rankHand, type RankedHand } from "../hand/rankHand.js";
 import { handIsRunning, seatOf } from "../table/lookups.js";
 import type { Table } from "../table/Table.js";
 import { availableUiActions } from "../ui/availableUiActions.js";
@@ -18,6 +19,15 @@ const liveStack = (table: Table, index: number, stack: number): number => {
   if (!handIsRunning(table) || !table.hand) return stack;
   const inHand = table.hand.betting.seats.find((s) => s.seat === index + 1);
   return inHand ? inHand.stack : stack;
+};
+
+/** The viewer's best hand in the hand being played or the last; null if they weren't dealt in */
+const viewersBestHand = (table: Table, seat: number): RankedHand | null => {
+  const hand = table.hand;
+  const index = hand?.betting.seats.findIndex((s) => s.seat === seat) ?? -1;
+  return hand && index >= 0
+    ? rankHand(hand.holeCards[index], hand.board)
+    : null;
 };
 
 export const viewTable = (table: Table, audience: string): TableView => {
@@ -66,6 +76,7 @@ export const viewTable = (table: Table, audience: string): TableView => {
               yourTurn && table.hand && !table.interrupted
                 ? availableUiActions(table.hand.betting)
                 : [],
+            bestHand: viewersBestHand(table, viewerSeat),
           },
   };
 };

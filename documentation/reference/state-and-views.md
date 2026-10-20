@@ -41,7 +41,7 @@ A hand has the betting ([`BettingRound`](../../src/betting/BettingRound.ts)), ev
 | `seats`        | Per seat: `seat` (number), `playerId`, `name`, `stack`, `sittingOut`, `newPlayer`, `leaving`; or `null`                 |
 | `spectators`   | Everyone watching, with their names                                                                                     |
 | `hand`         | The hand being played, or the last one; `null` before the first hand                                                    |
-| `you`          | For a seated player: `playerId`, `seat`, and `buttons`; `null` for spectators                                           |
+| `you`          | For a seated player: `playerId`, `seat`, `buttons` and `bestHand`; `null` for spectators                                |
 | `paused`       | Whether the table is paused                                                                                             |
 | `interrupted`  | Whether the table waits for the host to resume it, after a server restart; `you.buttons` is empty then                  |
 | `turnDeadline` | When the turn being played runs out, in milliseconds since the epoch by the server's clock; null while no turn is timed |
@@ -79,3 +79,5 @@ Otherwise they're `null`. A hand won because everyone else folded shows no cards
 ### Buttons
 
 `you.buttons` lists the [buttons](actions.md#buttons-to-show) the viewer may click, when it's their turn in a running hand; otherwise it's empty. Every listed button is one the rules accept.
+
+`you.bestHand` is the viewer's best hand from their hole cards and the board so far, ranked as at showdown: `best`, `type` and `rank`, as [`rankHand`](../../src/hand/rankHand.ts) gives them. It's made from two cards before the flop, such as a pair or a high card, and from the best five of seven by the river. It's `null` when the viewer wasn't dealt into the hand being played or the last.

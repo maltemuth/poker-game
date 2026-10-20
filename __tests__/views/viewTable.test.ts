@@ -1,7 +1,7 @@
 /**
  * Tests for what each audience sees: a seated player's own hole cards and
- * buttons, spectators seeing no hole cards, shown hands at showdown, and
- * stacks during a hand.
+ * buttons and best hand, spectators seeing no hole cards, shown hands at
+ * showdown, and stacks during a hand.
  */
 
 import assert from "node:assert/strict";
@@ -149,4 +149,32 @@ it("shows spectators every hole card at a table that allows it, and players stil
     viewTable(table, "b").hand?.players.map((p) => p.cards),
     [null, ["Kd", "Kc"], null]
   );
+});
+
+it("ranks the viewer's best hand with the board so far, from two cards", () => {
+  const table = playing();
+  assertMatchObject(viewTable(table, "b").you!.bestHand, {
+    type: "pair",
+    best: ["Kd", "Kc"],
+  });
+  const flop = {
+    ...table,
+    hand: { ...table.hand!, board: ["Kh", "7d", "7c"] },
+  };
+  assertMatchObject(viewTable(flop, "b").you!.bestHand, {
+    type: "fullHouse",
+    best: ["Kd", "Kc", "Kh", "7d", "7c"],
+  });
+});
+
+it("gives no best hand to someone not dealt in, or to spectators", () => {
+  const table = playing();
+  const late = applyTableAction(
+    table,
+    "s",
+    { type: "sitDown", seat: 5, buyIn: 1000 },
+    draw()
+  );
+  assert.equal(viewTable(late, "s").you?.bestHand, null);
+  assert.equal(viewTable(table, SPECTATORS).you, null);
 });
