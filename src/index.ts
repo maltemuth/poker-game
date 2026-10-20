@@ -51,6 +51,7 @@ export type { Person, SeatedPlayer, Table } from "./table/Table.js";
 export type { TableAction } from "./table/TableAction.js";
 export type { NewPlayerRule, TableOptions } from "./table/TableOptions.js";
 export type { TableOptionsInput } from "./table/newTable.js";
+export type { OptionChanges, SetOptions } from "./table/setOptions.js";
 export type { Deal } from "./table/playersToDeal.js";
 export { addSpectator } from "./table/addSpectator.js";
 export { applyTableAction } from "./table/applyTableAction.js";
@@ -63,6 +64,7 @@ export {
   seatOf,
 } from "./table/lookups.js";
 export { newTable } from "./table/newTable.js";
+export { optionProblems } from "./table/optionProblems.js";
 export { newPlayerRules } from "./table/TableOptions.js";
 export { playersToDeal } from "./table/playersToDeal.js";
 export { settleHand } from "./table/settleHand.js";

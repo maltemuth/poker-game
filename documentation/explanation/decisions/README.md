@@ -25,6 +25,7 @@ Records aren't edited after the fact, except to update their status. A decision 
 | [0017](0017-tests-on-nodes-test-runner.md)          | Tests run on Node's test runner, through tsx                                      | Accepted                                             |
 | [0018](0018-tables-are-interrupted-by-a-restart.md) | A restart interrupts a table until the host resumes it                            | Accepted                                             |
 | [0019](0019-the-turns-deadline-is-in-the-state.md)  | The turn's deadline is in the state                                               | Accepted                                             |
+| [0020](0020-options-change-until-the-first-hand.md) | The host can change the options until the first hand                              | Accepted                                             |
 
 ## Writing a record
 

@@ -208,3 +208,41 @@ describe("the turn's deadline", () => {
     assert.equal(resumed.turnDeadline, 120000);
   });
 });
+
+describe("changing the options", () => {
+  const two = tableWith([seated("a"), seated("b")]);
+  const changes = (table: Table, options: object) =>
+    plugin.executeAction(
+      table,
+      { type: "setOptions", options } as HoldemAction,
+      SYSTEM
+    );
+
+  it("lets only the host change them", async () => {
+    const action = { type: "setOptions", options: {} } as const;
+    assert.equal(
+      await plugin.validateAction(two, action, "a"),
+      "Only the host can do that"
+    );
+    assert.equal(await plugin.validateAction(two, action, SYSTEM), true);
+  });
+
+  it("starts the next hand's timer over with a new delay", async () => {
+    const { state, changes: timers } = unwrap(
+      await changes(two, { nextHandDelay: 1000 })
+    );
+    assert.equal(state.options.nextHandDelay, 1000);
+    assert.deepEqual(timers.schedule, [
+      { name: "nextHand", in: 1000, action: { type: "startHand" } },
+    ]);
+  });
+
+  it("cancels it when hands are left to the host, or can't start yet", async () => {
+    const toHost = unwrap(await changes(two, { nextHandDelay: null }));
+    assert.deepEqual(toHost.changes.cancel, ["nextHand"]);
+    const alone = unwrap(
+      await changes(tableWith([seated("a")]), { turnTimeout: 5000 })
+    );
+    assert.deepEqual(alone.changes.cancel, ["nextHand"]);
+  });
+});

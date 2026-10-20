@@ -9,7 +9,8 @@
  */
 
 import type { Table } from "./Table.js";
-import { maxDelay, newPlayerRules, type TableOptions } from "./TableOptions.js";
+import { optionProblems } from "./optionProblems.js";
+import type { TableOptions } from "./TableOptions.js";
 
 type Defaulted =
   | "newPlayers"
@@ -20,53 +21,6 @@ type Defaulted =
 
 export type TableOptionsInput = Omit<TableOptions, Defaulted> &
   Partial<Pick<TableOptions, Defaulted>>;
-
-const problemsWith = (options: TableOptions): string[] => {
-  const { blinds, buyIn, seats, newPlayers } = options;
-  const { nextHandDelay, turnTimeout, runoutDelay } = options;
-  const chips = [blinds.small, blinds.big, buyIn.min, buyIn.max];
-  return [
-    chips.every((amount) => Number.isInteger(amount) && amount > 0)
-      ? null
-      : "blinds and buy-ins must be positive whole numbers of chips",
-    blinds.small <= blinds.big
-      ? null
-      : "the small blind can't be bigger than the big blind",
-    buyIn.min >= blinds.big
-      ? null
-      : "the smallest buy-in must be at least the big blind",
-    buyIn.max >= buyIn.min
-      ? null
-      : "the largest buy-in can't be smaller than the smallest",
-    Number.isInteger(seats) && seats >= 2 && seats <= 10
-      ? null
-      : "a table has 2 to 10 seats",
-    newPlayerRules.includes(newPlayers)
-      ? null
-      : `newPlayers must be one of ${newPlayerRules.join(", ")}`,
-    nextHandDelay === null ||
-    (Number.isInteger(nextHandDelay) &&
-      nextHandDelay >= 0 &&
-      nextHandDelay <= maxDelay)
-      ? null
-      : `nextHandDelay must be null or whole milliseconds from 0 to ${maxDelay}`,
-    turnTimeout === null ||
-    (Number.isInteger(turnTimeout) &&
-      turnTimeout >= 1 &&
-      turnTimeout <= maxDelay)
-      ? null
-      : `turnTimeout must be null or whole milliseconds from 1 to ${maxDelay}`,
-    runoutDelay === null ||
-    (Number.isInteger(runoutDelay) &&
-      runoutDelay >= 0 &&
-      runoutDelay <= maxDelay)
-      ? null
-      : `runoutDelay must be null or whole milliseconds from 0 to ${maxDelay}`,
-    typeof options.spectatorsSeeHoleCards === "boolean"
-      ? null
-      : "spectatorsSeeHoleCards must be true or false",
-  ].filter((problem) => problem !== null);
-};
 
 /**
  * @throws {Error} If the options are invalid, naming every problem
@@ -83,7 +37,7 @@ export const newTable = (input: TableOptionsInput): Table => {
       Object.entries(input).filter(([, value]) => value !== undefined)
     ) as TableOptionsInput),
   };
-  const problems = problemsWith(options);
+  const problems = optionProblems(options);
   if (problems.length > 0) {
     throw new Error(`Invalid table options: ${problems.join("; ")}`);
   }

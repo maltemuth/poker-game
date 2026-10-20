@@ -28,7 +28,7 @@ import { SPECTATORS } from "../views/audiences.js";
 import type { TableView } from "../views/TableView.js";
 import { viewTable } from "../views/viewTable.js";
 import { audienceChanges } from "./audienceChanges.js";
-import { nextHandTimer } from "./nextHandTimer.js";
+import { nextHandTimer, nextHandTimerForNewOptions } from "./nextHandTimer.js";
 import { onRestart, timersFor } from "./restart.js";
 import { runoutTimer } from "./runoutTimer.js";
 import { turnDeadline, turnTimer } from "./turnTimer.js";
@@ -85,7 +85,9 @@ export const createHoldemPlugin = ({
     const dealt = isSystemAction(action) && action.type === "startHand";
     const turn = turnTimer(table, after);
     const timers = [
-      nextHandTimer(table, after, dealt),
+      isSystemAction(action) && action.type === "setOptions"
+        ? nextHandTimerForNewOptions(after)
+        : nextHandTimer(table, after, dealt),
       turn,
       runoutTimer(table, after),
     ];

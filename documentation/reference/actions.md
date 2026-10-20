@@ -43,16 +43,20 @@ In Remote State, the plugin also takes actions only the system may send: the hos
 
 ```ts
 type SystemAction =
-  { type: "startHand" } | { type: "pause" } | { type: "resume" };
+  | { type: "startHand" }
+  | { type: "pause" }
+  | { type: "resume" }
+  | { type: "setOptions"; options: OptionChanges }; // every option but seats, each optional
 ```
 
-| Action      | What it does                                                                                    | Reasons it's rejected                                                                        |
-| ----------- | ----------------------------------------------------------------------------------------------- | -------------------------------------------------------------------------------------------- |
-| `startHand` | Deals the next hand ([Rules](rules.md#between-hands))                                           | `A hand is being played`, `The table is paused`, `Waiting for players`, an interrupted table |
-| `pause`     | No new hands are dealt; a hand being played goes on                                             | `The table is already paused`                                                                |
-| `resume`    | Ends an interruption, scheduling the table's timers again; otherwise, hands can be dealt again  | `The table isn't paused`                                                                     |
-| `timeout`   | The player to act folds: their turn ran out ([Timers](timers.md#the-turn-timer))                | `That turn is over`                                                                          |
-| `runout`    | Deals the next betting round's cards of an all-in runout ([Timers](timers.md#the-runout-timer)) | `That runout step is over`                                                                   |
+| Action       | What it does                                                                                                                            | Reasons it's rejected                                                                                             |
+| ------------ | --------------------------------------------------------------------------------------------------------------------------------------- | ----------------------------------------------------------------------------------------------------------------- |
+| `startHand`  | Deals the next hand ([Rules](rules.md#between-hands))                                                                                   | `A hand is being played`, `The table is paused`, `Waiting for players`, an interrupted table                      |
+| `pause`      | No new hands are dealt; a hand being played goes on                                                                                     | `The table is already paused`                                                                                     |
+| `resume`     | Ends an interruption, scheduling the table's timers again; otherwise, hands can be dealt again                                          | `The table isn't paused`                                                                                          |
+| `setOptions` | Changes the options given, before the first hand; the others keep their values ([Table options](table-options.md#changing-the-options)) | `The options can't change once a hand has been dealt`, `A table's seats can't change`, `Invalid table options: …` |
+| `timeout`    | The player to act folds: their turn ran out ([Timers](timers.md#the-turn-timer))                                                        | `That turn is over`                                                                                               |
+| `runout`     | Deals the next betting round's cards of an all-in runout ([Timers](timers.md#the-runout-timer))                                         | `That runout step is over`                                                                                        |
 
 After a server restart, a table that had a timer running is interrupted: every player action, `startHand`, `timeout` and `runout` is rejected with `The table is waiting for the host to resume it`, until the host sends `resume` ([0018](../explanation/decisions/0018-tables-are-interrupted-by-a-restart.md)). If the table was also paused, a second `resume` ends the pause.
 

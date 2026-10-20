@@ -44,6 +44,7 @@ it("exports the rules, the button translation and the views", () => {
     "nextBettingRound",
     "nextToAct",
     "oddChipOrder",
+    "optionProblems",
     "playersToDeal",
     "playingSeats",
     "postBlinds",

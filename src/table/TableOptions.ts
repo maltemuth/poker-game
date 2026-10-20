@@ -1,5 +1,6 @@
 /**
- * A table's settings, chosen by the host when it creates the table: the
+ * A table's settings, chosen by the host when it creates the table, and
+ * changeable until the first hand (decision 0020): the
  * blinds, the buy-in range, the number of seats, how new players join a
  * running game (decision 0006), how soon hands start (decision 0013), how
  * long a turn may take (decision 0014), how an all-in runout is dealt

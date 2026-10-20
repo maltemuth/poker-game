@@ -1,6 +1,6 @@
 # Table options
 
-What a host chooses when it creates a table with [`newTable(options)`](../../src/table/newTable.ts). An option left out, or given as `undefined`, has its default.
+What a host chooses when it creates a table with [`newTable(options)`](../../src/table/newTable.ts), and may change until the first hand ([below](#changing-the-options)). An option left out, or given as `undefined`, has its default.
 
 ```ts
 interface TableOptions {
@@ -43,3 +43,19 @@ A game is running when at least two seated players, not on a break, are in it. A
 ```
 Invalid table options: the small blind can't be bigger than the big blind; a table has 2 to 10 seats
 ```
+
+`optionProblems(options)` returns the same problems as a list, empty when the options are valid, for checking options before sending them.
+
+## Changing the options
+
+Until the first hand is dealt, the host can change any option but `seats` with the system action `setOptions` ([Actions](actions.md#system-actions), [0020](../explanation/decisions/0020-options-change-until-the-first-hand.md)):
+
+```ts
+{ type: "setOptions", options: { blinds: { small: 100, big: 200 }, turnTimeout: null } }
+```
+
+- Options left out, or given as `undefined`, keep their values; keys that aren't options are ignored.
+- The result is checked like a new table's options, and rejected with `Invalid table options: …` naming every problem.
+- Chips already on the table stay as they are, also where the new buy-in range wouldn't allow them.
+- A new `nextHandDelay` starts the `nextHand` [timer](timers.md) over with the new delay, or cancels it.
+- Once a hand has been dealt, `setOptions` is rejected with `The options can't change once a hand has been dealt`.

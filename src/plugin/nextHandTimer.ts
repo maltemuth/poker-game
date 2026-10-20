@@ -4,7 +4,8 @@
  * down, and cancelled when one stops being startable, such as when a hand
  * starts or the table is paused. Actions that change neither leave a
  * pending timer alone. With the table's `nextHandDelay` null, there's never
- * a timer.
+ * a timer. When the host changes the options (decision 0020), the timer
+ * starts over with the new delay, or is cancelled if there's none.
  */
 
 import type { TimerRequest } from "@malte.muth/remote-state";
@@ -48,4 +49,10 @@ export const nextHandTimer = (
   if (is && (!was || dealt)) return { schedule: [nextHandRequest(after)!] };
   if (was && !is) return { cancel: [NEXT_HAND] };
   return {};
+};
+
+/** The timer changes for a table whose options just changed */
+export const nextHandTimerForNewOptions = (after: Table): TimerChanges => {
+  const request = nextHandRequest(after);
+  return request ? { schedule: [request] } : { cancel: [NEXT_HAND] };
 };
