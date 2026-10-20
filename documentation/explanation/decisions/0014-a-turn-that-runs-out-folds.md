@@ -1,6 +1,6 @@
 # 0014. A turn that runs out folds; its length is a table option
 
-Status: Accepted
+Status: Accepted; views carry the turn's deadline since [0019](0019-the-turns-deadline-is-in-the-state.md)
 Date: 2026-10-04
 
 ## Context

@@ -4,7 +4,8 @@
  * scheduling the name again replaces the last turn's timer. When no one is
  * to act any more, it's cancelled. Actions that don't begin a new turn, such
  * as a fold out of turn or someone sitting down, leave it alone. With
- * `turnTimeout` null, there's never a timer.
+ * `turnTimeout` null, there's never a timer. The table keeps when the turn
+ * runs out, for clients' countdowns (decision 0019).
  */
 
 import { currentTurn } from "../table/timeOut.js";
@@ -36,4 +37,19 @@ export const turnTimer = (before: Table, after: Table): TimerChanges => {
   }
   if (was && !is) return { cancel: [TURN] };
   return {};
+};
+
+/**
+ * The table's turn deadline after timer changes made at `now`: a new turn
+ * timer sets it, cancelling the timer clears it, and anything else leaves it.
+ */
+export const turnDeadline = (
+  table: Table,
+  changes: TimerChanges,
+  now: number
+): number | null => {
+  const turn = changes.schedule?.find((request) => request.name === TURN);
+  if (turn) return now + turn.in;
+  if (changes.cancel?.includes(TURN)) return null;
+  return table.turnDeadline;
 };

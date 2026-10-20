@@ -49,7 +49,7 @@ export interface HandView {
   toAct: number | null;
   /** The bet to match in this betting round */
   currentBet: number;
-  /** Changes with every new turn, so a client can restart its countdown */
+  /** Changes with every new turn */
   turn: number;
   /** No more betting is possible, and the hands still in are face up */
   tabled: boolean;
@@ -79,6 +79,11 @@ export interface TableView {
   paused: boolean;
   /** Nothing happens until the host resumes the table, after a server restart */
   interrupted: boolean;
+  /**
+   * When the turn being played runs out, in milliseconds since the epoch, by
+   * the server's clock; null while no turn is timed (decision 0019)
+   */
+  turnDeadline: number | null;
   /** The number of the current or last hand; 0 before the first */
   handNumber: number;
 }

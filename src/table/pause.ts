@@ -30,6 +30,8 @@ export const pause = (table: Table): Table => {
 export const interrupt = (table: Table): Table => ({
   ...table,
   interrupted: true,
+  // No timer runs at an interrupted table
+  turnDeadline: null,
 });
 
 /**

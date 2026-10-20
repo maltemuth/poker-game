@@ -31,13 +31,15 @@ import { audienceChanges } from "./audienceChanges.js";
 import { nextHandTimer } from "./nextHandTimer.js";
 import { onRestart, timersFor } from "./restart.js";
 import { runoutTimer } from "./runoutTimer.js";
-import { turnTimer } from "./turnTimer.js";
+import { turnDeadline, turnTimer } from "./turnTimer.js";
 import { type HoldemAction, isSystemAction } from "./HoldemAction.js";
 import { applySystemAction, checkSystemAction } from "./systemActions.js";
 
 export interface HoldemPluginOptions {
   /** How cards are drawn; `randomDraw` unless given */
   draw?: Draw;
+  /** The time, in milliseconds since the epoch, for turn deadlines; `Date.now` unless given */
+  now?: () => number;
 }
 
 export type HoldemPlugin = GamePlugin<Table, HoldemAction, TableView>;
@@ -49,6 +51,7 @@ const nameFrom = (details: Record<string, unknown>): string =>
 
 export const createHoldemPlugin = ({
   draw = randomDraw,
+  now = Date.now,
 }: HoldemPluginOptions = {}): HoldemPlugin => ({
   onJoin: (table, { playerId, details }) =>
     transition(addSpectator(table, { playerId, name: nameFrom(details) }), {
@@ -74,20 +77,28 @@ export const createHoldemPlugin = ({
       : applyTableAction(table, playerId, action, draw);
     // No timer survived the restart, so every one the table calls for starts over
     if (table.interrupted && !after.interrupted) {
-      return transition(after, { schedule: timersFor(after) });
+      const schedule = timersFor(after);
+      const deadline = turnDeadline(after, { schedule }, now());
+      return transition({ ...after, turnDeadline: deadline }, { schedule });
     }
     const audiences = audienceChanges(table, after);
     const dealt = isSystemAction(action) && action.type === "startHand";
+    const turn = turnTimer(table, after);
     const timers = [
       nextHandTimer(table, after, dealt),
-      turnTimer(table, after),
+      turn,
       runoutTimer(table, after),
     ];
+    const deadline = turnDeadline(after, turn, now());
+    const state =
+      deadline === after.turnDeadline
+        ? after
+        : { ...after, turnDeadline: deadline };
     const schedule = timers.flatMap((timer) => timer.schedule ?? []);
     const cancel = timers.flatMap((timer) => timer.cancel ?? []);
     return Object.keys(audiences).length > 0 || schedule.length || cancel.length
-      ? transition(after, { audiences, schedule, cancel })
-      : after;
+      ? transition(state, { audiences, schedule, cancel })
+      : state;
   },
 
   filterStateForAudience: (table, audience) => viewTable(table, audience),

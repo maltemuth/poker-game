@@ -13,7 +13,7 @@ const server = await createRemoteStateServer(createHoldemPlugin());
 await server.startServer();
 ```
 
-The plugin draws cards at random. Pass `createHoldemPlugin({ draw })` to deal known cards, as in tests ([Test the rules with a fixed deck](test-with-a-fixed-deck.md)). Server options, such as the database file, are Remote State's ([Server API](../../../remote-state/docs/reference/server-api.md)).
+The plugin draws cards at random. Pass `createHoldemPlugin({ draw })` to deal known cards, as in tests ([Test the rules with a fixed deck](test-with-a-fixed-deck.md)), and `now` to fix the time turn deadlines are counted from. Server options, such as the database file, are Remote State's ([Server API](../../../remote-state/docs/reference/server-api.md)).
 
 ## Create a table
 

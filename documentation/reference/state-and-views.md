@@ -6,16 +6,17 @@ What a table stores, and what each audience is shown of it.
 
 A [`Table`](../../src/table/Table.ts) is plain JSON. It holds everything, including every player's hole cards, so it's never sent to players as it is.
 
-| Field         | Contents                                                                                                                                                |
-| ------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| `options`     | The [table options](table-options.md)                                                                                                                   |
-| `spectators`  | People at the table without a seat: `{ playerId, name }`                                                                                                |
-| `seats`       | One entry per seat, the seat number being the index plus one: a seated player, or `null`                                                                |
-| `button`      | Index into `seats` of the last hand's button; `null` before the first hand                                                                              |
-| `hand`        | The [hand](../../src/hand/Hand.ts) being played, or the last one; `null` before the first hand                                                          |
-| `paused`      | No new hands are dealt while it's paused ([0012](../explanation/decisions/0012-host-controls-the-table.md))                                             |
-| `interrupted` | After a server restart: nothing happens until the host resumes the table ([0018](../explanation/decisions/0018-tables-are-interrupted-by-a-restart.md)) |
-| `handNumber`  | How many hands were dealt: the number of the current or last hand                                                                                       |
+| Field          | Contents                                                                                                                                                                                                     |
+| -------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------ |
+| `options`      | The [table options](table-options.md)                                                                                                                                                                        |
+| `spectators`   | People at the table without a seat: `{ playerId, name }`                                                                                                                                                     |
+| `seats`        | One entry per seat, the seat number being the index plus one: a seated player, or `null`                                                                                                                     |
+| `button`       | Index into `seats` of the last hand's button; `null` before the first hand                                                                                                                                   |
+| `hand`         | The [hand](../../src/hand/Hand.ts) being played, or the last one; `null` before the first hand                                                                                                               |
+| `paused`       | No new hands are dealt while it's paused ([0012](../explanation/decisions/0012-host-controls-the-table.md))                                                                                                  |
+| `interrupted`  | After a server restart: nothing happens until the host resumes the table ([0018](../explanation/decisions/0018-tables-are-interrupted-by-a-restart.md))                                                      |
+| `turnDeadline` | When the turn being played runs out, in milliseconds since the epoch; null while no turn is timed, or the table is interrupted ([0019](../explanation/decisions/0019-the-turns-deadline-is-in-the-state.md)) |
+| `handNumber`   | How many hands were dealt: the number of the current or last hand                                                                                                                                            |
 
 A seated player has `playerId`, `name`, `stack`, `sittingOut` (on a break), `newPlayer` (waiting to be dealt in by the table's rule) and `leaving` (leaves when the hand is over). During a hand, a dealt-in player's `stack` is what they started the hand with; their chips are in the hand's betting until it's settled.
 
@@ -34,33 +35,34 @@ A hand has the betting ([`BettingRound`](../../src/betting/BettingRound.ts)), ev
 
 [`viewTable(table, audience)`](../../src/views/viewTable.ts) returns a [`TableView`](../../src/views/TableView.ts). It depends only on the table and the audience: no clock, no randomness. An audience that isn't a seated player's ID gets the spectators' view.
 
-| Field         | Contents                                                                                                |
-| ------------- | ------------------------------------------------------------------------------------------------------- |
-| `options`     | The table options                                                                                       |
-| `seats`       | Per seat: `seat` (number), `playerId`, `name`, `stack`, `sittingOut`, `newPlayer`, `leaving`; or `null` |
-| `spectators`  | Everyone watching, with their names                                                                     |
-| `hand`        | The hand being played, or the last one; `null` before the first hand                                    |
-| `you`         | For a seated player: `playerId`, `seat`, and `buttons`; `null` for spectators                           |
-| `paused`      | Whether the table is paused                                                                             |
-| `interrupted` | Whether the table waits for the host to resume it, after a server restart; `you.buttons` is empty then  |
-| `handNumber`  | The number of the current or last hand; 0 before the first                                              |
+| Field          | Contents                                                                                                                |
+| -------------- | ----------------------------------------------------------------------------------------------------------------------- |
+| `options`      | The table options                                                                                                       |
+| `seats`        | Per seat: `seat` (number), `playerId`, `name`, `stack`, `sittingOut`, `newPlayer`, `leaving`; or `null`                 |
+| `spectators`   | Everyone watching, with their names                                                                                     |
+| `hand`         | The hand being played, or the last one; `null` before the first hand                                                    |
+| `you`          | For a seated player: `playerId`, `seat`, and `buttons`; `null` for spectators                                           |
+| `paused`       | Whether the table is paused                                                                                             |
+| `interrupted`  | Whether the table waits for the host to resume it, after a server restart; `you.buttons` is empty then                  |
+| `turnDeadline` | When the turn being played runs out, in milliseconds since the epoch by the server's clock; null while no turn is timed |
+| `handNumber`   | The number of the current or last hand; 0 before the first                                                              |
 
 A seat's `stack` is what the player has outside the middle: during a hand, what they have left in it.
 
 ### The hand
 
-| Field          | Contents                                                                                                |
-| -------------- | ------------------------------------------------------------------------------------------------------- |
-| `bettingRound` | `preFlop`, `flop`, `turn` or `river`                                                                    |
-| `board`        | The board cards dealt so far                                                                            |
-| `pots`         | The pots collected from earlier betting rounds: `{ amount, seats }`, the main pot first                 |
-| `players`      | Per player dealt in: `seat`, `bet` (in front of them), `folded`, `allIn`, and `cards`                   |
-| `button`       | The button's seat number                                                                                |
-| `toAct`        | The seat number of the player to act, or `null`                                                         |
-| `currentBet`   | The bet to match in this betting round                                                                  |
-| `turn`         | Changes with every new turn, so a client can restart its countdown ([Timers](timers.md#the-turn-timer)) |
-| `tabled`       | No more betting is possible, and the hands still in are face up                                         |
-| `result`       | `null` while the hand is played; then the hands shown and who won what, per pot                         |
+| Field          | Contents                                                                                |
+| -------------- | --------------------------------------------------------------------------------------- |
+| `bettingRound` | `preFlop`, `flop`, `turn` or `river`                                                    |
+| `board`        | The board cards dealt so far                                                            |
+| `pots`         | The pots collected from earlier betting rounds: `{ amount, seats }`, the main pot first |
+| `players`      | Per player dealt in: `seat`, `bet` (in front of them), `folded`, `allIn`, and `cards`   |
+| `button`       | The button's seat number                                                                |
+| `toAct`        | The seat number of the player to act, or `null`                                         |
+| `currentBet`   | The bet to match in this betting round                                                  |
+| `turn`         | Changes with every new turn ([Timers](timers.md#the-turn-timer))                        |
+| `tabled`       | No more betting is possible, and the hands still in are face up                         |
+| `result`       | `null` while the hand is played; then the hands shown and who won what, per pot         |
 
 ### Hole cards
 

@@ -1,18 +1,21 @@
 /**
  * Tests for the plugin's functions, called directly: joining as a spectator,
- * who may send which actions, and the audience changes actions bring.
+ * who may send which actions, the audience changes actions bring, and when
+ * the turn runs out.
  */
 
 import assert from "node:assert/strict";
-import { it } from "node:test";
+import { beforeEach, describe, it } from "node:test";
 import {
   SYSTEM,
   type Transition,
   type TransitionChanges,
 } from "@malte.muth/remote-state";
 import { createHoldemPlugin } from "../../src/plugin/createHoldemPlugin.js";
+import type { HoldemAction } from "../../src/plugin/HoldemAction.js";
 import type { Table } from "../../src/table/Table.js";
 import { SPECTATORS } from "../../src/views/audiences.js";
+import { viewTable } from "../../src/views/viewTable.js";
 import { deck } from "../helpers/hand.js";
 import { emptyTable, seated, tableWith } from "../helpers/table.js";
 
@@ -138,4 +141,70 @@ it("accepts a timeout only from the system, for the current turn", async () => {
     await game.validateAction(table, { ...timeout, turn: 1 }, SYSTEM),
     "That turn is over"
   );
+});
+
+describe("the turn's deadline", () => {
+  let time = 1000;
+  let game = createHoldemPlugin();
+  beforeEach(() => {
+    time = 1000;
+    game = createHoldemPlugin({
+      draw: deck(["AhAs", "KdKc"], 0),
+      now: () => time,
+    });
+  });
+  const act = async (table: Table, action: HoldemAction, playerId: string) =>
+    unwrap(await game.executeAction(table, action, playerId)).state;
+  /** The player ID of the player to act */
+  const toAct = (table: Table): string => {
+    const view = viewTable(table, SPECTATORS);
+    return view.seats[view.hand!.toAct! - 1]!.playerId;
+  };
+  const deal = () =>
+    act(tableWith([seated("a"), seated("b")]), { type: "startHand" }, SYSTEM);
+
+  it("is set when a hand is dealt, and again for every new turn", async () => {
+    const dealt = await deal();
+    assert.equal(dealt.turnDeadline, 31000);
+    assert.equal(viewTable(dealt, "a").turnDeadline, 31000);
+    time = 5000;
+    const called = await act(dealt, { type: "call" }, toAct(dealt));
+    assert.equal(called.turnDeadline, 35000);
+  });
+
+  it("stays for an action that doesn't begin a new turn", async () => {
+    const dealt = await deal();
+    time = 5000;
+    const sat = await act(
+      { ...dealt, spectators: [{ playerId: "e", name: "e" }] },
+      { type: "sitDown", seat: 5, buyIn: 1000 },
+      "e"
+    );
+    assert.equal(sat.turnDeadline, 31000);
+  });
+
+  it("is cleared when no one is to act", async () => {
+    const dealt = await deal();
+    const over = await act(dealt, { type: "fold" }, toAct(dealt));
+    assert.equal(over.turnDeadline, null);
+  });
+
+  it("is never set without a turn timeout", async () => {
+    const untimed = await act(
+      tableWith([seated("a"), seated("b")], {
+        options: { ...emptyTable().options, turnTimeout: null },
+      }),
+      { type: "startHand" },
+      SYSTEM
+    );
+    assert.equal(untimed.turnDeadline, null);
+  });
+
+  it("is cleared by a restart, and starts over when the host resumes", async () => {
+    const interrupted = game.onRestart!(await deal()) as Table;
+    assert.equal(interrupted.turnDeadline, null);
+    time = 90000;
+    const resumed = await act(interrupted, { type: "resume" }, SYSTEM);
+    assert.equal(resumed.turnDeadline, 120000);
+  });
 });

@@ -95,6 +95,7 @@ export const newTable = (input: TableOptionsInput): Table => {
     hand: null,
     paused: false,
     interrupted: false,
+    turnDeadline: null,
     handNumber: 0,
   };
 };

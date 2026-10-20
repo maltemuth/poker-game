@@ -44,6 +44,12 @@ export interface Table {
    * at it until the host resumes it (decision 0018)
    */
   interrupted: boolean;
+  /**
+   * When the turn being played runs out, in milliseconds since the epoch; null
+   * while no turn is timed, or the table is interrupted (decision 0019). The
+   * plugin sets it, as it schedules the turn timer.
+   */
+  turnDeadline: number | null;
   /** How many hands were dealt: the number of the current or last hand */
   handNumber: number;
 }

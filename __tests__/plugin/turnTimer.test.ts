@@ -1,12 +1,13 @@
 /**
  * Tests for the turn timer: scheduled for every new turn, left alone by
- * actions that don't begin one, cancelled when no one is to act.
+ * actions that don't begin one, cancelled when no one is to act; and the
+ * deadline that follows from it.
  */
 
 import assert from "node:assert/strict";
 import { it } from "node:test";
 import { applySystemAction } from "../../src/plugin/systemActions.js";
-import { TURN, turnTimer } from "../../src/plugin/turnTimer.js";
+import { TURN, turnDeadline, turnTimer } from "../../src/plugin/turnTimer.js";
 import { applyTableAction } from "../../src/table/applyTableAction.js";
 import type { Table } from "../../src/table/Table.js";
 import { deck } from "../helpers/hand.js";
@@ -73,4 +74,27 @@ it("uses the table's timeout, and never schedules without one", () => {
     turnTimer(none, applySystemAction(none, { type: "startHand" }, draw())),
     {}
   );
+});
+
+it("sets the deadline for a new turn timer, clears it on cancel, and keeps it otherwise", () => {
+  const table = { ...three, turnDeadline: 500 };
+  assert.equal(
+    turnDeadline(
+      table,
+      {
+        schedule: [
+          {
+            name: TURN,
+            in: 250,
+            action: { type: "timeout", hand: 1, turn: 0 },
+          },
+        ],
+      },
+      1000
+    ),
+    1250
+  );
+  assert.equal(turnDeadline(table, { cancel: [TURN] }, 1000), null);
+  assert.equal(turnDeadline(table, {}, 1000), 500);
+  assert.equal(turnDeadline(table, { cancel: ["runout"] }, 1000), 500);
 });

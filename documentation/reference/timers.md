@@ -21,7 +21,7 @@ A turn that runs out folds the player to act, even if they could check ([0014](.
 - **Turns are numbered:** `hand` is the table's hand number, `turn` the hand's turn counter. Every action in turn begins a new turn; a fold out of turn, by a player who leaves or takes a break, doesn't, so it doesn't give the player to act more time.
 - **A timeout for a turn that's over is rejected** with `That turn is over`, and changes nothing.
 - **With `turnTimeout` set to `null`,** turns have no limit.
-- **Clients can show a countdown:** views carry `hand.turn`, which changes with every new turn, and the table options carry `turnTimeout`.
+- **Clients can show a countdown:** views carry `turnDeadline`, when the turn runs out, in milliseconds since the epoch by the server's clock. It's set whenever the timer is scheduled, and null while no turn is timed ([0019](../explanation/decisions/0019-the-turns-deadline-is-in-the-state.md)).
 
 ## The runout timer
 
@@ -34,4 +34,4 @@ Once no more betting is possible, the hands still in are tabled, and the rest of
 
 ## After a restart
 
-When Remote State starts on a database that already has tables, it offers each to the plugin ([0018](../explanation/decisions/0018-tables-are-interrupted-by-a-restart.md)). A table that calls for a timer, by the conditions above, is interrupted: no timer runs and no one acts until the host sends `resume`. Resuming schedules every timer the table calls for, each with its full delay: the current turn starts over. A table that calls for none is left as it was.
+When Remote State starts on a database that already has tables, it offers each to the plugin ([0018](../explanation/decisions/0018-tables-are-interrupted-by-a-restart.md)). A table that calls for a timer, by the conditions above, is interrupted: no timer runs and no one acts until the host sends `resume`. Resuming schedules every timer the table calls for, each with its full delay: the current turn starts over, with a new `turnDeadline`. While the table is interrupted, `turnDeadline` is null. A table that calls for none is left as it was.

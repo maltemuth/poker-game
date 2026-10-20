@@ -49,6 +49,7 @@ export const viewTable = (table: Table, audience: string): TableView => {
     hand,
     paused: table.paused,
     interrupted: table.interrupted,
+    turnDeadline: table.turnDeadline,
     handNumber: table.handNumber,
     you:
       viewerSeat === null
