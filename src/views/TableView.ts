@@ -64,7 +64,7 @@ export interface ViewerView {
   playerId: string;
   /** Their seat number */
   seat: number;
-  /** The buttons they may click now; empty when it isn't their turn, or the table is interrupted */
+  /** The buttons they may click now; empty when it isn't their turn, or the table is interrupted or paused */
   buttons: UiOption[];
   /**
    * Their best hand from their hole cards and the board so far, ranked as at
@@ -83,7 +83,10 @@ export interface TableView {
   hand: HandView | null;
   /** The viewer, if they're seated; null for spectators */
   you: ViewerView | null;
-  /** No new hands are dealt while it's paused */
+  /**
+   * No new hands are dealt while it's paused, and a hand being played is
+   * frozen until it's resumed (decision 0023)
+   */
   paused: boolean;
   /** Nothing happens until the host resumes the table, after a server restart */
   interrupted: boolean;
@@ -92,6 +95,11 @@ export interface TableView {
    * the server's clock; null while no turn is timed (decision 0019)
    */
   turnDeadline: number | null;
+  /**
+   * How long the turn had left when the table was paused, in milliseconds;
+   * null unless a timed turn is frozen (decision 0023)
+   */
+  turnTimeLeft: number | null;
   /** The number of the current or last hand; 0 before the first */
   handNumber: number;
   /**

@@ -1,6 +1,6 @@
 # 0019. The turn's deadline is in the state
 
-Status: Accepted
+Status: Accepted; null while a paused hand is frozen, which keeps the turn's time left, since [0023](0023-a-pause-freezes-the-hand.md)
 Date: 2026-10-20
 
 ## Context

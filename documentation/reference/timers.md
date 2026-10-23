@@ -23,6 +23,7 @@ A turn that runs out folds the player to act, even if they could check ([0014](.
 - **A timeout for a turn that's over is rejected** with `That turn is over`, and changes nothing.
 - **With `turnTimeout` set to `null`,** turns have no limit.
 - **Clients can show a countdown:** views carry `turnDeadline`, when the turn runs out, in milliseconds since the epoch by the server's clock. It's set whenever the timer is scheduled, and null while no turn is timed ([0019](../explanation/decisions/0019-the-turns-deadline-is-in-the-state.md)).
+- **Pausing during a turn stops its timer** ([0023](../explanation/decisions/0023-a-pause-freezes-the-hand.md)): the timer is cancelled, `turnDeadline` is null, and `turnTimeLeft` keeps the time the turn had left. Resuming schedules the timer with that time.
 
 ## The runout timer
 
@@ -32,7 +33,8 @@ Once no more betting is possible, the hands still in are tabled, and the rest of
 - **The river comes with the showdown,** in the last step.
 - **While the hand waits,** no one is to act: the turn timer isn't running, and no hand can start.
 - **With `runoutDelay` set to `null`,** the rest of the board is dealt at once, and the hands are still tabled.
+- **Pausing stops the runout:** the next step is cancelled, and resuming schedules it again with the full `runoutDelay` ([0023](../explanation/decisions/0023-a-pause-freezes-the-hand.md)).
 
 ## After a restart
 
-When Remote State starts on a database that already has tables, it offers each to the plugin ([0018](../explanation/decisions/0018-tables-are-interrupted-by-a-restart.md)). A table that calls for a timer, by the conditions above, is interrupted: no timer runs and no one acts until the host sends `resume`. Resuming schedules every timer the table calls for, each with its full delay: the current turn starts over, with a new `turnDeadline`. While the table is interrupted, `turnDeadline` is null. A table that calls for none is left as it was.
+When Remote State starts on a database that already has tables, it offers each to the plugin ([0018](../explanation/decisions/0018-tables-are-interrupted-by-a-restart.md)). A table that calls for a timer, by the conditions above, is interrupted: no timer runs and no one acts until the host sends `resume`. Resuming schedules every timer the table calls for, each with its full delay: the current turn starts over, with a new `turnDeadline`. While the table is interrupted, `turnDeadline` is null. A table that calls for none is left as it was, such as one paused during a hand: its turn keeps its time left.

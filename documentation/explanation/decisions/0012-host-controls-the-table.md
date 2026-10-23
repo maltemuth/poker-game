@@ -1,6 +1,6 @@
 # 0012. The host controls the table
 
-Status: Accepted
+Status: Accepted; a pause freezes the hand being played since [0023](0023-a-pause-freezes-the-hand.md)
 Date: 2026-10-04
 
 ## Context

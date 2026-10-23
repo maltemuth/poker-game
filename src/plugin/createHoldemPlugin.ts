@@ -13,6 +13,8 @@
  *   timer (decision 0015).
  * - After a server restart, a table that had a timer running is interrupted
  *   until the host resumes it, which schedules its timers again (decision 0018).
+ * - Pausing during a hand freezes it, with its timers; resuming gives the turn
+ *   the time it had left (decision 0023).
  *
  * Cards are drawn with `draw`, at random by default; tests pass a fixed deck.
  */
@@ -31,7 +33,7 @@ import { audienceChanges } from "./audienceChanges.js";
 import { nextHandTimer, nextHandTimerForNewOptions } from "./nextHandTimer.js";
 import { onRestart, timersFor } from "./restart.js";
 import { runoutTimer } from "./runoutTimer.js";
-import { turnDeadline, turnTimer } from "./turnTimer.js";
+import { turnDeadline, turnTimeLeft, turnTimer } from "./turnTimer.js";
 import { type HoldemAction, isSystemAction } from "./HoldemAction.js";
 import { applySystemAction, checkSystemAction } from "./systemActions.js";
 
@@ -91,11 +93,13 @@ export const createHoldemPlugin = ({
       turn,
       runoutTimer(table, after),
     ];
-    const deadline = turnDeadline(after, turn, now());
+    const time = now();
+    const deadline = turnDeadline(after, turn, time);
+    const left = turnTimeLeft(table, after, time);
     const state =
-      deadline === after.turnDeadline
+      deadline === after.turnDeadline && left === after.turnTimeLeft
         ? after
-        : { ...after, turnDeadline: deadline };
+        : { ...after, turnDeadline: deadline, turnTimeLeft: left };
     const schedule = timers.flatMap((timer) => timer.schedule ?? []);
     const cancel = timers.flatMap((timer) => timer.cancel ?? []);
     return Object.keys(audiences).length > 0 || schedule.length || cancel.length

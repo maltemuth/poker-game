@@ -1,13 +1,14 @@
 /**
  * A turn runs out (decision 0014): the player to act folds, even if they
  * could check, and the hand moves on as after any fold. The timeout names
- * the hand and turn it's for, so one for a turn that's over is refused.
+ * the hand and turn it's for, so one for a turn that's over is refused. No
+ * turn runs out while the hand is frozen (decision 0023).
  */
 
 import { foldInHand } from "../hand/foldInHand.js";
 import type { Draw } from "../hand/Draw.js";
 import { handIsRunning } from "./lookups.js";
-import { INTERRUPTED } from "./pause.js";
+import { FROZEN, handIsFrozen, INTERRUPTED } from "./pause.js";
 import { settleHand } from "./settleHand.js";
 import type { Table } from "./Table.js";
 
@@ -17,14 +18,18 @@ export interface Turn {
   turn: number;
 }
 
-/** The turn being played, or null if no one is to act */
+/** The turn being played, or null if no one is to act, as while the hand is frozen */
 export const currentTurn = (table: Table): Turn | null =>
-  handIsRunning(table) && table.hand && table.hand.betting.toAct !== null
+  handIsRunning(table) &&
+  !handIsFrozen(table) &&
+  table.hand &&
+  table.hand.betting.toAct !== null
     ? { hand: table.handNumber, turn: table.hand.turn }
     : null;
 
 export const checkTimeOut = (table: Table, turn: Turn): true | string => {
   if (table.interrupted) return INTERRUPTED;
+  if (handIsFrozen(table)) return FROZEN;
   const current = currentTurn(table);
   return current && current.hand === turn.hand && current.turn === turn.turn
     ? true

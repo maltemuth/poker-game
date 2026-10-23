@@ -61,6 +61,7 @@ export const viewTable = (table: Table, audience: string): TableView => {
     paused: table.paused,
     interrupted: table.interrupted,
     turnDeadline: table.turnDeadline,
+    turnTimeLeft: table.turnTimeLeft,
     handNumber: table.handNumber,
     blindLevel: blindLevelOfHand(
       table.options,
@@ -73,7 +74,7 @@ export const viewTable = (table: Table, audience: string): TableView => {
             playerId: audience,
             seat: viewerSeat,
             buttons:
-              yourTurn && table.hand && !table.interrupted
+              yourTurn && table.hand && !table.interrupted && !table.paused
                 ? availableUiActions(table.hand.betting)
                 : [],
             bestHand: viewersBestHand(table, viewerSeat),

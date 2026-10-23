@@ -69,9 +69,11 @@ Tables that had nothing running, such as one waiting for players or one you paus
 ## Pause and resume
 
 ```ts
-await server.act(gameId, { type: "pause" }); // no new hands; the current one is played out
-await server.act(gameId, { type: "resume" });
+await server.act(gameId, { type: "pause" }); // no new hands, and the current one stops where it is
+await server.act(gameId, { type: "resume" }); // the player to act gets the time they had left
 ```
+
+Pausing during a hand freezes it: no one can bet, and its clocks stand still. Players see `paused` and `turnTimeLeft` in their view ([0023](../explanation/decisions/0023-a-pause-freezes-the-hand.md)).
 
 ## What clients get
 

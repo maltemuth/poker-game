@@ -53,6 +53,7 @@ export const newTable = (input: TableOptionsInput): Table => {
     paused: false,
     interrupted: false,
     turnDeadline: null,
+    turnTimeLeft: null,
     handNumber: 0,
   };
 };

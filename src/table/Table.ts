@@ -50,6 +50,12 @@ export interface Table {
    * plugin sets it, as it schedules the turn timer.
    */
   turnDeadline: number | null;
+  /**
+   * How long the turn had left when the table was paused, in milliseconds;
+   * null unless a timed turn is frozen. Resuming the table gives the turn this
+   * time (decision 0023). The plugin sets it, as it cancels the turn timer.
+   */
+  turnTimeLeft: number | null;
   /** How many hands were dealt: the number of the current or last hand */
   handNumber: number;
 }

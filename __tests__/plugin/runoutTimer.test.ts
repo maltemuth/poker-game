@@ -1,6 +1,6 @@
 /**
  * Tests for the runout timer: scheduled for each step of a paced all-in
- * runout, cancelled when the hand stops waiting.
+ * runout, cancelled when the hand stops waiting or is frozen by a pause.
  */
 
 import assert from "node:assert/strict";
@@ -56,4 +56,12 @@ it("schedules nothing when the runout is dealt at once", () => {
   const { playing, called } = allIn(null);
   assert.notEqual(called.hand?.result, null);
   assert.deepEqual(runoutTimer(playing, called), {});
+});
+
+it("cancels the next step when the table is paused, and schedules it again when resumed", () => {
+  const { called, draw } = allIn(500);
+  const paused = applySystemAction(called, { type: "pause" }, draw);
+  assert.deepEqual(runoutTimer(called, paused), { cancel: [RUNOUT] });
+  const resumed = applySystemAction(paused, { type: "resume" }, draw);
+  assert.deepEqual(runoutTimer(paused, resumed), step(0));
 });

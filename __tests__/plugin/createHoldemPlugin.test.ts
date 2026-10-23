@@ -209,6 +209,76 @@ describe("the turn's deadline", () => {
   });
 });
 
+describe("pausing during a hand", () => {
+  let time = 1000;
+  let game = createHoldemPlugin();
+  beforeEach(() => {
+    time = 1000;
+    game = createHoldemPlugin({
+      draw: deck(["AhAs", "KdKc"], 0),
+      now: () => time,
+    });
+  });
+  const run = async (table: Table, action: HoldemAction, playerId: string) =>
+    unwrap(await game.executeAction(table, action, playerId));
+  const deal = async () =>
+    (
+      await run(
+        tableWith([seated("a"), seated("b")]),
+        { type: "startHand" },
+        SYSTEM
+      )
+    ).state;
+
+  it("stops the turn's timer, and keeps the time it had left", async () => {
+    const dealt = await deal();
+    time = 11000;
+    const { state, changes } = await run(dealt, { type: "pause" }, SYSTEM);
+    assert.deepEqual(changes.cancel, ["turn"]);
+    assert.equal(state.turnDeadline, null);
+    assert.equal(state.turnTimeLeft, 20000);
+    const view = viewTable(state, "a");
+    assert.equal(view.turnTimeLeft, 20000);
+    assert.deepEqual(view.you?.buttons, []);
+  });
+
+  it("gives the turn the time it had left when the host resumes", async () => {
+    const dealt = await deal();
+    time = 11000;
+    const paused = (await run(dealt, { type: "pause" }, SYSTEM)).state;
+    time = 500000;
+    const { state, changes } = await run(paused, { type: "resume" }, SYSTEM);
+    assert.deepEqual(changes.schedule, [
+      {
+        name: "turn",
+        in: 20000,
+        action: { type: "timeout", hand: 1, turn: 0 },
+      },
+    ]);
+    assert.equal(state.turnDeadline, 520000);
+    assert.equal(state.turnTimeLeft, null);
+  });
+
+  it("keeps the time left across a restart, which has no timer to interrupt", async () => {
+    const dealt = await deal();
+    time = 11000;
+    const paused = (await run(dealt, { type: "pause" }, SYSTEM)).state;
+    assert.equal(game.onRestart!(paused), paused);
+    time = 90000;
+    const resumed = (await run(paused, { type: "resume" }, SYSTEM)).state;
+    assert.equal(resumed.turnDeadline, 110000);
+  });
+
+  it("keeps no time left when paused between hands", async () => {
+    const { state } = await run(
+      tableWith([seated("a"), seated("b")]),
+      { type: "pause" },
+      SYSTEM
+    );
+    assert.equal(state.turnTimeLeft, null);
+  });
+});
+
 describe("changing the options", () => {
   const two = tableWith([seated("a"), seated("b")]);
   const changes = (table: Table, options: object) =>

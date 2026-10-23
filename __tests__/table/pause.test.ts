@@ -1,5 +1,6 @@
 /**
- * Tests for pausing a table: no new hands while paused; interrupting it:
+ * Tests for pausing a table: no new hands while paused, and a hand being
+ * played frozen; interrupting it:
  * nothing happens at all; and resuming.
  */
 
@@ -9,6 +10,8 @@ import { checkTableAction } from "../../src/table/checkTableAction.js";
 import {
   checkPause,
   checkResume,
+  FROZEN,
+  handIsFrozen,
   INTERRUPTED,
   interrupt,
   pause,
@@ -34,6 +37,38 @@ it("deals no new hands while paused", () => {
 it("refuses to pause twice, or resume a table that isn't paused", () => {
   assert.equal(checkPause(pause(table)), "The table is already paused");
   assert.equal(checkResume(table), "The table isn't paused");
+});
+
+it("freezes a hand being played while paused, until it's resumed", () => {
+  const d = deck(["AhAs", "KdKc"], 0, "2c7d9h");
+  const dealt = startNextHand(table, d);
+  const frozen = pause(dealt);
+  assert.equal(handIsFrozen(frozen), true);
+  assert.equal(checkTableAction(frozen, "a", { type: "call" }), FROZEN);
+  assert.equal(checkTableAction(frozen, "b", { type: "fold" }), FROZEN);
+  assert.equal(checkTableAction(frozen, "b", { type: "leave" }), FROZEN);
+  assert.equal(checkTableAction(frozen, "b", { type: "standUp" }), FROZEN);
+  assert.equal(currentTurn(frozen), null);
+  assert.equal(checkTimeOut(frozen, currentTurn(dealt)!), FROZEN);
+  assert.equal(checkRunout(frozen, { hand: 1, board: 0 }), FROZEN);
+  // Sitting down doesn't touch the hand
+  assert.equal(
+    checkTableAction(
+      { ...frozen, spectators: [{ playerId: "e", name: "e" }] },
+      "e",
+      { type: "sitDown", seat: 5, buyIn: 1000 }
+    ),
+    true
+  );
+  // the same hand, resumed, carries on
+  const resumed = resume(frozen);
+  assert.equal(handIsFrozen(resumed), false);
+  assert.deepEqual(currentTurn(resumed), currentTurn(dealt));
+  assert.equal(checkTableAction(resumed, "a", { type: "call" }), true);
+});
+
+it("freezes no hand while paused between hands", () => {
+  assert.equal(handIsFrozen(pause(table)), false);
 });
 
 it("lets nothing happen at an interrupted table", () => {
