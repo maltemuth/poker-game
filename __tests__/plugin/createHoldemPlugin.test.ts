@@ -32,7 +32,7 @@ const unwrap = (
 it("adds everyone who joins as a spectator, in the spectators' audience", async () => {
   const { state, changes } = unwrap(
     await plugin.onJoin!(emptyTable(), {
-      playerId: "p1",
+      memberId: "p1",
       details: { name: " Ann " },
     })
   );
@@ -42,7 +42,7 @@ it("adds everyone who joins as a spectator, in the spectators' audience", async 
 
 it("names someone without a name Player", async () => {
   const { state } = unwrap(
-    await plugin.onJoin!(emptyTable(), { playerId: "p1", details: {} })
+    await plugin.onJoin!(emptyTable(), { memberId: "p1", details: {} })
   );
   assert.equal(state.spectators[0].name, "Player");
 });
@@ -116,7 +116,7 @@ it("moves a player who runs out of chips to the spectators", async () => {
 
 it("filters the state with viewTable", async () => {
   const table = tableWith([seated("a"), seated("b")]);
-  const view = await plugin.filterStateForAudience!(table, SPECTATORS);
+  const view = await plugin.view!(table, SPECTATORS);
   assert.equal(view.you, null);
   assert.equal(view.seats[0]?.name, "a");
 });

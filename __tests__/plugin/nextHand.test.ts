@@ -30,24 +30,24 @@ before(async () => {
 
 after(() => server.close());
 
-const join = async (gameId: string, name: string) => {
-  const code = await server.admit({ gameId, identity: { id: name, name } });
+const join = async (spaceId: string, name: string) => {
+  const code = await server.admit({ spaceId, identity: { id: name, name } });
   return (
     await request(server.app).post("/api/tokens").send({ code }).expect(201)
   ).body as { token: string };
 };
 
-const send = (gameId: string, token: string, action: HoldemAction) =>
+const send = (spaceId: string, token: string, action: HoldemAction) =>
   request(server.app)
-    .post(`/api/games/${gameId}/actions`)
+    .post(`/api/spaces/${spaceId}/actions`)
     .set("Authorization", `Bearer ${token}`)
     .send({ action })
     .expect(201);
 
-const view = async (gameId: string, token: string): Promise<TableView> =>
+const view = async (spaceId: string, token: string): Promise<TableView> =>
   (
     await request(server.app)
-      .get(`/api/games/${gameId}/state`)
+      .get(`/api/spaces/${spaceId}/state`)
       .set("Authorization", `Bearer ${token}`)
       .expect(200)
   ).body.state;
@@ -66,26 +66,26 @@ const eventually = async (
 };
 
 it("starts hands by themselves, after each hand too", async () => {
-  const gameId = await server.createGame(
+  const spaceId = await server.createSpace(
     newTable({ ...options, nextHandDelay: 50 })
   );
-  const ann = await join(gameId, "Ann");
-  const bob = await join(gameId, "Bob");
-  await send(gameId, ann.token, { type: "sitDown", seat: 1, buyIn: 1000 });
-  assert.equal((await view(gameId, ann.token)).hand, null);
-  await send(gameId, bob.token, { type: "sitDown", seat: 2, buyIn: 1000 });
+  const ann = await join(spaceId, "Ann");
+  const bob = await join(spaceId, "Bob");
+  await send(spaceId, ann.token, { type: "sitDown", seat: 1, buyIn: 1000 });
+  assert.equal((await view(spaceId, ann.token)).hand, null);
+  await send(spaceId, bob.token, { type: "sitDown", seat: 2, buyIn: 1000 });
 
   // the second player sat down: a hand starts by itself, Ann on the button
   const first = await eventually(
-    () => view(gameId, ann.token),
+    () => view(spaceId, ann.token),
     (v) => v.hand !== null && v.hand.result === null
   );
   assert.equal(first.hand?.button, 1);
 
   // Ann folds; the next hand starts by itself, with the button moved
-  await send(gameId, ann.token, { type: "fold" });
+  await send(spaceId, ann.token, { type: "fold" });
   const second = await eventually(
-    () => view(gameId, ann.token),
+    () => view(spaceId, ann.token),
     (v) => v.hand?.result === null && v.hand.button === 2
   );
   // after the first hand, Ann has 950 and Bob 1,050; now Bob (button) has
@@ -97,50 +97,50 @@ it("starts hands by themselves, after each hand too", async () => {
 });
 
 it("starts no hands while paused, and again on resume", async () => {
-  const gameId = await server.createGame(
+  const spaceId = await server.createSpace(
     newTable({ ...options, nextHandDelay: 50 })
   );
-  const ann = await join(gameId, "Ann");
-  const bob = await join(gameId, "Bob");
-  await server.act(gameId, { type: "pause" });
-  await send(gameId, ann.token, { type: "sitDown", seat: 1, buyIn: 1000 });
-  await send(gameId, bob.token, { type: "sitDown", seat: 2, buyIn: 1000 });
+  const ann = await join(spaceId, "Ann");
+  const bob = await join(spaceId, "Bob");
+  await server.dispatch(spaceId, { type: "pause" });
+  await send(spaceId, ann.token, { type: "sitDown", seat: 1, buyIn: 1000 });
+  await send(spaceId, bob.token, { type: "sitDown", seat: 2, buyIn: 1000 });
   await new Promise((resolve) => setTimeout(resolve, 150));
-  assert.equal((await view(gameId, ann.token)).hand, null);
+  assert.equal((await view(spaceId, ann.token)).hand, null);
 
-  await server.act(gameId, { type: "resume" });
+  await server.dispatch(spaceId, { type: "resume" });
   await eventually(
-    () => view(gameId, ann.token),
+    () => view(spaceId, ann.token),
     (v) => v.hand !== null && v.hand.result === null
   );
 });
 
 it("leaves starting hands to the host without a delay", async () => {
-  const gameId = await server.createGame(
+  const spaceId = await server.createSpace(
     newTable({ ...options, nextHandDelay: null })
   );
-  const ann = await join(gameId, "Ann");
-  const bob = await join(gameId, "Bob");
-  await send(gameId, ann.token, { type: "sitDown", seat: 1, buyIn: 1000 });
-  await send(gameId, bob.token, { type: "sitDown", seat: 2, buyIn: 1000 });
+  const ann = await join(spaceId, "Ann");
+  const bob = await join(spaceId, "Bob");
+  await send(spaceId, ann.token, { type: "sitDown", seat: 1, buyIn: 1000 });
+  await send(spaceId, bob.token, { type: "sitDown", seat: 2, buyIn: 1000 });
   await new Promise((resolve) => setTimeout(resolve, 150));
-  assert.equal((await view(gameId, ann.token)).hand, null);
+  assert.equal((await view(spaceId, ann.token)).hand, null);
 });
 
 it("folds a player whose turn runs out, after a player who acted in time", async () => {
-  const gameId = await server.createGame(
+  const spaceId = await server.createSpace(
     newTable({ ...options, nextHandDelay: null, turnTimeout: 100 })
   );
-  const ann = await join(gameId, "Ann");
-  const bob = await join(gameId, "Bob");
-  await send(gameId, ann.token, { type: "sitDown", seat: 1, buyIn: 1000 });
-  await send(gameId, bob.token, { type: "sitDown", seat: 2, buyIn: 1000 });
-  await server.act(gameId, { type: "startHand" });
+  const ann = await join(spaceId, "Ann");
+  const bob = await join(spaceId, "Bob");
+  await send(spaceId, ann.token, { type: "sitDown", seat: 1, buyIn: 1000 });
+  await send(spaceId, bob.token, { type: "sitDown", seat: 2, buyIn: 1000 });
+  await server.dispatch(spaceId, { type: "startHand" });
 
   // heads-up: Ann, on the button, calls in time; Bob could check, but doesn't act
-  await send(gameId, ann.token, { type: "call" });
+  await send(spaceId, ann.token, { type: "call" });
   const over = await eventually(
-    () => view(gameId, ann.token),
+    () => view(spaceId, ann.token),
     (v) => v.hand?.result !== null
   );
   assert.equal(over.hand?.players[1].folded, true);
@@ -151,20 +151,20 @@ it("folds a player whose turn runs out, after a player who acted in time", async
 });
 
 it("deals an all-in runout one betting round at a time, with the hands tabled", async () => {
-  const gameId = await server.createGame(
+  const spaceId = await server.createSpace(
     newTable({ ...options, nextHandDelay: null, runoutDelay: 100 })
   );
-  const ann = await join(gameId, "Ann");
-  const bob = await join(gameId, "Bob");
-  const sue = await join(gameId, "Sue");
-  await send(gameId, ann.token, { type: "sitDown", seat: 1, buyIn: 1000 });
-  await send(gameId, bob.token, { type: "sitDown", seat: 2, buyIn: 1000 });
-  await server.act(gameId, { type: "startHand" });
-  await send(gameId, ann.token, { type: "allIn" });
-  await send(gameId, bob.token, { type: "call" });
+  const ann = await join(spaceId, "Ann");
+  const bob = await join(spaceId, "Bob");
+  const sue = await join(spaceId, "Sue");
+  await send(spaceId, ann.token, { type: "sitDown", seat: 1, buyIn: 1000 });
+  await send(spaceId, bob.token, { type: "sitDown", seat: 2, buyIn: 1000 });
+  await server.dispatch(spaceId, { type: "startHand" });
+  await send(spaceId, ann.token, { type: "allIn" });
+  await send(spaceId, bob.token, { type: "call" });
 
   // at once: both hands face up for the spectator, no board yet
-  const tabled = await view(gameId, sue.token);
+  const tabled = await view(spaceId, sue.token);
   assertMatchObject(tabled.hand, { tabled: true, board: [], result: null });
   assert.equal(
     tabled.hand?.players.every((p) => p.cards !== null),
@@ -173,15 +173,15 @@ it("deals an all-in runout one betting round at a time, with the hands tabled", 
 
   // then the flop, the turn, and the river with the showdown
   await eventually(
-    () => view(gameId, sue.token),
+    () => view(spaceId, sue.token),
     (v) => v.hand?.board.length === 3
   );
   await eventually(
-    () => view(gameId, sue.token),
+    () => view(spaceId, sue.token),
     (v) => v.hand?.board.length === 4
   );
   const done = await eventually(
-    () => view(gameId, sue.token),
+    () => view(spaceId, sue.token),
     (v) => v.hand?.result !== null
   );
   assert.equal(done.hand?.board.length, 5);

@@ -92,55 +92,59 @@ describe("a real server, restarted on its database", () => {
       database,
     });
   };
-  const join = async (gameId: string, name: string) => {
-    const code = await server.admit({ gameId, identity: { id: name, name } });
+  const join = async (spaceId: string, name: string) => {
+    const code = await server.admit({ spaceId, identity: { id: name, name } });
     return (
       await request(server.app).post("/api/tokens").send({ code }).expect(201)
-    ).body as { token: string; playerId: string };
+    ).body as { token: string; memberId: string };
   };
-  const send = (gameId: string, token: string, action: HoldemAction) =>
+  const send = (spaceId: string, token: string, action: HoldemAction) =>
     request(server.app)
-      .post(`/api/games/${gameId}/actions`)
+      .post(`/api/spaces/${spaceId}/actions`)
       .set("Authorization", `Bearer ${token}`)
       .send({ action });
-  const view = async (gameId: string, token: string): Promise<TableView> =>
+  const view = async (spaceId: string, token: string): Promise<TableView> =>
     (
       await request(server.app)
-        .get(`/api/games/${gameId}/state`)
+        .get(`/api/spaces/${spaceId}/state`)
         .set("Authorization", `Bearer ${token}`)
         .expect(200)
     ).body.state;
 
   it("interrupts a hand being played, until the host resumes it", async () => {
     await start();
-    const gameId = await server.createGame(
+    const spaceId = await server.createSpace(
       newTable({ ...options, nextHandDelay: null, turnTimeout: 100 })
     );
-    const ann = await join(gameId, "ann");
-    const bob = await join(gameId, "bob");
-    await send(gameId, ann.token, { type: "sitDown", seat: 1, buyIn: 1000 });
-    await send(gameId, bob.token, { type: "sitDown", seat: 2, buyIn: 1000 });
-    assert.ok("sequence" in (await server.act(gameId, { type: "startHand" })));
+    const ann = await join(spaceId, "ann");
+    const bob = await join(spaceId, "bob");
+    await send(spaceId, ann.token, { type: "sitDown", seat: 1, buyIn: 1000 });
+    await send(spaceId, bob.token, { type: "sitDown", seat: 2, buyIn: 1000 });
+    assert.ok(
+      "sequence" in (await server.dispatch(spaceId, { type: "startHand" }))
+    );
 
     await server.close();
     await start();
 
-    const interrupted = await view(gameId, ann.token);
+    const interrupted = await view(spaceId, ann.token);
     assert.equal(interrupted.interrupted, true);
     assert.deepEqual(interrupted.you?.buttons, []);
-    const refused = await send(gameId, ann.token, { type: "call" }).expect(400);
+    const refused = await send(spaceId, ann.token, { type: "call" }).expect(
+      400
+    );
     assert.deepEqual(refused.body, {
       error: "The table is waiting for the host to resume it",
     });
     // the turn's clock doesn't run: well past the timeout, the hand still waits
     await new Promise((resolve) => setTimeout(resolve, 250));
-    assert.equal((await view(gameId, ann.token)).hand?.result, null);
+    assert.equal((await view(spaceId, ann.token)).hand?.result, null);
 
-    await server.act(gameId, { type: "resume" });
-    assert.equal((await view(gameId, ann.token)).interrupted, false);
+    await server.dispatch(spaceId, { type: "resume" });
+    assert.equal((await view(spaceId, ann.token)).interrupted, false);
     // the turn starts over with its full time, and runs out
     for (let tries = 0; tries < 50; tries++) {
-      if ((await view(gameId, ann.token)).hand?.result) return;
+      if ((await view(spaceId, ann.token)).hand?.result) return;
       await new Promise((resolve) => setTimeout(resolve, 20));
     }
     throw new Error("The resumed turn never ran out");

@@ -6,7 +6,7 @@
  * leave no one to act, the hand is played out and settled at once.
  *
  * Nothing starts hands by itself yet: the host does, through Remote State's
- * `act` (decision 0012), and later a timer. A paused or interrupted
+ * `dispatch` (decision 0012), and later a timer. A paused or interrupted
  * table deals none.
  */
 

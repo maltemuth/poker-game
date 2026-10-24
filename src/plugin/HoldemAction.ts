@@ -1,6 +1,6 @@
 /**
  * Every action the Hold'em game takes in Remote State: what players send at
- * the table, and what only the system sends, through the host's `act` or
+ * the table, and what only the system sends, through the host's `dispatch` or
  * the timers (decisions 0012 to 0015, and 0020 for changing the options).
  */
 

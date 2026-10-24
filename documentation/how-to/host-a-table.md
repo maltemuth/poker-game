@@ -17,10 +17,10 @@ The plugin draws cards at random. Pass `createHoldemPlugin({ draw })` to deal kn
 
 ## Create a table
 
-A table is a game whose initial state comes from `newTable`:
+A table is a Remote State space whose initial state comes from `newTable`:
 
 ```ts
-const gameId = await server.createGame(
+const spaceId = await server.createSpace(
   newTable({
     blinds: { small: 50, big: 100 },
     buyIn: { min: 2000, max: 10000 },
@@ -30,7 +30,7 @@ const gameId = await server.createGame(
 );
 ```
 
-See [Table options](../reference/table-options.md) for what each option does. Invalid options throw before the game is created. Keep the `gameId`: Remote State can't list a server's games.
+See [Table options](../reference/table-options.md) for what each option does. Invalid options throw before the space is created. Keep the `spaceId`: Remote State can't list a server's spaces.
 
 ## Admit people
 
@@ -38,7 +38,7 @@ Give each person a code, and send it to their client:
 
 ```ts
 const code = await server.admit({
-  gameId,
+  spaceId,
   identity: { id: user.id, name: user.name },
 });
 ```
@@ -52,7 +52,7 @@ Hands start by themselves, by the `nextHand` timer: 5 seconds after a hand can s
 To start hands yourself instead, create the table with `nextHandDelay: null`, and start each one:
 
 ```ts
-const result = await server.act(gameId, { type: "startHand" });
+const result = await server.dispatch(spaceId, { type: "startHand" });
 if ("rejected" in result) console.log(result.rejected); // e.g. "Waiting for players"
 ```
 
@@ -61,7 +61,7 @@ if ("rejected" in result) console.log(result.rejected); // e.g. "Waiting for pla
 Timers are lost when the server restarts. When it starts again, every table that had one running is interrupted: no one can act, and its clocks stand still ([0018](../explanation/decisions/0018-tables-are-interrupted-by-a-restart.md)). Players see `interrupted` in their view. Once everyone is back, resume the table:
 
 ```ts
-await server.act(gameId, { type: "resume" }); // the current turn starts over, with its full time
+await server.dispatch(spaceId, { type: "resume" }); // the current turn starts over, with its full time
 ```
 
 Tables that had nothing running, such as one waiting for players or one you paused between hands, aren't interrupted.
@@ -69,12 +69,12 @@ Tables that had nothing running, such as one waiting for players or one you paus
 ## Pause and resume
 
 ```ts
-await server.act(gameId, { type: "pause" }); // no new hands, and the current one stops where it is
-await server.act(gameId, { type: "resume" }); // the player to act gets the time they had left
+await server.dispatch(spaceId, { type: "pause" }); // no new hands, and the current one stops where it is
+await server.dispatch(spaceId, { type: "resume" }); // the player to act gets the time they had left
 ```
 
 Pausing during a hand freezes it: no one can bet, and its clocks stand still. Players see `paused` and `turnTimeLeft` in their view ([0023](../explanation/decisions/0023-a-pause-freezes-the-hand.md)).
 
 ## What clients get
 
-Each person's view is a [`TableView`](../reference/state-and-views.md#views): a seated player sees their own hole cards and their buttons, everyone else the spectators' view. Clients send the buttons as actions to `POST /api/games/:gameId/actions` ([Actions](../reference/actions.md)). Remote State's client package keeps a view in step with the server ([Connect a browser client](../../../remote-state/docs/how-to/connect-a-client.md)).
+Each person's view is a [`TableView`](../reference/state-and-views.md#views): a seated player sees their own hole cards and their buttons, everyone else the spectators' view. Clients send the buttons as actions to `POST /api/spaces/:spaceId/actions` ([Actions](../reference/actions.md)). Remote State's client package keeps a view in step with the server ([Connect a browser client](../../../remote-state/docs/how-to/connect-a-client.md)).

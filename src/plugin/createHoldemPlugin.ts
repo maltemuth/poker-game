@@ -19,7 +19,7 @@
  * Cards are drawn with `draw`, at random by default; tests pass a fixed deck.
  */
 
-import { type GamePlugin, SYSTEM, transition } from "@malte.muth/remote-state";
+import { type Rules, SYSTEM, transition } from "@malte.muth/remote-state";
 import type { Draw } from "../hand/Draw.js";
 import { randomDraw } from "../hand/randomDraw.js";
 import { addSpectator } from "../table/addSpectator.js";
@@ -44,7 +44,7 @@ export interface HoldemPluginOptions {
   now?: () => number;
 }
 
-export type HoldemPlugin = GamePlugin<Table, HoldemAction, TableView>;
+export type HoldemPlugin = Rules<Table, HoldemAction, TableView>;
 
 const nameFrom = (details: Record<string, unknown>): string =>
   typeof details.name === "string" && details.name.trim()
@@ -55,7 +55,7 @@ export const createHoldemPlugin = ({
   draw = randomDraw,
   now = Date.now,
 }: HoldemPluginOptions = {}): HoldemPlugin => ({
-  onJoin: (table, { playerId, details }) =>
+  onJoin: (table, { memberId: playerId, details }) =>
     transition(addSpectator(table, { playerId, name: nameFrom(details) }), {
       audiences: { [playerId]: SPECTATORS },
     }),
@@ -107,5 +107,5 @@ export const createHoldemPlugin = ({
       : state;
   },
 
-  filterStateForAudience: (table, audience) => viewTable(table, audience),
+  view: (table, audience) => viewTable(table, audience),
 });
